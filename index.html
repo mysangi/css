@@ -7,8 +7,7 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='38' r='2.5' fill='%23ffffff'/%3E%3C/svg%3E">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-
+  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -36,6 +35,15 @@
       font-size: 0.9rem; font-weight: 500;
       display: inline-flex; align-items: center; gap: 6px;
     }
+
+    .btn-verified {
+      background: #0e6b3e; color: white; border: none;
+      padding: 0.6rem 1.2rem; border-radius: 40px;
+      font-weight: 600; font-size: 0.85rem;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: 0.2s;
+    }
+    .btn-verified:hover { background: #0a4f2d; transform: translateY(-1px); }
 
     .load-status {
       background: white; padding: 0.8rem 1.4rem;
@@ -155,11 +163,22 @@
     .card-header {
       display: flex; justify-content: space-between; align-items: center;
     }
+    
+    .badge-group { display: flex; align-items: center; gap: 8px; }
+    
     .sr-badge {
       background: #e9eff9; color: #1e4b8c;
       font-weight: 600; font-size: 0.8rem;
       padding: 0.3rem 0.9rem; border-radius: 40px;
       display: flex; align-items: center; gap: 5px;
+    }
+
+    .inline-time-badge {
+      font-size: 0.65rem; font-weight: 600;
+      color: #0e6b3e; background: #e6f7ec;
+      padding: 0.25rem 0.6rem; border-radius: 40px;
+      border: 1px solid #c3ebd3;
+      display: inline-flex; align-items: center; gap: 4px;
     }
 
     .status-badge {
@@ -287,6 +306,12 @@
       font-size: 0.85rem; color: #5b6f85;
     }
 
+    /* Table styling for Modal */
+    .modal-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    .modal-table th { padding: 1rem; border-bottom: 1px solid #dee5ed; background: #f4f7fc; position: sticky; top: 0; z-index: 10; }
+    .modal-table td { padding: 1rem; border-bottom: 1px solid #eef2f7; color: #1e2b3c; }
+    .modal-table tr:hover { background: #f9fbfe; }
+
     @media (max-width: 640px) {
       body { padding: 1rem; }
       .toolbar { flex-direction: column; align-items: stretch; }
@@ -296,6 +321,7 @@
       .card-grid { grid-template-columns: 1fr; }
       .student-name { font-size: 1.2rem; }
       .info-row { flex-direction: column; gap: 0.5rem; }
+      .header { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -304,6 +330,12 @@
   <div class="header">
     <h1><i class="fas fa-graduation-cap"></i> Student Results</h1>
     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      
+      <!-- View Verified Button -->
+      <button class="btn-verified" onclick="openVerifiedModal()">
+        <i class="fas fa-check-double"></i> View Verified
+      </button>
+
       <div class="load-status" id="loadStatus">
         <span class="dot"></span>
         <span id="loadStatusText">Loading CSV...</span>
@@ -353,6 +385,37 @@
   </div>
 </div>
 
+<!-- Verified Students Modal -->
+<div id="verifiedModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index:9999; justify-content:center; align-items:center; padding:1.5rem;">
+  <div style="background:white; width:100%; max-width:1000px; max-height:90vh; border-radius:24px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">
+    
+    <div style="padding:1.25rem 1.5rem; border-bottom:1px solid #eef2f7; display:flex; justify-content:space-between; align-items:center; background:#f8fafc;">
+      <h2 style="font-size:1.3rem; color:#0e6b3e; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-check-circle"></i> Verified Students (<span id="modalCount">0</span>)
+      </h2>
+      <button onclick="closeVerifiedModal()" style="background:none; border:none; font-size:1.4rem; color:#7c8b9e; cursor:pointer; padding:0.5rem; transition:0.2s;"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div style="padding:0; overflow-y:auto; flex:1;">
+      <table class="modal-table">
+        <thead>
+          <tr>
+            <th>SR No</th>
+            <th>Name</th>
+            <th>Roll No</th>
+            <th>Year</th>
+            <th>Verified At</th>
+          </tr>
+        </thead>
+        <tbody id="verifiedTableBody">
+          <!-- Rows injected via JS -->
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+</div>
+
 <script>
   // ============================================================
   // ⚠️ CONFIGURATION
@@ -362,11 +425,9 @@
   const BRANCH     = 'main';
   const CSV_FILE   = 'css mpt results - all.csv';
 
-  // Reading directly from GitHub raw
   const RAW_CSV_URL = 'https://raw.githubusercontent.com/' + REPO_OWNER + '/' + REPO_NAME + '/' + BRANCH + '/' + encodeURIComponent(CSV_FILE);
 
-  // ⚠️ CHANGE THIS TO YOUR CLOUDFLARE WORKER URL
-  // Added ?v=2 to force browser to ignore old cache
+  // ⚠️ YOUR CLOUDFLARE WORKER URL
   const CLOUDFLARE_WORKER_URL = 'https://css.sangiuser.workers.dev?v=2'; 
   // ============================================================
 
@@ -410,7 +471,6 @@
     loadStatusText.textContent = 'Downloading CSV...';
 
     try {
-      // Add cache-buster to ensure we get the freshest file after verifications
       const url = RAW_CSV_URL + '?t=' + new Date().getTime();
       const res = await fetch(url);
       if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching CSV');
@@ -622,17 +682,24 @@
         ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Results PDF</a>'
         : '<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>';
 
-      const verifiedTag = isVerified
-        ? '<div class="verified-tag"><i class="fas fa-check"></i> ' + escapeHtml(s.verified) + '</div>'
-        : '';
+      // --- TIMESTAMP NEAR SR NO ---
+      let inlineTimestamp = '';
+      if (isVerified) {
+        // Extract just the time (e.g., "18:31:17" from "2026-11-05 18:31:17")
+        const timePart = s.verified.includes(' ') ? s.verified.split(' ')[1] : s.verified;
+        inlineTimestamp = `<span class="inline-time-badge" title="Verified at ${escapeHtml(s.verified)}"><i class="fas fa-check-circle"></i> ${escapeHtml(timePart)}</span>`;
+      }
 
       html +=
         '<div class="student-card' + (isVerified ? ' verified' : '') + '" ' +
              'data-line="' + s._line + '" ' +
              'onclick="onCardClick(this, ' + s._line + ')">' +
-          verifiedTag +
+          
           '<div class="card-header">' +
-            '<span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span>' +
+            '<div class="badge-group">' +
+              '<span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span>' +
+              inlineTimestamp +
+            '</div>' +
             '<span class="status-badge ' + statusClass + '">' + escapeHtml(s.status || '—') + '</span>' +
           '</div>' +
           '<div class="student-name">' +
@@ -664,7 +731,6 @@
                ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 
     try {
-      // Call YOUR Cloudflare Worker URL
       const res = await fetch(CLOUDFLARE_WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -676,24 +742,74 @@
         throw new Error('Worker failed: ' + (errBody.error || res.statusText));
       }
 
-      // Update UI
+      // Update UI dynamically without full reload
       el.classList.remove('verifying');
       el.classList.add('verified');
 
       const student = ALL_STUDENTS.find(s => s._line === lineIndex);
       if (student) student.verified = ts;
 
-      if (!el.querySelector('.verified-tag')) {
-        const tag = document.createElement('div');
-        tag.className = 'verified-tag';
-        tag.innerHTML = '<i class="fas fa-check"></i> ' + escapeHtml(ts);
-        el.prepend(tag);
+      // Add the inline timestamp next to the SR No
+      const badgeGroup = el.querySelector('.badge-group');
+      if (badgeGroup && !badgeGroup.querySelector('.inline-time-badge')) {
+        const timePart = ts.includes(' ') ? ts.split(' ')[1] : ts;
+        const span = document.createElement('span');
+        span.className = 'inline-time-badge';
+        span.title = 'Verified at ' + ts;
+        span.innerHTML = '<i class="fas fa-check-circle"></i> ' + timePart;
+        badgeGroup.appendChild(span);
       }
 
     } catch (err) {
       console.error('Verify error:', err);
       el.classList.remove('verifying');
       alert('Verification failed:\n' + err.message);
+    }
+  }
+
+  // ---------- VIEW VERIFIED MODAL LOGIC ----------
+  function openVerifiedModal() {
+    const tbody = document.getElementById('verifiedTableBody');
+    tbody.innerHTML = ''; // clear existing
+
+    // Filter ONLY verified students
+    const verifiedStudents = ALL_STUDENTS.filter(s => s.verified && s.verified.trim() !== '');
+
+    document.getElementById('modalCount').textContent = verifiedStudents.length;
+
+    if (verifiedStudents.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; color:#7c8b9e;">No students have been verified yet.</td></tr>';
+    } else {
+      let html = '';
+      // Sort by most recently verified (using the timestamp string)
+      verifiedStudents.sort((a, b) => b.verified.localeCompare(a.verified));
+
+      verifiedStudents.forEach(s => {
+        html += `
+          <tr>
+            <td><strong>#${escapeHtml(String(s.sr_no))}</strong></td>
+            <td>${escapeHtml(s.name)}</td>
+            <td>${escapeHtml(s.roll_no)}</td>
+            <td>${escapeHtml(s.year)}</td>
+            <td style="color:#0e6b3e; font-weight:500;"><i class="fas fa-check-circle"></i> ${escapeHtml(s.verified)}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    document.getElementById('verifiedModal').style.display = 'flex';
+  }
+
+  function closeVerifiedModal() {
+    document.getElementById('verifiedModal').style.display = 'none';
+  }
+
+  // Close modal if clicking outside
+  window.onclick = function(event) {
+    const modal = document.getElementById('verifiedModal');
+    if (event.target === modal) {
+      closeVerifiedModal();
     }
   }
 

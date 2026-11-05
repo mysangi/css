@@ -23,7 +23,7 @@
 
     .header {
       display: flex; flex-wrap: wrap; justify-content: space-between;
-      align-items: center; gap: 1rem; margin-bottom: 1rem;
+      align-items: center; gap: 1rem; margin-bottom: 1.5rem;
     }
     .header h1 {
       font-weight: 600; font-size: 1.9rem; letter-spacing: -0.02em;
@@ -36,20 +36,6 @@
       font-size: 0.9rem; font-weight: 500;
       display: inline-flex; align-items: center; gap: 6px;
     }
-
-    .timing-panel {
-      display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem;
-      background: #0b1e2e; color: #c9d6e6;
-      padding: 0.7rem 1.4rem; border-radius: 20px;
-      font-size: 0.8rem; font-family: 'SF Mono', 'Menlo', monospace;
-      margin-bottom: 1.5rem;
-      align-items: center;
-    }
-    .timing-panel .label { color: #6b8299; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
-    .timing-panel .val { color: #7be0a5; font-weight: 600; }
-    .timing-panel .val.slow { color: #ffb454; }
-    .timing-panel .val.vslow { color: #ff6b6b; }
-    .timing-panel .sep { color: #2c4258; }
 
     .load-status {
       background: white; padding: 0.8rem 1.4rem;
@@ -307,18 +293,6 @@
     </div>
   </div>
 
-  <div class="timing-panel">
-    <span><span class="label">Fetch</span> <span class="val" id="tFetch">—</span></span>
-    <span class="sep">|</span>
-    <span><span class="label">Parse</span> <span class="val" id="tParse">—</span></span>
-    <span class="sep">|</span>
-    <span><span class="label">Total</span> <span class="val" id="tTotal">—</span></span>
-    <span class="sep">|</span>
-    <span><span class="label">Last search</span> <span class="val" id="tSearch">—</span></span>
-    <span class="sep">|</span>
-    <span><span class="label">Rows</span> <span class="val" id="tRows">—</span></span>
-  </div>
-
   <div class="toolbar">
     <div class="search-group">
       <div class="search-wrapper">
@@ -391,29 +365,8 @@
   const loadStatus   = document.getElementById('loadStatus');
   const loadStatusText = document.getElementById('loadStatusText');
 
-  const tFetch  = document.getElementById('tFetch');
-  const tParse  = document.getElementById('tParse');
-  const tTotal  = document.getElementById('tTotal');
-  const tSearch = document.getElementById('tSearch');
-  const tRows   = document.getElementById('tRows');
-
   let nameDebounce = null;
   let rollDebounce = null;
-
-  // ---------- FORMAT HELPERS ----------
-  function fmtMs(ms) {
-    if (ms < 1000) return Math.round(ms) + 'ms';
-    return (ms / 1000).toFixed(2) + 's';
-  }
-  function speedClass(ms) {
-    if (ms < 300) return '';
-    if (ms < 1500) return 'slow';
-    return 'vslow';
-  }
-  function setVal(el, text, cls) {
-    el.textContent = text;
-    el.className = 'val' + (cls ? ' ' + cls : '');
-  }
 
   // ---------- INIT ----------
   window.addEventListener('load', () => {
@@ -422,7 +375,6 @@
 
   // ---------- LOAD & PARSE CSV ----------
   async function loadCSV() {
-    const start = performance.now();
     loadStatusText.textContent = 'Downloading CSV...';
 
     try {
@@ -430,19 +382,10 @@
       if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + CSV_URL);
 
       const text = await res.text();
-      const tFetchMs = performance.now() - start;
-      setVal(tFetch, fmtMs(tFetchMs), speedClass(tFetchMs));
 
       loadStatusText.textContent = 'Parsing ' + (text.length / 1024 / 1024).toFixed(1) + 'MB...';
 
-      const tParse0 = performance.now();
       ALL_STUDENTS = parseCSV(text);
-      const tParseMs = performance.now() - tParse0;
-      setVal(tParse, fmtMs(tParseMs), speedClass(tParseMs));
-
-      const totalMs = performance.now() - start;
-      setVal(tTotal, fmtMs(totalMs), speedClass(totalMs));
-      setVal(tRows, ALL_STUDENTS.length.toLocaleString());
 
       loadStatus.classList.add('done');
       loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString() + ' students';
@@ -558,8 +501,6 @@
   function applyFilters() {
     if (!dataReady) return;
 
-    const t0 = performance.now();
-
     const nameQ = nameSearch.trim().toLowerCase();
     const rollQ = rollSearch.trim().toLowerCase();
     const yearQ = currentYear;
@@ -580,8 +521,6 @@
     loadedCount = 0;
     hasMore = totalMatching > 0;
 
-    const tFilter = performance.now() - t0;
-
     cardGrid.innerHTML = '';
 
     if (totalMatching === 0) {
@@ -591,17 +530,10 @@
           'No students match your filters.<br>Try adjusting your search.' +
         '</div>';
       updateCounts();
-      setVal(tSearch, 'filter ' + fmtMs(tFilter) + ' · 0 rendered', speedClass(tFilter));
       return;
     }
 
-    const tRender0 = performance.now();
     renderNextPage();
-    const tRender = performance.now() - tRender0;
-
-    setVal(tSearch,
-      'filter ' + fmtMs(tFilter) + ' · render ' + fmtMs(tRender),
-      speedClass(tFilter + tRender));
   }
 
   // ---------- RENDER ----------
@@ -682,10 +614,7 @@
 
     cardGrid.appendChild(wrap);
     document.getElementById('loadMoreBtn').addEventListener('click', () => {
-      const t0 = performance.now();
       renderNextPage();
-      const dt = performance.now() - t0;
-      setVal(tSearch, 'render more ' + fmtMs(dt), speedClass(dt));
     });
   }
 

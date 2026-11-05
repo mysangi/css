@@ -366,8 +366,8 @@
   const RAW_CSV_URL = 'https://raw.githubusercontent.com/' + REPO_OWNER + '/' + REPO_NAME + '/' + BRANCH + '/' + encodeURIComponent(CSV_FILE);
 
   // ⚠️ CHANGE THIS TO YOUR CLOUDFLARE WORKER URL
-  // Example: 'https://css.sangiuser.workers.dev'
-  const CLOUDFLARE_WORKER_URL = 'https://YOUR-SUBDOMAIN.workers.dev'; 
+  // Added ?v=2 to force browser to ignore old cache
+  const CLOUDFLARE_WORKER_URL = 'https://css.sangiuser.workers.dev?v=2'; 
   // ============================================================
 
   const PAGE_SIZE = 1000;
@@ -664,7 +664,7 @@
                ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 
     try {
-      // Call YOUR Cloudflare Worker URL (set at the top of the script)
+      // Call YOUR Cloudflare Worker URL
       const res = await fetch(CLOUDFLARE_WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

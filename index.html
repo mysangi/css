@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Results</title>
 
-  <!-- Favicon: blue graduation cap (inline SVG, no extra file needed) -->
+  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='38' r='2.5' fill='%23ffffff'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 
@@ -126,11 +126,30 @@
       border: 1px solid #eef2f7;
       transition: all 0.2s ease;
       display: flex; flex-direction: column; gap: 0.9rem;
+      cursor: pointer;
+      position: relative;
     }
     .student-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 20px 35px rgba(0, 30, 60, 0.12);
       border-color: #d0ddea;
+    }
+    .student-card.verifying {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .student-card.verified {
+      border-color: #0e6b3e;
+      background: #f4fdf8;
+    }
+
+    .verified-tag {
+      position: absolute; top: 12px; right: 12px;
+      background: #0e6b3e; color: white;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.25rem 0.7rem; border-radius: 40px;
+      display: inline-flex; align-items: center; gap: 4px;
+      letter-spacing: 0.5px; text-transform: uppercase;
     }
 
     .card-header {
@@ -193,6 +212,9 @@
       font-weight: 500; font-size: 0.8rem;
       display: inline-flex; align-items: center; gap: 7px;
       transition: 0.15s; border: 1px solid #2563eb;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
     }
     .pdf-link:hover { background: #1a4fc7; border-color: #1a4fc7; }
     .pdf-link.disabled {
@@ -333,10 +355,20 @@
 
 <script>
   // ============================================================
-  // CONFIG — change this to your CSV filename
+  // ⚠️ CONFIGURATION
   // ============================================================
-  const CSV_FILE = 'css mpt results - all.csv';
-  const CSV_URL  = encodeURI(CSV_FILE);
+  const REPO_OWNER = 'mysangi';
+  const REPO_NAME  = 'css';
+  const BRANCH     = 'main';
+  const CSV_FILE   = 'css mpt results - all.csv';
+
+  // Reading directly from GitHub raw
+  const RAW_CSV_URL = 'https://raw.githubusercontent.com/' + REPO_OWNER + '/' + REPO_NAME + '/' + BRANCH + '/' + encodeURIComponent(CSV_FILE);
+
+  // ⚠️ CHANGE THIS TO YOUR CLOUDFLARE WORKER URL
+  // Example: 'https://css.sangiuser.workers.dev'
+  const CLOUDFLARE_WORKER_URL = 'https://YOUR-SUBDOMAIN.workers.dev'; 
+  // ============================================================
 
   const PAGE_SIZE = 1000;
 
@@ -378,11 +410,12 @@
     loadStatusText.textContent = 'Downloading CSV...';
 
     try {
-      const res = await fetch(CSV_URL, { cache: 'default' });
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + CSV_URL);
+      // Add cache-buster to ensure we get the freshest file after verifications
+      const url = RAW_CSV_URL + '?t=' + new Date().getTime();
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching CSV');
 
       const text = await res.text();
-
       loadStatusText.textContent = 'Parsing ' + (text.length / 1024 / 1024).toFixed(1) + 'MB...';
 
       ALL_STUDENTS = parseCSV(text);
@@ -399,14 +432,14 @@
       loadStatus.classList.add('error');
       loadStatusText.textContent = 'Failed to load CSV';
       showError(
-        'Could not load CSV from "' + CSV_FILE + '".<br>' +
-        'Make sure the file is in the same folder as index.html.<br><br>' +
+        'Could not load CSV.<br>' +
+        'Make sure the repo/branch/filename are correct.<br><br>' +
         '<code>' + escapeHtml(err.message) + '</code>'
       );
     }
   }
 
-  // ---------- CSV PARSER (RFC 4180 with quoted fields) ----------
+  // ---------- CSV PARSER ----------
   function parseCSV(text) {
     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
 
@@ -462,19 +495,22 @@
       if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
 
       out.push({
+        _raw: rowArr,
+        _line: r,
         sr_no:           get(rowArr, 'sr_no', 'srno', 'sr') || r,
         name:            String(get(rowArr, 'name') || '').trim(),
         roll_no:         String(get(rowArr, 'roll_no', 'rollno', 'roll') || '').trim(),
         status:          String(get(rowArr, 'status') || '').trim(),
         url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url_result_pdf', 'url') || '').trim(),
         year:            String(get(rowArr, 'year') || '').trim(),
-        updated_on:      String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—'
+        updated_on:      String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—',
+        verified:        String(get(rowArr, 'verified') || '').trim()
       });
     }
     return out;
   }
 
-  // ---------- FILTER META (with latest-year default) ----------
+  // ---------- FILTER META ----------
   function loadFilterMeta() {
     const years = {}, statuses = {};
     for (let i = 0; i < ALL_STUDENTS.length; i++) {
@@ -491,7 +527,6 @@
       yearFilter.appendChild(opt);
     });
 
-    // ---- DEFAULT TO LATEST YEAR ----
     if (sortedYears.length) {
       const latest = sortedYears[sortedYears.length - 1];
       yearFilter.value = latest;
@@ -580,14 +615,22 @@
     for (let i = 0; i < students.length; i++) {
       const s = students[i];
       const statusClass = getStatusClass(s.status);
+      const isVerified = !!(s.verified && s.verified.trim() !== '');
 
       const hasPdf = s.url_results_pdf && s.url_results_pdf.trim() !== '';
       const pdfLink = hasPdf
-        ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link"><i class="fas fa-file-pdf"></i> Results PDF</a>'
+        ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Results PDF</a>'
         : '<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>';
 
+      const verifiedTag = isVerified
+        ? '<div class="verified-tag"><i class="fas fa-check"></i> ' + escapeHtml(s.verified) + '</div>'
+        : '';
+
       html +=
-        '<div class="student-card">' +
+        '<div class="student-card' + (isVerified ? ' verified' : '') + '" ' +
+             'data-line="' + s._line + '" ' +
+             'onclick="onCardClick(this, ' + s._line + ')">' +
+          verifiedTag +
           '<div class="card-header">' +
             '<span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span>' +
             '<span class="status-badge ' + statusClass + '">' + escapeHtml(s.status || '—') + '</span>' +
@@ -608,6 +651,53 @@
     return html;
   }
 
+  // ---------- CLICK → write timestamp via Cloudflare Worker ----------
+  async function onCardClick(el, lineIndex) {
+    if (el.classList.contains('verified')) return;
+    if (el.classList.contains('verifying')) return;
+
+    el.classList.add('verifying');
+
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const ts = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+               ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+
+    try {
+      // Call YOUR Cloudflare Worker URL (set at the top of the script)
+      const res = await fetch(CLOUDFLARE_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rowIndex: lineIndex, timestamp: ts })
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error('Worker failed: ' + (errBody.error || res.statusText));
+      }
+
+      // Update UI
+      el.classList.remove('verifying');
+      el.classList.add('verified');
+
+      const student = ALL_STUDENTS.find(s => s._line === lineIndex);
+      if (student) student.verified = ts;
+
+      if (!el.querySelector('.verified-tag')) {
+        const tag = document.createElement('div');
+        tag.className = 'verified-tag';
+        tag.innerHTML = '<i class="fas fa-check"></i> ' + escapeHtml(ts);
+        el.prepend(tag);
+      }
+
+    } catch (err) {
+      console.error('Verify error:', err);
+      el.classList.remove('verifying');
+      alert('Verification failed:\n' + err.message);
+    }
+  }
+
+  // ---------- LOAD MORE ----------
   function renderLoadMore() {
     const oldWrap = document.getElementById('loadMoreWrapper');
     if (oldWrap) oldWrap.remove();
@@ -666,7 +756,6 @@
     rollSearch = '';
     currentStatus = 'all';
 
-    // Reset year to the latest year (not "all")
     const options = Array.from(yearFilter.options).filter(o => o.value !== 'all');
     if (options.length) {
       const latest = options[options.length - 1].value;

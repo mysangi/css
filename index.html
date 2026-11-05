@@ -126,11 +126,30 @@
       border: 1px solid #eef2f7;
       transition: all 0.2s ease;
       display: flex; flex-direction: column; gap: 0.9rem;
+      cursor: pointer;
+      position: relative;
     }
     .student-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 20px 35px rgba(0, 30, 60, 0.12);
       border-color: #d0ddea;
+    }
+    .student-card.verifying {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .student-card.verified {
+      border-color: #0e6b3e;
+      background: #f4fdf8;
+    }
+
+    .verified-tag {
+      position: absolute; top: 12px; right: 12px;
+      background: #0e6b3e; color: white;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.25rem 0.7rem; border-radius: 40px;
+      display: inline-flex; align-items: center; gap: 4px;
+      letter-spacing: 0.5px; text-transform: uppercase;
     }
 
     .card-header {
@@ -193,6 +212,9 @@
       font-weight: 500; font-size: 0.8rem;
       display: inline-flex; align-items: center; gap: 7px;
       transition: 0.15s; border: 1px solid #2563eb;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
     }
     .pdf-link:hover { background: #1a4fc7; border-color: #1a4fc7; }
     .pdf-link.disabled {
@@ -333,10 +355,18 @@
 
 <script>
   // ============================================================
-  // CONFIG — change this to your CSV filename
+  // ⚠️ GITHUB CONFIG — FILL THESE IN
   // ============================================================
-  const CSV_FILE = 'css mpt results - all.csv';
-  const CSV_URL  = encodeURI(CSV_FILE);
+  const GITHUB_TOKEN = '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';   // your fine-grained token
+  const REPO_OWNER   = 'mysangi';             // e.g. 'john-doe'
+  const REPO_NAME    = 'css';                 // e.g. 'css-mpt-results'
+  const BRANCH       = 'main';                      // 'main' or 'master'
+  const CSV_FILE     = 'css mpt results - all.csv'; // exact filename in repo
+
+  // Derived URL for reading the CSV directly (raw)
+  const RAW_CSV_URL = 'https://raw.githubusercontent.com/' + REPO_OWNER + '/' + REPO_NAME + '/' + BRANCH + '/' + encodeURIComponent(CSV_FILE);
+  const API_FILE_URL = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(CSV_FILE);
+  // ============================================================
 
   const PAGE_SIZE = 1000;
 
@@ -378,8 +408,8 @@
     loadStatusText.textContent = 'Downloading CSV...';
 
     try {
-      const res = await fetch(CSV_URL, { cache: 'default' });
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + CSV_URL);
+      const res = await fetch(RAW_CSV_URL, { cache: 'default' });
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching CSV');
 
       const text = await res.text();
 
@@ -399,14 +429,14 @@
       loadStatus.classList.add('error');
       loadStatusText.textContent = 'Failed to load CSV';
       showError(
-        'Could not load CSV from "' + CSV_FILE + '".<br>' +
-        'Make sure the file is in the same folder as index.html.<br><br>' +
+        'Could not load CSV.<br>' +
+        'Make sure the repo/branch/filename are correct.<br><br>' +
         '<code>' + escapeHtml(err.message) + '</code>'
       );
     }
   }
 
-  // ---------- CSV PARSER (RFC 4180 with quoted fields) ----------
+  // ---------- CSV PARSER (RFC 4180) ----------
   function parseCSV(text) {
     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
 
@@ -461,20 +491,24 @@
       const rowArr = rows[r];
       if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
 
+      // Keep the original raw row for later CSV writes
       out.push({
+        _raw: rowArr,                          // original array (for update)
+        _line: r,                              // line index in parsed rows
         sr_no:           get(rowArr, 'sr_no', 'srno', 'sr') || r,
         name:            String(get(rowArr, 'name') || '').trim(),
         roll_no:         String(get(rowArr, 'roll_no', 'rollno', 'roll') || '').trim(),
         status:          String(get(rowArr, 'status') || '').trim(),
         url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url_result_pdf', 'url') || '').trim(),
         year:            String(get(rowArr, 'year') || '').trim(),
-        updated_on:      String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—'
+        updated_on:      String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—',
+        verified:        String(get(rowArr, 'verified') || '').trim()
       });
     }
     return out;
   }
 
-  // ---------- FILTER META (with latest-year default) ----------
+  // ---------- FILTER META ----------
   function loadFilterMeta() {
     const years = {}, statuses = {};
     for (let i = 0; i < ALL_STUDENTS.length; i++) {
@@ -491,7 +525,6 @@
       yearFilter.appendChild(opt);
     });
 
-    // ---- DEFAULT TO LATEST YEAR ----
     if (sortedYears.length) {
       const latest = sortedYears[sortedYears.length - 1];
       yearFilter.value = latest;
@@ -580,14 +613,22 @@
     for (let i = 0; i < students.length; i++) {
       const s = students[i];
       const statusClass = getStatusClass(s.status);
+      const isVerified = !!(s.verified && s.verified.trim() !== '');
 
       const hasPdf = s.url_results_pdf && s.url_results_pdf.trim() !== '';
       const pdfLink = hasPdf
-        ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link"><i class="fas fa-file-pdf"></i> Results PDF</a>'
+        ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Results PDF</a>'
         : '<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>';
 
+      const verifiedTag = isVerified
+        ? '<div class="verified-tag"><i class="fas fa-check"></i> ' + escapeHtml(s.verified) + '</div>'
+        : '';
+
       html +=
-        '<div class="student-card">' +
+        '<div class="student-card' + (isVerified ? ' verified' : '') + '" ' +
+             'data-line="' + s._line + '" ' +
+             'onclick="onCardClick(this, ' + s._line + ')">' +
+          verifiedTag +
           '<div class="card-header">' +
             '<span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span>' +
             '<span class="status-badge ' + statusClass + '">' + escapeHtml(s.status || '—') + '</span>' +
@@ -608,6 +649,153 @@
     return html;
   }
 
+  // ---------- CLICK → write timestamp to column H via GitHub API ----------
+  async function onCardClick(el, lineIndex) {
+    if (el.classList.contains('verified')) return;
+    if (el.classList.contains('verifying')) return;
+
+    el.classList.add('verifying');
+
+    // Find student object
+    const student = ALL_STUDENTS.find(s => s._line === lineIndex);
+    if (!student) {
+      el.classList.remove('verifying');
+      return;
+    }
+
+    // Timestamp in local format
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const ts = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+               ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+
+    try {
+      // 1. GET current file (need SHA + content)
+      const getRes = await fetch(API_FILE_URL + '?ref=' + BRANCH, {
+        headers: {
+          'Authorization': 'Bearer ' + GITHUB_TOKEN,
+          'Accept': 'application/vnd.github+json'
+        }
+      });
+      if (!getRes.ok) throw new Error('GET failed: ' + getRes.status + ' ' + getRes.statusText);
+      const fileData = await getRes.json();
+
+      // 2. Decode CSV content
+      const currentCsv = decodeBase64Utf8(fileData.content.replace(/\n/g, ''));
+
+      // 3. Update column H (index 7) for this row
+      const newCsv = updateCsvCell(currentCsv, lineIndex, 7, ts);
+
+      // 4. Base64-encode
+      const encoded = encodeBase64Utf8(newCsv);
+
+      // 5. PUT update
+      const putRes = await fetch(API_FILE_URL, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + GITHUB_TOKEN,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Verify row ' + lineIndex + ' (' + student.roll_no + ')',
+          content: encoded,
+          sha: fileData.sha,
+          branch: BRANCH
+        })
+      });
+
+      if (!putRes.ok) {
+        const errBody = await putRes.json().catch(() => ({}));
+        throw new Error('PUT failed: ' + putRes.status + ' — ' + (errBody.message || 'unknown'));
+      }
+
+      // 6. Update UI
+      el.classList.remove('verifying');
+      el.classList.add('verified');
+      student.verified = ts;
+
+      if (!el.querySelector('.verified-tag')) {
+        const tag = document.createElement('div');
+        tag.className = 'verified-tag';
+        tag.innerHTML = '<i class="fas fa-check"></i> ' + escapeHtml(ts);
+        el.prepend(tag);
+      }
+
+    } catch (err) {
+      console.error('Verify error:', err);
+      el.classList.remove('verifying');
+      alert('Verification failed:\n' + err.message + '\n\nCheck:\n' +
+            '• Token has Contents: Read & Write\n' +
+            '• Token not expired\n' +
+            '• REPO_OWNER/REPO_NAME/BRANCH are correct');
+    }
+  }
+
+  // ---------- CSV CELL UPDATE ----------
+  function updateCsvCell(csvText, rowIndex, colIndex, newValue) {
+    // rowIndex = 1-based data row (header is row 1 in the sheet, data row 1 = index 1 in parsed rows)
+    // colIndex = 0-based column index (H = 7)
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const ch = csvText[i];
+      const next = csvText[i + 1];
+
+      if (inQuotes) {
+        if (ch === '"' && next === '"') { field += '"'; i++; }
+        else if (ch === '"') { inQuotes = false; }
+        else { field += ch; }
+      } else {
+        if (ch === '"') { inQuotes = true; }
+        else if (ch === ',') { row.push(field); field = ''; }
+        else if (ch === '\n') {
+          row.push(field); rows.push(row); row = []; field = '';
+        }
+        else if (ch === '\r') { /* skip */ }
+        else { field += ch; }
+      }
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+
+    const target = rows[rowIndex];
+    if (!target) return csvText;
+
+    // Ensure the row has enough columns
+    while (target.length <= colIndex) target.push('');
+
+    target[colIndex] = newValue;
+
+    // Serialize back to CSV
+    return rows.map(r =>
+      r.map(cell => {
+        const s = String(cell);
+        if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+          return '"' + s.replace(/"/g, '""') + '"';
+        }
+        return s;
+      }).join(',')
+    ).join('\n');
+  }
+
+  // ---------- BASE64 (Unicode-safe) ----------
+  function decodeBase64Utf8(b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  function encodeBase64Utf8(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+
+  // ---------- LOAD MORE ----------
   function renderLoadMore() {
     const oldWrap = document.getElementById('loadMoreWrapper');
     if (oldWrap) oldWrap.remove();
@@ -666,7 +854,6 @@
     rollSearch = '';
     currentStatus = 'all';
 
-    // Reset year to the latest year (not "all")
     const options = Array.from(yearFilter.options).filter(o => o.value !== 'all');
     if (options.length) {
       const latest = options[options.length - 1].value;

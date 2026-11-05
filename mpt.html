@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Results</title>
+
+  <!-- Favicon: blue graduation cap (inline SVG, no extra file needed) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='38' r='2.5' fill='%23ffffff'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f7fc;
+      padding: 2rem 1.5rem;
+      color: #1e2b3c;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+
+    .header {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .header h1 {
+      font-weight: 600; font-size: 1.9rem; letter-spacing: -0.02em;
+      color: #0a1e2e; display: flex; align-items: center; gap: 10px;
+    }
+    .header h1 i { color: #2563eb; font-size: 2rem; }
+    .badge-count {
+      background: #e6edf9; color: #1e4b8c;
+      padding: 0.4rem 1rem; border-radius: 40px;
+      font-size: 0.9rem; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+
+    .load-status {
+      background: white; padding: 0.8rem 1.4rem;
+      border-radius: 40px; font-size: 0.85rem;
+      color: #4a5b6e; display: inline-flex;
+      align-items: center; gap: 10px;
+      border: 1px solid #e9eef3;
+    }
+    .load-status .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #2563eb; animation: pulse 1.2s infinite;
+    }
+    .load-status.done .dot { background: #0e6b3e; animation: none; }
+    .load-status.error .dot { background: #b42318; animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
+      background: white; padding: 1.25rem 1.8rem; border-radius: 30px;
+      box-shadow: 0 8px 20px rgba(0, 20, 40, 0.06);
+      align-items: center; border: 1px solid #e9eef3;
+    }
+    .search-group {
+      display: flex; flex-wrap: wrap; gap: 0.8rem;
+      flex: 2; min-width: 260px;
+    }
+    .search-wrapper { flex: 1; min-width: 180px; position: relative; }
+    .search-wrapper i {
+      position: absolute; left: 18px; top: 50%;
+      transform: translateY(-50%); color: #7c8b9e;
+    }
+    .search-wrapper input {
+      width: 100%; padding: 0.85rem 1rem 0.85rem 3rem;
+      font-family: 'Inter', sans-serif; font-size: 0.95rem;
+      border: 1.5px solid #dee5ed; border-radius: 60px;
+      background: #fff; outline: none; transition: 0.2s;
+    }
+    .search-wrapper input:focus {
+      border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+    }
+
+    .filter-group {
+      display: flex; flex-wrap: wrap; gap: 1rem; flex: 3;
+      justify-content: flex-end;
+    }
+    .select-wrapper { position: relative; min-width: 140px; }
+    .select-wrapper i {
+      position: absolute; left: 15px; top: 50%;
+      transform: translateY(-50%); color: #7c8b9e;
+      pointer-events: none; font-size: 0.9rem;
+    }
+    .select-wrapper select {
+      width: 100%; padding: 0.85rem 2rem 0.85rem 2.7rem;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem;
+      appearance: none; background: white;
+      border: 1.5px solid #dee5ed; border-radius: 60px;
+      cursor: pointer; outline: none; color: #1e2b3c; font-weight: 500;
+    }
+    .select-wrapper select:focus {
+      border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+    }
+    .select-wrapper::after {
+      content: '\f107'; font-family: 'Font Awesome 6 Free';
+      font-weight: 900; position: absolute; right: 18px; top: 50%;
+      transform: translateY(-50%); color: #7c8b9e;
+      pointer-events: none; font-size: 0.9rem;
+    }
+
+    .clear-btn {
+      background: #f0f4fa; border: none; border-radius: 60px;
+      padding: 0.85rem 1.5rem; font-family: 'Inter', sans-serif;
+      font-weight: 500; color: #4a5b6e; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: 0.15s; font-size: 0.9rem; white-space: nowrap;
+    }
+    .clear-btn:hover { background: #e2e9f3; color: #1e2b3c; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .student-card {
+      background: white; border-radius: 28px;
+      padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+      box-shadow: 0 12px 30px rgba(0, 20, 40, 0.08);
+      border: 1px solid #eef2f7;
+      transition: all 0.2s ease;
+      display: flex; flex-direction: column; gap: 0.9rem;
+    }
+    .student-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 35px rgba(0, 30, 60, 0.12);
+      border-color: #d0ddea;
+    }
+
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sr-badge {
+      background: #e9eff9; color: #1e4b8c;
+      font-weight: 600; font-size: 0.8rem;
+      padding: 0.3rem 0.9rem; border-radius: 40px;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .status-badge {
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.3rem 1rem; border-radius: 40px;
+      text-transform: uppercase; letter-spacing: 0.3px;
+      background: #eef2f7; color: #5b6f85;
+    }
+    .status-badge.status-fail {
+      background: #ffeae9; color: #b42318; border: 1px solid #ffcdca;
+    }
+    .status-badge.status-pass {
+      background: #e6f7ec; color: #0e6b3e; border: 1px solid #c3ebd3;
+    }
+    .status-badge.status-rejected {
+      background: #e6f0ff; color: #1e4b8c; border: 1px solid #c9dbf9;
+    }
+
+    .student-name {
+      font-weight: 700; font-size: 1.4rem;
+      letter-spacing: -0.02em; color: #0b1e2e;
+      line-height: 1.2;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .student-name i { font-size: 1.2rem; color: #2563eb; opacity: 0.8; }
+
+    .info-row {
+      display: flex; flex-wrap: wrap; gap: 1rem 1.5rem;
+      background: #f9fbfe; padding: 0.9rem 1.1rem; border-radius: 18px;
+    }
+    .info-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.9rem; color: #1e3a5f;
+    }
+    .info-item i { width: 18px; color: #5b7aa2; }
+    .info-item strong { font-weight: 600; color: #0b2a4a; margin-right: 4px; }
+
+    .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 0.8rem;
+      border-top: 1px solid #eef3f9; padding-top: 0.9rem;
+    }
+    .updated {
+      font-size: 0.75rem; color: #7c8b9e;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .pdf-link {
+      background: #2563eb; color: white; text-decoration: none;
+      padding: 0.5rem 1.2rem; border-radius: 60px;
+      font-weight: 500; font-size: 0.8rem;
+      display: inline-flex; align-items: center; gap: 7px;
+      transition: 0.15s; border: 1px solid #2563eb;
+    }
+    .pdf-link:hover { background: #1a4fc7; border-color: #1a4fc7; }
+    .pdf-link.disabled {
+      background: #dce3ec; border-color: #dce3ec;
+      color: #8899aa; pointer-events: none;
+    }
+
+    .no-results {
+      grid-column: 1 / -1; text-align: center;
+      padding: 3.5rem 2rem; background: white; border-radius: 40px;
+      color: #5b6f85; font-size: 1.1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+      border: 1px dashed #cbd6e4;
+    }
+    .no-results i {
+      font-size: 2.5rem; color: #b0c0d4;
+      margin-bottom: 1rem; display: block;
+    }
+
+    .loading-spinner {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 3rem; grid-column: 1 / -1; gap: 1rem;
+      color: #5b6f85;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid #e0e9f2;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-message {
+      background: #fff0f0; color: #b42318;
+      padding: 1.5rem; border-radius: 24px;
+      grid-column: 1 / -1; text-align: center;
+      border: 1px solid #ffcdca;
+    }
+    .error-message i {
+      font-size: 1.8rem; margin-bottom: 0.5rem; display: block;
+    }
+
+    .load-more-wrap {
+      grid-column: 1 / -1;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.75rem;
+      padding: 2rem 1rem 1rem;
+    }
+    .load-more-btn {
+      background: #2563eb; color: white;
+      border: none; border-radius: 60px;
+      padding: 0.9rem 2.2rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; display: inline-flex;
+      align-items: center; gap: 10px;
+      transition: 0.15s;
+      box-shadow: 0 8px 20px rgba(37,99,235,0.25);
+    }
+    .load-more-btn:hover:not(:disabled) {
+      background: #1a4fc7; transform: translateY(-1px);
+    }
+    .load-more-btn:disabled {
+      background: #c3d1e6; cursor: not-allowed;
+      box-shadow: none; color: #f0f4fa;
+    }
+    .load-more-info {
+      font-size: 0.85rem; color: #5b6f85;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .search-group { flex-direction: column; }
+      .filter-group { justify-content: stretch; }
+      .select-wrapper { min-width: 100%; }
+      .card-grid { grid-template-columns: 1fr; }
+      .student-name { font-size: 1.2rem; }
+      .info-row { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-graduation-cap"></i> Student Results</h1>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <div class="load-status" id="loadStatus">
+        <span class="dot"></span>
+        <span id="loadStatusText">Loading CSV...</span>
+      </div>
+      <div class="badge-count">
+        <i class="fas fa-layer-group"></i>
+        Showing <span id="shownCount">0</span> of <span id="totalCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-group">
+      <div class="search-wrapper">
+        <i class="fas fa-user"></i>
+        <input type="text" id="nameSearch" placeholder="Search by name...">
+      </div>
+      <div class="search-wrapper">
+        <i class="fas fa-id-card"></i>
+        <input type="text" id="rollSearch" placeholder="Search by roll number...">
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="select-wrapper">
+        <i class="fas fa-calendar-alt"></i>
+        <select id="yearFilter">
+          <option value="all">All years</option>
+        </select>
+      </div>
+      <div class="select-wrapper">
+        <i class="fas fa-circle-check"></i>
+        <select id="statusFilter">
+          <option value="all">All status</option>
+        </select>
+      </div>
+      <button class="clear-btn" id="clearFiltersBtn">
+        <i class="fas fa-rotate-left"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="card-grid" id="cardGrid">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div>Loading students...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // CONFIG — change this to your CSV filename
+  // ============================================================
+  const CSV_FILE = 'css mpt results - all.csv';
+  const CSV_URL  = encodeURI(CSV_FILE);
+
+  const PAGE_SIZE = 1000;
+
+  // ---------- STATE ----------
+  let ALL_STUDENTS = [];
+  let filtered = [];
+  let currentOffset = 0;
+  let nameSearch = '';
+  let rollSearch = '';
+  let currentYear = 'all';
+  let currentStatus = 'all';
+  let totalMatching = 0;
+  let loadedCount = 0;
+  let hasMore = true;
+  let dataReady = false;
+
+  // ---------- DOM ----------
+  const nameInput    = document.getElementById('nameSearch');
+  const rollInput    = document.getElementById('rollSearch');
+  const yearFilter   = document.getElementById('yearFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const clearBtn     = document.getElementById('clearFiltersBtn');
+  const cardGrid     = document.getElementById('cardGrid');
+  const shownCount   = document.getElementById('shownCount');
+  const totalCount   = document.getElementById('totalCount');
+  const loadStatus   = document.getElementById('loadStatus');
+  const loadStatusText = document.getElementById('loadStatusText');
+
+  let nameDebounce = null;
+  let rollDebounce = null;
+
+  // ---------- INIT ----------
+  window.addEventListener('load', () => {
+    loadCSV();
+  });
+
+  // ---------- LOAD & PARSE CSV ----------
+  async function loadCSV() {
+    loadStatusText.textContent = 'Downloading CSV...';
+
+    try {
+      const res = await fetch(CSV_URL, { cache: 'default' });
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + CSV_URL);
+
+      const text = await res.text();
+
+      loadStatusText.textContent = 'Parsing ' + (text.length / 1024 / 1024).toFixed(1) + 'MB...';
+
+      ALL_STUDENTS = parseCSV(text);
+
+      loadStatus.classList.add('done');
+      loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString() + ' students';
+
+      dataReady = true;
+      loadFilterMeta();
+      applyFilters();
+
+    } catch (err) {
+      console.error(err);
+      loadStatus.classList.add('error');
+      loadStatusText.textContent = 'Failed to load CSV';
+      showError(
+        'Could not load CSV from "' + CSV_FILE + '".<br>' +
+        'Make sure the file is in the same folder as index.html.<br><br>' +
+        '<code>' + escapeHtml(err.message) + '</code>'
+      );
+    }
+  }
+
+  // ---------- CSV PARSER (RFC 4180 with quoted fields) ----------
+  function parseCSV(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+    let i = 0;
+    const len = text.length;
+
+    while (i < len) {
+      const ch = text[i];
+      const next = i + 1 < len ? text[i + 1] : '';
+
+      if (inQuotes) {
+        if (ch === '"') {
+          if (next === '"') { field += '"'; i += 2; continue; }
+          inQuotes = false; i++; continue;
+        }
+        field += ch; i++; continue;
+      }
+
+      if (ch === '"') { inQuotes = true; i++; continue; }
+      if (ch === ',') { row.push(field); field = ''; i++; continue; }
+      if (ch === '\r') { i++; continue; }
+      if (ch === '\n') {
+        row.push(field);
+        rows.push(row);
+        row = []; field = ''; i++;
+        continue;
+      }
+      field += ch;
+      i++;
+    }
+    if (field.length || row.length) {
+      row.push(field);
+      rows.push(row);
+    }
+
+    if (rows.length < 2) return [];
+
+    const header = rows[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, '_'));
+    const col = {};
+    header.forEach((h, idx) => { col[h] = idx; });
+    const get = (arr, ...keys) => {
+      for (const k of keys) if (col[k] !== undefined) return arr[col[k]] ?? '';
+      return '';
+    };
+
+    const out = [];
+    for (let r = 1; r < rows.length; r++) {
+      const rowArr = rows[r];
+      if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
+
+      out.push({
+        sr_no:           get(rowArr, 'sr_no', 'srno', 'sr') || r,
+        name:            String(get(rowArr, 'name') || '').trim(),
+        roll_no:         String(get(rowArr, 'roll_no', 'rollno', 'roll') || '').trim(),
+        status:          String(get(rowArr, 'status') || '').trim(),
+        url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url_result_pdf', 'url') || '').trim(),
+        year:            String(get(rowArr, 'year') || '').trim(),
+        updated_on:      String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—'
+      });
+    }
+    return out;
+  }
+
+  // ---------- FILTER META (with latest-year default) ----------
+  function loadFilterMeta() {
+    const years = {}, statuses = {};
+    for (let i = 0; i < ALL_STUDENTS.length; i++) {
+      if (ALL_STUDENTS[i].year) years[ALL_STUDENTS[i].year] = true;
+      if (ALL_STUDENTS[i].status) statuses[ALL_STUDENTS[i].status] = true;
+    }
+
+    const sortedYears = Object.keys(years).sort();
+
+    yearFilter.innerHTML = '<option value="all">All years</option>';
+    sortedYears.forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y; opt.textContent = y;
+      yearFilter.appendChild(opt);
+    });
+
+    // ---- DEFAULT TO LATEST YEAR ----
+    if (sortedYears.length) {
+      const latest = sortedYears[sortedYears.length - 1];
+      yearFilter.value = latest;
+      currentYear = latest;
+    } else {
+      yearFilter.value = 'all';
+      currentYear = 'all';
+    }
+
+    statusFilter.innerHTML = '<option value="all">All status</option>';
+    Object.keys(statuses).sort().forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      statusFilter.appendChild(opt);
+    });
+  }
+
+  // ---------- APPLY FILTERS ----------
+  function applyFilters() {
+    if (!dataReady) return;
+
+    const nameQ = nameSearch.trim().toLowerCase();
+    const rollQ = rollSearch.trim().toLowerCase();
+    const yearQ = currentYear;
+    const statusQ = currentStatus.toLowerCase();
+
+    filtered = [];
+    for (let i = 0; i < ALL_STUDENTS.length; i++) {
+      const s = ALL_STUDENTS[i];
+      if (nameQ && s.name.toLowerCase().indexOf(nameQ) === -1) continue;
+      if (rollQ && s.roll_no.toLowerCase().indexOf(rollQ) === -1) continue;
+      if (yearQ !== 'all' && s.year !== yearQ) continue;
+      if (statusQ !== 'all' && s.status.toLowerCase() !== statusQ) continue;
+      filtered.push(s);
+    }
+
+    totalMatching = filtered.length;
+    currentOffset = 0;
+    loadedCount = 0;
+    hasMore = totalMatching > 0;
+
+    cardGrid.innerHTML = '';
+
+    if (totalMatching === 0) {
+      cardGrid.innerHTML =
+        '<div class="no-results">' +
+          '<i class="fas fa-inbox"></i>' +
+          'No students match your filters.<br>Try adjusting your search.' +
+        '</div>';
+      updateCounts();
+      return;
+    }
+
+    renderNextPage();
+  }
+
+  // ---------- RENDER ----------
+  function renderNextPage() {
+    const end = Math.min(currentOffset + PAGE_SIZE, totalMatching);
+    if (currentOffset >= end) return;
+
+    const oldWrap = document.getElementById('loadMoreWrapper');
+    if (oldWrap) oldWrap.remove();
+
+    const slice = filtered.slice(currentOffset, end);
+    cardGrid.insertAdjacentHTML('beforeend', buildCardsHtml(slice));
+
+    currentOffset = end;
+    loadedCount = currentOffset;
+    hasMore = currentOffset < totalMatching;
+
+    updateCounts();
+    renderLoadMore();
+  }
+
+  function getStatusClass(status) {
+    const s = String(status || '').trim().toLowerCase();
+    if (s === 'fail') return 'status-fail';
+    if (s === 'pass' || s === 'qualified') return 'status-pass';
+    if (s === 'rejected') return 'status-rejected';
+    return '';
+  }
+
+  function buildCardsHtml(students) {
+    let html = '';
+    for (let i = 0; i < students.length; i++) {
+      const s = students[i];
+      const statusClass = getStatusClass(s.status);
+
+      const hasPdf = s.url_results_pdf && s.url_results_pdf.trim() !== '';
+      const pdfLink = hasPdf
+        ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link"><i class="fas fa-file-pdf"></i> Results PDF</a>'
+        : '<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>';
+
+      html +=
+        '<div class="student-card">' +
+          '<div class="card-header">' +
+            '<span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span>' +
+            '<span class="status-badge ' + statusClass + '">' + escapeHtml(s.status || '—') + '</span>' +
+          '</div>' +
+          '<div class="student-name">' +
+            '<i class="fas fa-user-circle"></i> ' + escapeHtml(s.name || '—') +
+          '</div>' +
+          '<div class="info-row">' +
+            '<div class="info-item"><i class="fas fa-id-card"></i> <strong>Roll</strong> ' + escapeHtml(s.roll_no || '—') + '</div>' +
+            '<div class="info-item"><i class="fas fa-calendar"></i> <strong>Year</strong> ' + escapeHtml(s.year || '—') + '</div>' +
+          '</div>' +
+          '<div class="card-footer">' +
+            '<div class="updated"><i class="far fa-clock"></i> Updated ' + escapeHtml(s.updated_on) + '</div>' +
+            pdfLink +
+          '</div>' +
+        '</div>';
+    }
+    return html;
+  }
+
+  function renderLoadMore() {
+    const oldWrap = document.getElementById('loadMoreWrapper');
+    if (oldWrap) oldWrap.remove();
+    if (!hasMore) return;
+
+    const wrap = document.createElement('div');
+    wrap.id = 'loadMoreWrapper';
+    wrap.className = 'load-more-wrap';
+    wrap.innerHTML =
+      '<button id="loadMoreBtn" class="load-more-btn">' +
+        '<i class="fas fa-arrow-down"></i> Load next ' + PAGE_SIZE.toLocaleString() + ' students' +
+      '</button>' +
+      '<div class="load-more-info">' +
+        'Showing ' + loadedCount.toLocaleString() + ' of ' + totalMatching.toLocaleString() +
+      '</div>';
+
+    cardGrid.appendChild(wrap);
+    document.getElementById('loadMoreBtn').addEventListener('click', () => {
+      renderNextPage();
+    });
+  }
+
+  function updateCounts() {
+    shownCount.textContent = loadedCount.toLocaleString();
+    totalCount.textContent = totalMatching.toLocaleString();
+  }
+
+  // ---------- FILTER EVENTS ----------
+  nameInput.addEventListener('input', e => {
+    nameSearch = e.target.value;
+    clearTimeout(nameDebounce);
+    nameDebounce = setTimeout(applyFilters, 250);
+  });
+
+  rollInput.addEventListener('input', e => {
+    rollSearch = e.target.value;
+    clearTimeout(rollDebounce);
+    rollDebounce = setTimeout(applyFilters, 250);
+  });
+
+  yearFilter.addEventListener('change', e => {
+    currentYear = e.target.value;
+    applyFilters();
+  });
+
+  statusFilter.addEventListener('change', e => {
+    currentStatus = e.target.value;
+    applyFilters();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    nameInput.value = '';
+    rollInput.value = '';
+    statusFilter.value = 'all';
+    nameSearch = '';
+    rollSearch = '';
+    currentStatus = 'all';
+
+    // Reset year to the latest year (not "all")
+    const options = Array.from(yearFilter.options).filter(o => o.value !== 'all');
+    if (options.length) {
+      const latest = options[options.length - 1].value;
+      yearFilter.value = latest;
+      currentYear = latest;
+    } else {
+      yearFilter.value = 'all';
+      currentYear = 'all';
+    }
+
+    applyFilters();
+  });
+
+  // ---------- HELPERS ----------
+  function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+  function escapeAttr(text) { return escapeHtml(text); }
+
+  function showError(msg) {
+    cardGrid.innerHTML =
+      '<div class="error-message">' +
+        '<i class="fas fa-exclamation-triangle"></i>' +
+        msg +
+      '</div>';
+    shownCount.textContent = '0';
+    totalCount.textContent = '0';
+  }
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 export default {
   async fetch(request, env, ctx) {
-    // 1. Handle CORS (allows your GitHub Pages site to talk to Cloudflare)
+    // Allow your website to talk to this Worker
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
@@ -20,14 +20,14 @@ export default {
       const { rowIndex, timestamp } = body;
 
       // ⚠️ CHANGE THESE TO MATCH YOUR REPO
-      const REPO_OWNER = 'mysangi';                     // Your GitHub username
-      const REPO_NAME = 'css';                          // Your GitHub repository name
-      const BRANCH = 'main';                            // 'main' or 'master'
-      const CSV_FILE = 'css mpt results - all.csv';     // Exact CSV file name
+      const REPO_OWNER = 'mysangi'; 
+      const REPO_NAME = 'css';
+      const BRANCH = 'main';
+      const CSV_FILE = 'css mpt results - all.csv'; // Your exact CSV filename
       
       const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(CSV_FILE)}?ref=${BRANCH}`;
 
-      // 2. Fetch current CSV from GitHub using the secret token
+      // Fetch current CSV
       const getRes = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
@@ -36,28 +36,26 @@ export default {
         }
       });
 
-      if (!getRes.ok) {
-        throw new Error(`GitHub GET failed: ${getRes.status} ${getRes.statusText}`);
-      }
+      if (!getRes.ok) throw new Error(`GitHub GET failed: ${getRes.status}`);
       
       const fileData = await getRes.json();
       
-      // 3. Decode Base64 CSV content
+      // Decode CSV
       const bin = atob(fileData.content.replace(/\n/g, ''));
       const bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
       let csvText = new TextDecoder('utf-8').decode(bytes);
 
-      // 4. Update the specific cell (rowIndex, column H which is index 7)
+      // Update CSV
       const newCsv = updateCsvCell(csvText, rowIndex, 7, timestamp);
 
-      // 5. Encode back to Base64
+      // Encode CSV
       const newBytes = new TextEncoder().encode(newCsv);
       let newBin = '';
       for (let i = 0; i < newBytes.length; i++) newBin += String.fromCharCode(newBytes[i]);
       const encodedContent = btoa(newBin);
 
-      // 6. PUT the update back to GitHub
+      // Push to GitHub
       const putRes = await fetch(apiUrl.split('?')[0], {
         method: 'PUT',
         headers: {

@@ -474,7 +474,7 @@
     return out;
   }
 
-  // ---------- FILTER META ----------
+  // ---------- FILTER META (with latest-year default) ----------
   function loadFilterMeta() {
     const years = {}, statuses = {};
     for (let i = 0; i < ALL_STUDENTS.length; i++) {
@@ -482,12 +482,24 @@
       if (ALL_STUDENTS[i].status) statuses[ALL_STUDENTS[i].status] = true;
     }
 
+    const sortedYears = Object.keys(years).sort();
+
     yearFilter.innerHTML = '<option value="all">All years</option>';
-    Object.keys(years).sort().forEach(y => {
+    sortedYears.forEach(y => {
       const opt = document.createElement('option');
       opt.value = y; opt.textContent = y;
       yearFilter.appendChild(opt);
     });
+
+    // ---- DEFAULT TO LATEST YEAR ----
+    if (sortedYears.length) {
+      const latest = sortedYears[sortedYears.length - 1];
+      yearFilter.value = latest;
+      currentYear = latest;
+    } else {
+      yearFilter.value = 'all';
+      currentYear = 'all';
+    }
 
     statusFilter.innerHTML = '<option value="all">All status</option>';
     Object.keys(statuses).sort().forEach(s => {
@@ -649,12 +661,22 @@
   clearBtn.addEventListener('click', () => {
     nameInput.value = '';
     rollInput.value = '';
-    yearFilter.value = 'all';
     statusFilter.value = 'all';
     nameSearch = '';
     rollSearch = '';
-    currentYear = 'all';
     currentStatus = 'all';
+
+    // Reset year to the latest year (not "all")
+    const options = Array.from(yearFilter.options).filter(o => o.value !== 'all');
+    if (options.length) {
+      const latest = options[options.length - 1].value;
+      yearFilter.value = latest;
+      currentYear = latest;
+    } else {
+      yearFilter.value = 'all';
+      currentYear = 'all';
+    }
+
     applyFilters();
   });
 

@@ -10,54 +10,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    /* ============================================================
-       THEME VARIABLES (Shared across both views)
-       ============================================================ */
+    /* THEME VARIABLES */
     :root, [data-theme="light"] {
-      --bg: #f4f7fc;
-      --panel: #ffffff;
-      --panel-2: #f1f5f9;
-      --accent: #2563eb;
-      --accent-hover: #1a4fc7;
-      --ok: #16a34a;
-      --danger: #dc2626;
-      --warn: #d97706;
-      --text: #1e2b3c;
-      --text-dark: #0a1e2e;
-      --muted: #64748b;
-      --border: #e2e9f3;
-      --shadow: rgba(0, 20, 40, 0.06);
-      --hover: #f8fafc;
+      --bg: #f4f7fc; --panel: #ffffff; --panel-2: #f1f5f9; --accent: #2563eb; --accent-hover: #1a4fc7;
+      --ok: #16a34a; --danger: #dc2626; --warn: #d97706; --text: #1e2b3c; --text-dark: #0a1e2e;
+      --muted: #64748b; --border: #e2e9f3; --shadow: rgba(0, 20, 40, 0.06); --hover: #f8fafc;
     }
     [data-theme="dark"] {
-      --bg: #0f172a;
-      --panel: #1e293b;
-      --panel-2: #273449;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --ok: #22c55e;
-      --danger: #ef4444;
-      --warn: #f59e0b;
-      --text: #e2e8f0;
-      --text-dark: #f8fafc;
-      --muted: #94a3b8;
-      --border: #334155;
-      --shadow: rgba(0, 0, 0, 0.3);
-      --hover: #2e3d56;
+      --bg: #0f172a; --panel: #1e293b; --panel-2: #273449; --accent: #38bdf8; --accent-hover: #0284c7;
+      --ok: #22c55e; --danger: #ef4444; --warn: #f59e0b; --text: #e2e8f0; --text-dark: #f8fafc;
+      --muted: #94a3b8; --border: #334155; --shadow: rgba(0, 0, 0, 0.3); --hover: #2e3d56;
     }
 
-    /* ============================================================
-       RESET & GLOBAL
-       ============================================================ */
+    /* RESET & GLOBAL */
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
       min-height: 100vh; display: flex; flex-direction: column; transition: background 0.2s, color 0.2s;
     }
 
-    /* ============================================================
-       SHARED HEADER
-       ============================================================ */
+    /* SHARED HEADER */
     .app-header {
       background: var(--panel); border-bottom: 1px solid var(--border);
       padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
@@ -82,15 +54,11 @@
     }
     .theme-btn:hover { background: var(--hover); }
 
-    /* ============================================================
-       VIEWS
-       ============================================================ */
+    /* VIEWS */
     .view-section { display: none; flex: 1; padding: 1.5rem; max-width: 1440px; margin: 0 auto; width: 100%; }
     .view-section.active { display: block; }
 
-    /* ============================================================
-       1. RESULTS DASHBOARD
-       ============================================================ */
+    /* 1. RESULTS DASHBOARD */
     .dash-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
     .dash-header h1 { font-weight: 600; font-size: 1.5rem; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
     .badge-count { background: var(--panel-2); color: var(--text); padding: 0.4rem 1rem; border-radius: 40px; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
@@ -147,9 +115,7 @@
     .load-more-btn { background: var(--accent); color: white; border: none; border-radius: 60px; padding: 0.9rem 2.2rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
     .load-more-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-    /* ============================================================
-       2. SUBJECT BUILDER
-       ============================================================ */
+    /* 2. SUBJECT BUILDER */
     .builder-container { background: var(--bg); border-radius: 20px; display: flex; flex-direction: column; height: calc(100vh - 130px); min-height: 600px; border: 1px solid var(--border); box-shadow: 0 8px 20px var(--shadow); }
     .b-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--panel); border-radius: 20px 20px 0 0; }
     .b-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -237,7 +203,7 @@
   <header class="app-header">
     <div class="brand">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.0</span>
+      <span class="version">v4.2</span>
     </div>
     <div class="header-actions">
       <div class="nav-tabs">
@@ -331,7 +297,6 @@
     const root = document.documentElement;
     const themeBtn = document.getElementById('themeBtn');
     
-    // Set initial theme
     const savedTheme = localStorage.getItem('css-theme') || 'light';
     root.setAttribute('data-theme', savedTheme);
     themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
@@ -515,6 +480,7 @@
     const CSV_SUBJECTS = 'css_subjects%20-%20list.csv';
     const OPTIONAL_TARGET = 600, TOTAL_TARGET = 1200;
     let GROUPS = [], COMPULSORY = [];
+    const GROUP_MAP = {}; 
     const state = {}; 
     let showCompulsory = false, isDataLoaded = false;
 
@@ -543,7 +509,8 @@
         updateBUI();
         document.querySelector('.b-group[data-group="I"]')?.classList.add("open");
       } catch (error) {
-        bGroupsEl.innerHTML = `<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load subjects data.</div>`;
+        console.error(error);
+        bGroupsEl.innerHTML = `<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load subjects data. Check file name.</div>`;
       }
     }
 
@@ -580,6 +547,7 @@
         const subjectObj = { name: subjectName, marks: parseInt(row.marks, 10) || 100, recommended: row.recommended || "Any background" };
         
         if (isComp) { COMPULSORY.push(subjectObj); return; }
+        
         if (!GROUP_MAP[gNum]) {
           GROUP_MAP[gNum] = { groupNumber: gNum, name: row.category, rule: getRuleForGroup(gNum), maxSubjects: gNum === "II" ? 2 : 1, maxMarks: gNum === "I" || gNum === "II" ? 200 : 100, subjects: [] };
         }
@@ -589,7 +557,6 @@
       GROUPS.forEach(g => state[g.groupNumber] = []);
     }
 
-    const GROUP_MAP = {};
     function getRuleForGroup(g) {
       if (g === "I") return "Select ONE (200 marks).";
       if (g === "II") return "ONE 200-mark OR up to TWO 100-mark (max 200).";

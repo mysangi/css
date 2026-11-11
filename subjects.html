@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>CSS Optional Subject Builder</title>
+<style>
+  /* ---------- THEME TOKENS ---------- */
+  :root, [data-theme="dark"] {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #273449;
+    --accent: #38bdf8;
+    --ok: #22c55e;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+    --hover: #2e3d56;
+    --grey: #64748b;
+  }
+  [data-theme="light"] {
+    --bg: #f1f5f9;
+    --panel: #ffffff;
+    --panel-2: #e2e8f0;
+    --accent: #0284c7;
+    --ok: #16a34a;
+    --danger: #dc2626;
+    --warn: #d97706;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #cbd5e1;
+    --hover: #f1f5f9;
+    --grey: #94a3b8;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* ---------- header (compact fonts) ---------- */
+  header {
+    padding: 8px 12px 6px;
+    border-bottom: 1px solid var(--border);
+    flex: 0 0 auto;
+  }
+  .title-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  h1 { font-size: 0.95rem; margin: 0; font-weight: 700; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .version { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
+
+  .theme-btn {
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 3px 9px; font-size: 0.68rem; cursor: pointer;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .theme-btn:active { background: var(--hover); }
+
+  /* ---------- selected strip (TOP, clickable) ---------- */
+  .selected-strip {
+    margin-top: 8px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    max-height: 28vh;
+    overflow-y: auto;
+    flex: 0 0 auto;
+    transition: border-color 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .selected-strip.valid { border-color: var(--ok); }
+  .selected-strip:active { background: var(--panel-2); }
+  .strip-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .strip-head .lbl { font-size: 0.9rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .total-pill {
+    font-size: 0.95rem; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    background: var(--panel-2); color: var(--text);
+    transition: background 0.2s, color 0.2s;
+  }
+  .total-pill.ok { background: rgba(34,197,94,0.2); color: var(--ok); }
+  .total-pill.over { background: rgba(239,68,68,0.2); color: var(--danger); }
+  .total-pill.valid-grey { background: var(--panel-2); color: var(--grey); }
+
+  .expand-hint {
+    font-size: 0.72rem; color: var(--accent); margin-top: 4px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* ---------- SHARED ROW-CHIP LIST (home + full screen) ---------- */
+  .chosen-list { list-style: none; padding: 0; margin: 0; }
+  .chosen-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 8px; padding: 6px 10px; border-radius: 8px;
+    background: var(--panel-2); margin-bottom: 4px; font-size: 0.95rem;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, opacity 0.2s;
+  }
+  .chosen-list li.violating { background: rgba(239,68,68,0.12); }
+  .chosen-list li.g1  { border-left-color: #3b82f6; }
+  .chosen-list li.g2  { border-left-color: #22c55e; }
+  .chosen-list li.g3  { border-left-color: #a855f7; }
+  .chosen-list li.g4  { border-left-color: #f59e0b; }
+  .chosen-list li.g5  { border-left-color: #ec4899; }
+  .chosen-list li.g6  { border-left-color: #06b6d4; }
+  .chosen-list li.g7  { border-left-color: #f97316; }
+  .chosen-list li.violating.g1, .chosen-list li.violating.g2,
+  .chosen-list li.violating.g3, .chosen-list li.violating.g4,
+  .chosen-list li.violating.g5, .chosen-list li.violating.g6,
+  .chosen-list li.violating.g7 { border-left-color: var(--danger); }
+
+  .chip-left { display: flex; align-items: center; gap: 8px; }
+  .group-dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; display: inline-block; }
+  .g1 .group-dot { background: #3b82f6; }
+  .g2 .group-dot { background: #22c55e; }
+  .g3 .group-dot { background: #a855f7; }
+  .g4 .group-dot { background: #f59e0b; }
+  .g5 .group-dot { background: #ec4899; }
+  .g6 .group-dot { background: #06b6d4; }
+  .g7 .group-dot { background: #f97316; }
+
+  .chosen-list.valid li { border-left-color: var(--grey) !important; background: var(--panel-2); }
+  .chosen-list.valid .group-dot { background: var(--grey) !important; }
+
+  .chosen-list .rm {
+    color: var(--danger); background: none; border: none;
+    font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0 3px;
+  }
+  .chosen-list.valid .rm { color: var(--grey); }
+  .empty { color: var(--muted); font-size: 0.9rem; font-style: italic; padding: 2px 4px; }
+
+  .status { font-size: 0.9rem; margin-top: 6px; min-height: 18px; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--danger); }
+  .status.warn { color: var(--warn); }
+
+  .hint {
+    font-size: 0.85rem; padding: 6px 10px; border-radius: 8px;
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4);
+    color: var(--danger); margin-top: 6px; display: none;
+  }
+  .hint.show { display: block; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar {
+    display: flex; gap: 8px; padding: 8px 14px;
+    flex: 0 0 auto;
+  }
+  .toolbar button {
+    flex: 1; padding: 8px 10px; border-radius: 8px; cursor: pointer;
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); font-size: 0.9rem;
+  }
+  .toolbar button:active { background: var(--hover); }
+
+  /* ---------- groups (scrollable) ---------- */
+  #groups {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0 14px 0;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: 120px;
+  }
+  .group {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    scroll-margin-bottom: 100px;
+  }
+  .group.violation { border-color: var(--danger); }
+  .group-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 12px; cursor: pointer; user-select: none;
+    background: var(--panel-2); font-size: 0.95rem;
+  }
+  .group-header:active { background: var(--hover); }
+  .group-title { font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .group-title small { color: var(--muted); font-weight: 400; margin-left: 2px; font-size: 0.78rem; }
+
+  .group-badge { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; }
+  .group[data-group="I"]   .group-badge { background: #3b82f6; }
+  .group[data-group="II"]  .group-badge { background: #22c55e; }
+  .group[data-group="III"] .group-badge { background: #a855f7; }
+  .group[data-group="IV"]  .group-badge { background: #f59e0b; }
+  .group[data-group="V"]   .group-badge { background: #ec4899; }
+  .group[data-group="VI"]  .group-badge { background: #06b6d4; }
+  .group[data-group="VII"] .group-badge { background: #f97316; }
+
+  .chev { transition: transform 0.2s; color: var(--muted); font-size: 0.85rem; }
+  .group.open .chev { transform: rotate(90deg); }
+  .group-body { display: none; padding: 8px; }
+  .group.open .group-body { display: block; }
+  .rule { font-size: 0.82rem; color: var(--accent); padding: 2px 8px 6px; }
+  .rule-flag { font-size: 0.82rem; color: var(--danger); padding: 0 8px 6px; font-weight: 600; }
+
+  .subject {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid transparent; margin-bottom: 5px; font-size: 0.95rem;
+  }
+  .subject:active { background: var(--hover); }
+  .subject.selected { background: rgba(56,189,248,0.15); border-color: var(--accent); }
+  .subject.selected.violating { background: rgba(239,68,68,0.15); border-color: var(--danger); }
+  .marks { font-size: 0.82rem; color: var(--muted); }
+  .subject.selected .marks { color: var(--accent); }
+  .subject.selected.violating .marks { color: var(--danger); }
+
+  /* ============================================================
+     FULL-SCREEN "FINAL CHOICE" OVERLAY  (whole panel scrolls)
+     ============================================================ */
+  .final-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--bg);
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .final-overlay.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .final-inner {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px
+             calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .final-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+    flex: 0 0 auto;
+  }
+  .final-head h2 { font-size: 1.15rem; margin: 0; font-weight: 700; }
+  .final-close {
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 14px; font-size: 0.85rem; cursor: pointer;
+  }
+  .final-close:active { background: var(--hover); }
+
+  /* summary row: total marks + count of subjects */
+  .final-summary {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    flex: 0 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+  .final-summary.valid { border-color: var(--ok); }
+  .sum-block { display: flex; flex-direction: column; gap: 2px; }
+  .sum-block.right { align-items: flex-end; }
+  .sum-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .sum-total { font-size: 1.5rem; font-weight: 700; }
+  .sum-count { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .final-summary.valid .sum-total { color: var(--ok); }
+  .final-summary.valid .sum-count { color: var(--ok); }
+  .final-summary.over .sum-total { color: var(--danger); }
+
+  /* full-screen chip list — grows naturally, no inner scroll */
+  .final-overlay .chosen-list {
+    flex: 0 0 auto;
+    margin-bottom: 8px;
+  }
+  .final-overlay .chosen-list li {
+    padding: 14px 14px;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border-left-width: 5px;
+  }
+  .final-overlay .chosen-list .rm { font-size: 1.4rem; }
+
+  .final-status {
+    font-size: 0.88rem; margin-top: 4px; text-align: center;
+    flex: 0 0 auto; min-height: 18px;
+  }
+  .final-status.ok { color: var(--ok); }
+  .final-status.err { color: var(--danger); }
+  .final-status.warn { color: var(--warn); }
+
+  .final-foot {
+    flex: 0 0 auto;
+    margin-top: auto;
+    padding-top: 12px;
+    display: flex; gap: 10px;
+  }
+  .final-foot button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .final-foot .confirm {
+    background: var(--ok); color: #fff; border-color: var(--ok);
+  }
+  .final-foot .confirm:disabled {
+    background: var(--panel-2); color: var(--muted); border-color: var(--border);
+    cursor: not-allowed; opacity: 0.7;
+  }
+
+  /* copy row */
+  .copy-row {
+    display: flex; gap: 10px;
+    margin-top: 10px;
+    flex: 0 0 auto;
+  }
+  .copy-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+    background: rgba(56,189,248,0.12);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .copy-btn:active { background: rgba(56,189,248,0.25); }
+  .copy-btn.copied {
+    border-color: var(--ok); color: var(--ok);
+    background: rgba(34,197,94,0.15);
+  }
+
+  /* ============================================================
+     DESKTOP ENHANCEMENTS (min-width: 760px)
+     ============================================================ */
+  @media (min-width: 760px) {
+    body { max-width: 1100px; margin: 0 auto; font-size: 17px; }
+    h1 { font-size: 1.2rem; }
+    .version { font-size: 0.7rem; }
+    .theme-btn { font-size: 0.78rem; padding: 5px 12px; }
+
+    /* two-column layout: left = selected summary, right = groups */
+    .desktop-layout {
+      display: flex;
+      flex: 1 1 auto;
+      overflow: hidden;
+      gap: 16px;
+      padding: 12px 20px;
+      min-height: 0;
+    }
+
+    .desktop-left {
+      flex: 0 0 340px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: 100%;
+    }
+
+    .desktop-right {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    /* selected strip becomes a panel in left column */
+    .selected-strip {
+      max-height: none;
+      overflow-y: visible;
+      margin-top: 0;
+      cursor: default;
+      flex: 0 0 auto;
+    }
+    .selected-strip .expand-hint { display: none; }
+
+    /* toolbar above right column */
+    .toolbar {
+      padding: 0 0 8px 0;
+      flex: 0 0 auto;
+    }
+
+    #groups {
+      padding: 0;
+      padding-bottom: 0;
+      scroll-padding-bottom: 0;
+      overflow-y: visible;
+      flex: 1 1 auto;
+    }
+
+    .group-header { padding: 14px 16px; font-size: 1rem; }
+    .subject { padding: 12px 16px; font-size: 1rem; }
+    .chosen-list li { font-size: 0.98rem; padding: 8px 12px; }
+
+    /* larger subject rows for better mouse targeting */
+    .subject:hover:not(.selected) { background: var(--hover); }
+    .group-header:hover { background: var(--hover); }
+
+    /* final overlay wider, centered, with more padding */
+    .final-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+    .final-head h2 { font-size: 1.5rem; }
+    .final-overlay .chosen-list li { font-size: 1.05rem; padding: 16px 18px; }
+    .final-summary { padding: 18px 22px; }
+    .sum-total, .sum-count { font-size: 2rem; }
+    .final-foot button { padding: 16px; font-size: 1.05rem; }
+    .copy-btn { padding: 16px; font-size: 1rem; }
+
+    /* no bottom padding needed on desktop */
+    body { overflow: hidden; }
+
+    /* keyboard focus styles */
+    .subject:focus-visible,
+    .group-header:focus-visible,
+    .toolbar button:focus-visible,
+    .theme-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+
+  /* ---------- Mobile-only wrappers ---------- */
+  .desktop-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .desktop-left, .desktop-right {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .desktop-left { flex: 0 0 auto; }
+  .desktop-right { flex: 1 1 auto; overflow: hidden; }
+
+  /* On mobile: hide the desktop-left's extra spacing, keep it at top */
+  @media (max-width: 759px) {
+    .desktop-layout { padding: 0; }
+    .desktop-left { flex: 0 0 auto; }
+    .desktop-right { flex: 1 1 auto; }
+    .toolbar { padding: 8px 14px; }
+  }
+
+  /* Scrollbar styling (desktop) */
+  @media (min-width: 760px) {
+    #groups::-webkit-scrollbar,
+    .desktop-left::-webkit-scrollbar,
+    .desktop-right::-webkit-scrollbar { width: 8px; }
+    #groups::-webkit-scrollbar-track,
+    .desktop-left::-webkit-scrollbar-track,
+    .desktop-right::-webkit-scrollbar-track { background: var(--panel-2); border-radius: 4px; }
+    #groups::-webkit-scrollbar-thumb,
+    .desktop-left::-webkit-scrollbar-thumb,
+    .desktop-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    #groups::-webkit-scrollbar-thumb:hover,
+    .desktop-left::-webkit-scrollbar-thumb:hover,
+    .desktop-right::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <h1>CSS Optional Subject Builder</h1>
+    <div class="header-right">
+      <span class="version">v3.0</span>
+      <button class="theme-btn" id="themeBtn" title="Toggle theme">🌙 Dark</button>
+    </div>
+  </div>
+</header>
+
+<!-- DESKTOP LAYOUT: left = selected, right = groups -->
+<div class="desktop-layout">
+  <div class="desktop-left">
+    <div class="selected-strip" id="selectedStrip" title="Click to view full screen">
+      <div class="strip-head">
+        <span class="lbl">Selected · target 600</span>
+        <span class="total-pill" id="totalPill">0 / 600</span>
+      </div>
+      <ul class="chosen-list" id="chosenList">
+        <li class="empty">No subjects selected yet.</li>
+      </ul>
+      <div class="status" id="status">Select subjects to begin.</div>
+      <div class="hint" id="hintBox"></div>
+      <div class="expand-hint">⤢ Click to view full screen &amp; confirm</div>
+    </div>
+  </div>
+
+  <div class="desktop-right">
+    <div class="toolbar">
+      <button id="expandAllBtn">Expand All</button>
+      <button id="collapseAllBtn">Collapse All</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <div id="groups"></div>
+  </div>
+</div>
+
+<!-- ============ FULL-SCREEN FINAL CHOICE OVERLAY (scrolls) ============ -->
+<div class="final-overlay" id="finalOverlay" aria-hidden="true">
+  <div class="final-inner">
+
+    <div class="final-head">
+      <h2>Final Choice — Review</h2>
+      <button class="final-close" id="finalCloseBtn">✕ Close</button>
+    </div>
+
+    <div class="final-summary" id="finalSummary">
+      <div class="sum-block">
+        <span class="sum-label">Total marks</span>
+        <span class="sum-total" id="finalTotal">0 / 600</span>
+      </div>
+      <div class="sum-block right">
+        <span class="sum-label">Subjects</span>
+        <span class="sum-count" id="finalCount">0</span>
+      </div>
+    </div>
+
+    <ul class="chosen-list" id="finalList"></ul>
+
+    <div class="copy-row">
+      <button class="copy-btn" id="copyBtn">📋 Copy all selected</button>
+    </div>
+
+    <div class="final-status" id="finalStatus"></div>
+
+    <div class="final-foot">
+      <button id="finalBackBtn">← Back to builder</button>
+      <button class="confirm" id="finalConfirmBtn" disabled>✓ Confirm 600</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ================= THEME ================= */
+const themeBtn = document.getElementById("themeBtn");
+const root = document.documentElement;
+
+function applyTheme(theme) {
+  root.setAttribute("data-theme", theme);
+  themeBtn.textContent = theme === "dark" ? "🌙 Dark" : "☀️ Light";
+  try { localStorage.setItem("css-builder-theme", theme); } catch(e) {}
+}
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem("css-builder-theme"); } catch(e) {}
+  const prefersLight = window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: light)").matches;
+  applyTheme(saved || (prefersLight ? "light" : "dark"));
+})();
+themeBtn.addEventListener("click", () => {
+  const current = root.getAttribute("data-theme") || "dark";
+  applyTheme(current === "dark" ? "light" : "dark");
+});
+
+/* ================= DATA ================= */
+const GROUPS = [
+  { groupNumber:"I", name:"Commerce & Social Sciences",
+    rule:"Select ONE (200 marks).", maxSubjects:1, maxMarks:200,
+    subjects:[
+      {name:"Accountancy & Auditing",marks:200},
+      {name:"Economics",marks:200},
+      {name:"Computer Science",marks:200},
+      {name:"Political Science",marks:200},
+      {name:"International Relations",marks:200}
+    ]},
+  { groupNumber:"II", name:"Sciences & Mathematics",
+    rule:"ONE 200-mark OR up to TWO 100-mark (max 200).", maxSubjects:2, maxMarks:200,
+    subjects:[
+      {name:"Physics",marks:200},
+      {name:"Chemistry",marks:200},
+      {name:"Applied Mathematics",marks:100},
+      {name:"Pure Mathematics",marks:100},
+      {name:"Statistics",marks:100},
+      {name:"Geology",marks:100}
+    ]},
+  { groupNumber:"III", name:"Administration & Governance",
+    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
+    subjects:[
+      {name:"Business Administration",marks:100},
+      {name:"Public Administration",marks:100},
+      {name:"Governance & Public Policies",marks:100},
+      {name:"Town Planning & Urban Management",marks:100}
+    ]},
+  { groupNumber:"IV", name:"History",
+    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
+    subjects:[
+      {name:"History of Pakistan & India",marks:100},
+      {name:"Islamic History & Culture",marks:100},
+      {name:"British History",marks:100},
+      {name:"European History",marks:100},
+      {name:"History of USA",marks:100}
+    ]},
+  { groupNumber:"V", name:"Natural Sciences & Literature",
+    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
+    subjects:[
+      {name:"Gender Studies",marks:100},
+      {name:"Environmental Sciences",marks:100},
+      {name:"Agriculture & Forestry",marks:100},
+      {name:"Botany",marks:100},
+      {name:"Zoology",marks:100},
+      {name:"English Literature",marks:100},
+      {name:"Urdu Literature",marks:100}
+    ]},
+  { groupNumber:"VI", name:"Law & Philosophy",
+    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
+    subjects:[
+      {name:"Law",marks:100},
+      {name:"Constitutional Law",marks:100},
+      {name:"International Law",marks:100},
+      {name:"Muslim Law & Jurisprudence",marks:100},
+      {name:"Mercantile Law",marks:100},
+      {name:"Criminology",marks:100},
+      {name:"Philosophy",marks:100}
+    ]},
+  { groupNumber:"VII", name:"Social Sciences & Languages",
+    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
+    subjects:[
+      {name:"Journalism & Mass Communication",marks:100},
+      {name:"Psychology",marks:100},
+      {name:"Geography",marks:100},
+      {name:"Sociology",marks:100},
+      {name:"Anthropology",marks:100},
+      {name:"Punjabi",marks:100},
+      {name:"Sindhi",marks:100},
+      {name:"Pashto",marks:100},
+      {name:"Balochi",marks:100},
+      {name:"Persian",marks:100},
+      {name:"Arabic",marks:100}
+    ]}
+];
+
+const TARGET = 600;
+const STORAGE_KEY = "css-builder-selection";
+
+/* ================= STATE (with persistence) ================= */
+const state = {};
+GROUPS.forEach(g => state[g.groupNumber] = []);
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) {}
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    GROUPS.forEach(g => {
+      const saved = parsed[g.groupNumber];
+      if (Array.isArray(saved)) {
+        state[g.groupNumber] = saved.filter(n =>
+          g.subjects.some(s => s.name === n)
+        );
+      }
+    });
+  } catch(e) {}
+}
+
+const chipClass = { "I":"g1","II":"g2","III":"g3","IV":"g4","V":"g5","VI":"g6","VII":"g7" };
+
+const groupsEl      = document.getElementById("groups");
+const totalPill     = document.getElementById("totalPill");
+const statusEl      = document.getElementById("status");
+const hintBox       = document.getElementById("hintBox");
+const chosenListEl  = document.getElementById("chosenList");
+const selectedStrip = document.getElementById("selectedStrip");
+
+/* full-screen elements */
+const finalOverlay    = document.getElementById("finalOverlay");
+const finalList       = document.getElementById("finalList");
+const finalTotal      = document.getElementById("finalTotal");
+const finalCount      = document.getElementById("finalCount");
+const finalSummary    = document.getElementById("finalSummary");
+const finalStatus     = document.getElementById("finalStatus");
+const finalConfirmBtn = document.getElementById("finalConfirmBtn");
+const copyBtn         = document.getElementById("copyBtn");
+
+/* ================= HELPERS ================= */
+const subj = (g, n) => GROUPS.find(x => x.groupNumber === g).subjects.find(s => s.name === n);
+const groupMarks = g => state[g].reduce((s, n) => s + subj(g, n).marks, 0);
+const totalMarks = () => GROUPS.reduce((s, g) => s + groupMarks(g.groupNumber), 0);
+const totalCount = () => GROUPS.reduce((s, g) => s + state[g.groupNumber].length, 0);
+
+function getViolations() {
+  const v = [];
+  GROUPS.forEach(g => {
+    const sel = state[g.groupNumber];
+    if (!sel.length) return;
+    const m = groupMarks(g.groupNumber);
+    if (sel.length > g.maxSubjects)
+      v.push({group:g.groupNumber, type:"count",
+        message:`Group ${g.groupNumber}: ${sel.length} picked — FPSC allows ${g.maxSubjects}. Remove ${sel.length-g.maxSubjects}.`});
+    if (m > g.maxMarks)
+      v.push({group:g.groupNumber, type:"marks",
+        message:`Group ${g.groupNumber}: ${m} marks — cap is ${g.maxMarks}. Remove ${m-g.maxMarks}.`});
+    if (g.groupNumber === "II" && sel.length > 1 &&
+        sel.some(n => subj("II", n).marks === 200))
+      v.push({group:"II", type:"mix",
+        message:`Group II: a 200-mark subject can't be combined with another. Remove the extra subject(s).`});
+  });
+  const t = totalMarks();
+  if (t !== TARGET)
+    v.push({group:null, type:"total",
+      message: t > TARGET
+        ? `Total ${t} — over by ${t-TARGET}. Remove ${t-TARGET} marks.`
+        : `Total ${t} — need ${TARGET-t} more marks.`});
+  return v;
+}
+
+function violatingKeys() {
+  const keys = new Set();
+  GROUPS.forEach(g => {
+    const sel = state[g.groupNumber];
+    if (!sel.length) return;
+    const m = groupMarks(g.groupNumber);
+    const overCount = sel.length > g.maxSubjects;
+    const overMarks = m > g.maxMarks;
+    const mixII = g.groupNumber === "II" && sel.length > 1 &&
+                  sel.some(n => subj("II", n).marks === 200);
+    if (overCount || overMarks || mixII)
+      sel.forEach(n => keys.add(`${g.groupNumber}|${n}`));
+  });
+  return keys;
+}
+
+function buildChips(ulEl, flagged, onRemove) {
+  ulEl.innerHTML = "";
+  let any = false;
+  GROUPS.forEach(g => {
+    state[g.groupNumber].forEach(n => {
+      any = true;
+      const s = subj(g.groupNumber, n);
+      const li = document.createElement("li");
+      li.className = chipClass[g.groupNumber];
+      if (flagged.has(`${g.groupNumber}|${n}`)) li.classList.add("violating");
+      li.innerHTML = `
+        <span class="chip-left">
+          <span class="group-dot"></span>
+          <span>G${g.groupNumber}: ${s.name} <span class="marks">(${s.marks})</span></span>
+        </span>
+        <button class="rm" title="Remove">×</button>`;
+      li.querySelector(".rm").addEventListener("click", (e) => {
+        e.stopPropagation();
+        onRemove(g.groupNumber, n);
+      });
+      ulEl.appendChild(li);
+    });
+  });
+  return any;
+}
+
+/* ================= RENDER GROUPS ================= */
+function renderGroups() {
+  groupsEl.innerHTML = "";
+  GROUPS.forEach(g => {
+    const d = document.createElement("div");
+    d.className = "group";
+    d.dataset.group = g.groupNumber;
+    d.innerHTML = `
+      <div class="group-header">
+        <span class="group-title">
+          <span class="group-badge"></span>
+          Group ${g.groupNumber} — ${g.name}
+          <small>${g.rule}</small>
+        </span>
+        <span class="chev">▶</span>
+      </div>
+      <div class="group-body">
+        <div class="rule">${g.rule}</div>
+        <div class="rule-flag" data-flag="${g.groupNumber}"></div>
+      </div>`;
+    d.querySelector(".group-header")
+      .addEventListener("click", () => d.classList.toggle("open"));
+    const body = d.querySelector(".group-body");
+    g.subjects.forEach(s => {
+      const row = document.createElement("div");
+      row.className = "subject";
+      row.dataset.group = g.groupNumber;
+      row.dataset.subject = s.name;
+      row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span>`;
+      row.addEventListener("click", () => toggle(g.groupNumber, s.name));
+      body.appendChild(row);
+    });
+    groupsEl.appendChild(d);
+  });
+}
+
+function toggle(g, n) {
+  const sel = state[g];
+  const i = sel.indexOf(n);
+  if (i === -1) sel.push(n); else sel.splice(i, 1);
+  updateUI();
+  saveState();
+}
+
+/* ================= UPDATE ================= */
+function updateUI() {
+  const violations = getViolations();
+  const flagged = violatingKeys();
+  const total = totalMarks();
+  const isValid = total === TARGET;
+
+  document.querySelectorAll(".subject").forEach(row => {
+    const g = row.dataset.group, s = row.dataset.subject;
+    const isSel = state[g].includes(s);
+    row.classList.toggle("selected", isSel);
+    row.classList.toggle("violating", isSel && flagged.has(`${g}|${s}`));
+  });
+
+  GROUPS.forEach(g => {
+    const gd = document.querySelector(`.group[data-group="${g.groupNumber}"]`);
+    const flagEl = gd.querySelector(`.rule-flag[data-flag="${g.groupNumber}"]`);
+    const gv = violations.filter(v => v.group === g.groupNumber);
+    gd.classList.toggle("violation", gv.length > 0);
+    flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
+  });
+
+  totalPill.textContent = `${total} / ${TARGET}`;
+  totalPill.className = "total-pill";
+  if (isValid) totalPill.classList.add("valid-grey");
+  else if (total > TARGET) totalPill.classList.add("over");
+  else totalPill.classList.add("ok");
+
+  selectedStrip.classList.toggle("valid", isValid);
+
+  statusEl.className = "status";
+  const tv = violations.find(v => v.type === "total");
+  const rv = violations.filter(v => v.type !== "total");
+  if (tv && tv.message.includes("over")) {
+    statusEl.classList.add("err"); statusEl.textContent = "❌ " + tv.message;
+  } else if (rv.length) {
+    statusEl.classList.add("err"); statusEl.textContent = "❌ FPSC rule violation — see highlighted groups.";
+  } else if (isValid) {
+    statusEl.classList.add("ok"); statusEl.textContent = "✅ Valid FPSC combination — exactly 600 marks!";
+  } else {
+    statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + tv.message;
+  }
+
+  if (violations.length) {
+    hintBox.classList.add("show");
+    hintBox.innerHTML = "<strong>To fix:</strong><br>• " +
+      violations.map(v => v.message).join("<br>• ");
+  } else {
+    hintBox.classList.remove("show"); hintBox.innerHTML = "";
+  }
+
+  chosenListEl.classList.toggle("valid", isValid);
+  const anyHome = buildChips(chosenListEl, flagged, (g, n) => {
+    state[g] = state[g].filter(x => x !== n);
+    updateUI();
+    saveState();
+  });
+  if (!anyHome) chosenListEl.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
+
+  if (finalOverlay.classList.contains("open")) renderFinal();
+}
+
+/* ================= FULL-SCREEN FINAL CHOICE ================= */
+function renderFinal() {
+  const violations = getViolations();
+  const flagged = violatingKeys();
+  const total = totalMarks();
+  const count = totalCount();
+  const isValid = total === TARGET;
+
+  finalTotal.textContent = `${total} / ${TARGET}`;
+  finalCount.textContent = `${count}`;
+  finalSummary.className = "final-summary";
+  if (isValid) finalSummary.classList.add("valid");
+  else if (total > TARGET) finalSummary.classList.add("over");
+
+  finalList.classList.toggle("valid", isValid);
+  const any = buildChips(finalList, flagged, (g, n) => {
+    state[g] = state[g].filter(x => x !== n);
+    updateUI();
+    saveState();
+  });
+  if (!any) {
+    finalList.innerHTML = `<li class="empty">No subjects selected yet. Go back and pick some.</li>`;
+  }
+
+  finalStatus.className = "final-status";
+  const tv = violations.find(v => v.type === "total");
+  const rv = violations.filter(v => v.type !== "total");
+  if (isValid) {
+    finalStatus.classList.add("ok");
+    finalStatus.textContent = "✅ Exactly 600 marks — ready to confirm.";
+  } else if (total > TARGET) {
+    finalStatus.classList.add("err");
+    finalStatus.textContent = `❌ Over by ${total-TARGET} marks — remove subjects to reach 600.`;
+  } else if (rv.length) {
+    finalStatus.classList.add("err");
+    finalStatus.textContent = "❌ FPSC rule violation — remove the red items.";
+  } else {
+    finalStatus.classList.add("warn");
+    finalStatus.textContent = `⚠ Need ${TARGET-total} more marks to confirm.`;
+  }
+
+  finalConfirmBtn.disabled = !isValid;
+
+  copyBtn.disabled = totalCount() === 0;
+  copyBtn.style.opacity = totalCount() === 0 ? 0.5 : 1;
+  copyBtn.style.cursor = totalCount() === 0 ? "not-allowed" : "pointer";
+}
+
+/* ================= COPY ALL SELECTED ================= */
+function buildCopyText() {
+  const lines = [];
+  lines.push("CSS Optional Subjects — Final Choice");
+  lines.push("====================================");
+  GROUPS.forEach(g => {
+    state[g.groupNumber].forEach(n => {
+      const s = subj(g.groupNumber, n);
+      lines.push(`Group ${g.groupNumber} — ${s.name} (${s.marks} marks)`);
+    });
+  });
+  lines.push("------------------------------------");
+  lines.push(`Total subjects: ${totalCount()}`);
+  lines.push(`Total marks: ${totalMarks()} / ${TARGET}`);
+  return lines.join("\n");
+}
+
+copyBtn.addEventListener("click", async () => {
+  const text = buildCopyText();
+  let ok = false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch(e) { ok = false; }
+
+  if (!ok) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      ok = true;
+    } catch(e) { ok = false; }
+  }
+
+  if (ok) {
+    const original = copyBtn.textContent;
+    copyBtn.classList.add("copied");
+    copyBtn.textContent = "✓ Copied!";
+    setTimeout(() => {
+      copyBtn.classList.remove("copied");
+      copyBtn.textContent = original;
+    }, 1500);
+  } else {
+    alert(text);
+  }
+});
+
+/* ================= OPEN / CLOSE OVERLAY ================= */
+function openFinal() {
+  renderFinal();
+  finalOverlay.classList.add("open");
+  finalOverlay.setAttribute("aria-hidden", "false");
+  finalOverlay.scrollTop = 0;
+}
+function closeFinal() {
+  finalOverlay.classList.remove("open");
+  finalOverlay.setAttribute("aria-hidden", "true");
+}
+
+selectedStrip.addEventListener("click", openFinal);
+document.getElementById("finalCloseBtn").addEventListener("click", closeFinal);
+document.getElementById("finalBackBtn").addEventListener("click", closeFinal);
+finalConfirmBtn.addEventListener("click", () => {
+  if (totalMarks() !== TARGET) return;
+  closeFinal();
+  selectedStrip.style.transition = "box-shadow 0.15s";
+  selectedStrip.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.5)";
+  setTimeout(() => { selectedStrip.style.boxShadow = ""; }, 600);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && finalOverlay.classList.contains("open")) closeFinal();
+});
+
+/* ================= TOOLBAR ================= */
+document.getElementById("expandAllBtn").addEventListener("click", () => {
+  document.querySelectorAll(".group").forEach(g => g.classList.add("open"));
+});
+document.getElementById("collapseAllBtn").addEventListener("click", () => {
+  document.querySelectorAll(".group").forEach(g => g.classList.remove("open"));
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  GROUPS.forEach(g => state[g.groupNumber] = []);
+  updateUI();
+  saveState();
+});
+
+/* ================= INIT ================= */
+loadState();
+renderGroups();
+updateUI();
+document.querySelector('.group[data-group="I"]').classList.add("open");
+</script>
+</body>
+</html>

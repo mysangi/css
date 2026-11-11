@@ -51,7 +51,7 @@
     transition: background 0.2s, color 0.2s;
   }
 
-  /* ---------- header (compact fonts) ---------- */
+  /* ---------- header ---------- */
   header {
     padding: 8px 12px 6px;
     border-bottom: 1px solid var(--border);
@@ -63,7 +63,7 @@
   h1 { font-size: 0.95rem; margin: 0; font-weight: 700; }
   .header-right { display: flex; align-items: center; gap: 8px; }
   .version { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
-
+  
   .theme-btn {
     background: var(--panel-2); color: var(--text);
     border: 1px solid var(--border); border-radius: 999px;
@@ -72,7 +72,7 @@
   }
   .theme-btn:active { background: var(--hover); }
 
-  /* ---------- selected strip (TOP, clickable) ---------- */
+  /* ---------- selected strip ---------- */
   .selected-strip {
     margin-top: 8px;
     background: var(--panel);
@@ -102,12 +102,9 @@
   .total-pill.over { background: rgba(239,68,68,0.2); color: var(--danger); }
   .total-pill.valid-grey { background: var(--panel-2); color: var(--grey); }
 
-  .expand-hint {
-    font-size: 0.72rem; color: var(--accent); margin-top: 4px;
-    display: flex; align-items: center; gap: 4px;
-  }
+  .expand-hint { font-size: 0.72rem; color: var(--accent); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
-  /* ---------- SHARED ROW-CHIP LIST (home + full screen) ---------- */
+  /* ---------- SHARED ROW-CHIP LIST ---------- */
   .chosen-list { list-style: none; padding: 0; margin: 0; }
   .chosen-list li {
     display: flex; justify-content: space-between; align-items: center;
@@ -162,10 +159,7 @@
   .hint.show { display: block; }
 
   /* ---------- toolbar ---------- */
-  .toolbar {
-    display: flex; gap: 8px; padding: 8px 14px;
-    flex: 0 0 auto;
-  }
+  .toolbar { display: flex; gap: 8px; padding: 8px 14px; flex: 0 0 auto; }
   .toolbar button {
     flex: 1; padding: 8px 10px; border-radius: 8px; cursor: pointer;
     background: var(--panel-2); color: var(--text);
@@ -173,7 +167,7 @@
   }
   .toolbar button:active { background: var(--hover); }
 
-  /* ---------- groups (scrollable) ---------- */
+  /* ---------- groups ---------- */
   #groups {
     flex: 1 1 auto;
     overflow-y: auto;
@@ -216,70 +210,67 @@
   .rule { font-size: 0.82rem; color: var(--accent); padding: 2px 8px 6px; }
   .rule-flag { font-size: 0.82rem; color: var(--danger); padding: 0 8px 6px; font-weight: 600; }
 
+  /* ---------- SUBJECT ROW & RECOMMENDED HOVER ---------- */
   .subject {
+    position: relative;
     display: flex; justify-content: space-between; align-items: center;
     padding: 10px 12px; border-radius: 8px; cursor: pointer;
     border: 1px solid transparent; margin-bottom: 5px; font-size: 0.95rem;
+    transition: background 0.2s;
   }
   .subject:active { background: var(--hover); }
+  
+  /* Hover effect that shows recommended background */
+  .subject:hover { background: var(--hover); border-color: var(--border); }
+  .subject:hover .rec-badge { display: block; }
+  
   .subject.selected { background: rgba(56,189,248,0.15); border-color: var(--accent); }
   .subject.selected.violating { background: rgba(239,68,68,0.15); border-color: var(--danger); }
+  
   .marks { font-size: 0.82rem; color: var(--muted); }
   .subject.selected .marks { color: var(--accent); }
   .subject.selected.violating .marks { color: var(--danger); }
 
-  /* ============================================================
-     FULL-SCREEN "FINAL CHOICE" OVERLAY  (whole panel scrolls)
-     ============================================================ */
+  /* Recommended Popup */
+  .rec-badge {
+    display: none;
+    position: absolute;
+    top: 100%; left: 10px; right: 10px;
+    margin-top: 4px;
+    padding: 8px 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--text);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none; /* Prevents flickering when moving mouse over the popup */
+  }
+  .rec-badge strong { color: var(--accent); }
+
+  /* ---------- OVERLAY ---------- */
   .final-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    background: var(--bg);
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
-    transition: opacity 0.22s ease, transform 0.22s ease;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--bg); opacity: 0; transform: translateY(20px);
+    pointer-events: none; transition: opacity 0.22s ease, transform 0.22s ease;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
-  .final-overlay.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
+  .final-overlay.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
   .final-inner {
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px
-             calc(16px + env(safe-area-inset-bottom, 0px));
+    min-height: 100%; display: flex; flex-direction: column;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px));
   }
-
-  .final-head {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 10px;
-    flex: 0 0 auto;
-  }
+  .final-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex: 0 0 auto; }
   .final-head h2 { font-size: 1.15rem; margin: 0; font-weight: 700; }
-  .final-close {
-    background: var(--panel-2); color: var(--text);
-    border: 1px solid var(--border); border-radius: 999px;
-    padding: 6px 14px; font-size: 0.85rem; cursor: pointer;
-  }
-  .final-close:active { background: var(--hover); }
-
-  /* summary row: total marks + count of subjects */
+  .final-close { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 0.85rem; cursor: pointer; }
+  
   .final-summary {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-    flex: 0 0 auto;
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 12px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+    flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;
   }
   .final-summary.valid { border-color: var(--ok); }
   .sum-block { display: flex; flex-direction: column; gap: 2px; }
@@ -291,76 +282,28 @@
   .final-summary.valid .sum-count { color: var(--ok); }
   .final-summary.over .sum-total { color: var(--danger); }
 
-  /* full-screen chip list — grows naturally, no inner scroll */
-  .final-overlay .chosen-list {
-    flex: 0 0 auto;
-    margin-bottom: 8px;
-  }
-  .final-overlay .chosen-list li {
-    padding: 14px 14px;
-    font-size: 1rem;
-    margin-bottom: 8px;
-    border-radius: 10px;
-    border-left-width: 5px;
-  }
+  .final-overlay .chosen-list { flex: 0 0 auto; margin-bottom: 8px; }
+  .final-overlay .chosen-list li { padding: 14px 14px; font-size: 1rem; margin-bottom: 8px; border-radius: 10px; border-left-width: 5px; }
   .final-overlay .chosen-list .rm { font-size: 1.4rem; }
 
-  .final-status {
-    font-size: 0.88rem; margin-top: 4px; text-align: center;
-    flex: 0 0 auto; min-height: 18px;
-  }
+  .final-status { font-size: 0.88rem; margin-top: 4px; text-align: center; flex: 0 0 auto; min-height: 18px; }
   .final-status.ok { color: var(--ok); }
   .final-status.err { color: var(--danger); }
   .final-status.warn { color: var(--warn); }
 
-  .final-foot {
-    flex: 0 0 auto;
-    margin-top: auto;
-    padding-top: 12px;
-    display: flex; gap: 10px;
-  }
-  .final-foot button {
-    flex: 1;
-    padding: 14px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--panel-2);
-    color: var(--text);
-  }
-  .final-foot .confirm {
-    background: var(--ok); color: #fff; border-color: var(--ok);
-  }
-  .final-foot .confirm:disabled {
-    background: var(--panel-2); color: var(--muted); border-color: var(--border);
-    cursor: not-allowed; opacity: 0.7;
-  }
+  .final-foot { flex: 0 0 auto; margin-top: auto; padding-top: 12px; display: flex; gap: 10px; }
+  .final-foot button { flex: 1; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); }
+  .final-foot .confirm { background: var(--ok); color: #fff; border-color: var(--ok); }
+  .final-foot .confirm:disabled { background: var(--panel-2); color: var(--muted); border-color: var(--border); cursor: not-allowed; opacity: 0.7; }
 
-  /* copy row */
-  .copy-row {
-    display: flex; gap: 10px;
-    margin-top: 10px;
-    flex: 0 0 auto;
-  }
+  .copy-row { display: flex; gap: 10px; margin-top: 10px; flex: 0 0 auto; }
   .copy-btn {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1px solid var(--accent);
-    background: rgba(56,189,248,0.12);
-    color: var(--accent);
+    flex: 1; padding: 12px; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    border: 1px solid var(--accent); background: rgba(56,189,248,0.12); color: var(--accent);
     display: flex; align-items: center; justify-content: center; gap: 6px;
   }
   .copy-btn:active { background: rgba(56,189,248,0.25); }
-  .copy-btn.copied {
-    border-color: var(--ok); color: var(--ok);
-    background: rgba(34,197,94,0.15);
-  }
+  .copy-btn.copied { border-color: var(--ok); color: var(--ok); background: rgba(34,197,94,0.15); }
 
   @media (min-width: 760px) {
     body { max-width: 760px; margin: 0 auto; font-size: 17px; }
@@ -382,7 +325,7 @@
   <div class="title-row">
     <h1>CSS Optional Subject Builder</h1>
     <div class="header-right">
-      <span class="version">v2.9</span>
+      <span class="version">v3.0</span>
       <button class="theme-btn" id="themeBtn" title="Toggle theme">🌙 Dark</button>
     </div>
   </div>
@@ -393,7 +336,7 @@
       <span class="total-pill" id="totalPill">0 / 600</span>
     </div>
     <ul class="chosen-list" id="chosenList">
-      <li class="empty">No subjects selected yet.</li>
+      <li class="empty">Loading subjects...</li>
     </ul>
     <div class="status" id="status">Select subjects to begin.</div>
     <div class="hint" id="hintBox"></div>
@@ -409,10 +352,9 @@
 
 <div id="groups"></div>
 
-<!-- ============ FULL-SCREEN FINAL CHOICE OVERLAY (scrolls) ============ -->
+<!-- ============ FULL-SCREEN FINAL CHOICE OVERLAY ============ -->
 <div class="final-overlay" id="finalOverlay" aria-hidden="true">
   <div class="final-inner">
-
     <div class="final-head">
       <h2>Final Choice — Review</h2>
       <button class="final-close" id="finalCloseBtn">✕ Close</button>
@@ -429,10 +371,8 @@
       </div>
     </div>
 
-    <!-- SAME row-chip layout as home, just bigger -->
     <ul class="chosen-list" id="finalList"></ul>
 
-    <!-- Copy all selected -->
     <div class="copy-row">
       <button class="copy-btn" id="copyBtn">📋 Copy all selected</button>
     </div>
@@ -443,7 +383,6 @@
       <button id="finalBackBtn">← Back to builder</button>
       <button class="confirm" id="finalConfirmBtn" disabled>✓ Confirm 600</button>
     </div>
-
   </div>
 </div>
 
@@ -460,8 +399,7 @@ function applyTheme(theme) {
 (function initTheme() {
   let saved = null;
   try { saved = localStorage.getItem("css-builder-theme"); } catch(e) {}
-  const prefersLight = window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: light)").matches;
+  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
   applyTheme(saved || (prefersLight ? "light" : "dark"));
 })();
 themeBtn.addEventListener("click", () => {
@@ -469,122 +407,24 @@ themeBtn.addEventListener("click", () => {
   applyTheme(current === "dark" ? "light" : "dark");
 });
 
-/* ================= DATA ================= */
-const GROUPS = [
-  { groupNumber:"I", name:"Commerce & Social Sciences",
-    rule:"Select ONE (200 marks).", maxSubjects:1, maxMarks:200,
-    subjects:[
-      {name:"Accountancy & Auditing",marks:200},
-      {name:"Economics",marks:200},
-      {name:"Computer Science",marks:200},
-      {name:"Political Science",marks:200},
-      {name:"International Relations",marks:200}
-    ]},
-  { groupNumber:"II", name:"Sciences & Mathematics",
-    rule:"ONE 200-mark OR up to TWO 100-mark (max 200).", maxSubjects:2, maxMarks:200,
-    subjects:[
-      {name:"Physics",marks:200},
-      {name:"Chemistry",marks:200},
-      {name:"Applied Mathematics",marks:100},
-      {name:"Pure Mathematics",marks:100},
-      {name:"Statistics",marks:100},
-      {name:"Geology",marks:100}
-    ]},
-  { groupNumber:"III", name:"Administration & Governance",
-    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
-    subjects:[
-      {name:"Business Administration",marks:100},
-      {name:"Public Administration",marks:100},
-      {name:"Governance & Public Policies",marks:100},
-      {name:"Town Planning & Urban Management",marks:100}
-    ]},
-  { groupNumber:"IV", name:"History",
-    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
-    subjects:[
-      {name:"History of Pakistan & India",marks:100},
-      {name:"Islamic History & Culture",marks:100},
-      {name:"British History",marks:100},
-      {name:"European History",marks:100},
-      {name:"History of USA",marks:100}
-    ]},
-  { groupNumber:"V", name:"Natural Sciences & Literature",
-    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
-    subjects:[
-      {name:"Gender Studies",marks:100},
-      {name:"Environmental Sciences",marks:100},
-      {name:"Agriculture & Forestry",marks:100},
-      {name:"Botany",marks:100},
-      {name:"Zoology",marks:100},
-      {name:"English Literature",marks:100},
-      {name:"Urdu Literature",marks:100}
-    ]},
-  { groupNumber:"VI", name:"Law & Philosophy",
-    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
-    subjects:[
-      {name:"Law",marks:100},
-      {name:"Constitutional Law",marks:100},
-      {name:"International Law",marks:100},
-      {name:"Muslim Law & Jurisprudence",marks:100},
-      {name:"Mercantile Law",marks:100},
-      {name:"Criminology",marks:100},
-      {name:"Philosophy",marks:100}
-    ]},
-  { groupNumber:"VII", name:"Social Sciences & Languages",
-    rule:"Select ONE (100 marks).", maxSubjects:1, maxMarks:100,
-    subjects:[
-      {name:"Journalism & Mass Communication",marks:100},
-      {name:"Psychology",marks:100},
-      {name:"Geography",marks:100},
-      {name:"Sociology",marks:100},
-      {name:"Anthropology",marks:100},
-      {name:"Punjabi",marks:100},
-      {name:"Sindhi",marks:100},
-      {name:"Pashto",marks:100},
-      {name:"Balochi",marks:100},
-      {name:"Persian",marks:100},
-      {name:"Arabic",marks:100}
-    ]}
-];
-
+/* ================= DATA & CONSTANTS ================= */
+const CSV_URL = 'css_subjects%20-%20list.csv'; // Encoded for the space and hyphen
 const TARGET = 600;
 const STORAGE_KEY = "css-builder-selection";
 
-/* ================= STATE (with persistence) ================= */
+let GROUPS = [];
 const state = {};
-GROUPS.forEach(g => state[g.groupNumber] = []);
-
-function saveState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e) {}
-}
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    GROUPS.forEach(g => {
-      const saved = parsed[g.groupNumber];
-      if (Array.isArray(saved)) {
-        // only keep names that actually exist in this group
-        state[g.groupNumber] = saved.filter(n =>
-          g.subjects.some(s => s.name === n)
-        );
-      }
-    });
-  } catch(e) {}
-}
+let isDataLoaded = false;
 
 const chipClass = { "I":"g1","II":"g2","III":"g3","IV":"g4","V":"g5","VI":"g6","VII":"g7" };
 
+// Elements
 const groupsEl      = document.getElementById("groups");
 const totalPill     = document.getElementById("totalPill");
 const statusEl      = document.getElementById("status");
 const hintBox       = document.getElementById("hintBox");
 const chosenListEl  = document.getElementById("chosenList");
 const selectedStrip = document.getElementById("selectedStrip");
-
-/* full-screen elements */
 const finalOverlay    = document.getElementById("finalOverlay");
 const finalList       = document.getElementById("finalList");
 const finalTotal      = document.getElementById("finalTotal");
@@ -593,6 +433,110 @@ const finalSummary    = document.getElementById("finalSummary");
 const finalStatus     = document.getElementById("finalStatus");
 const finalConfirmBtn = document.getElementById("finalConfirmBtn");
 const copyBtn         = document.getElementById("copyBtn");
+
+/* ================= FETCH & PARSE CSV ================= */
+async function loadCSV() {
+  try {
+    // Cache buster ensures we get the latest file from GitHub Pages
+    const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
+    if (!response.ok) throw new Error("Network response was not ok");
+    
+    const csvText = await response.text();
+    parseCSV(csvText);
+    
+    isDataLoaded = true;
+    renderGroups();
+    loadState(); // Restore selections after groups are built
+    updateUI();
+    
+    // Auto-open Group I
+    const g1 = document.querySelector('.group[data-group="I"]');
+    if (g1) g1.classList.add("open");
+    
+  } catch (error) {
+    console.error("Error loading CSV:", error);
+    groupsEl.innerHTML = `<div style="color:var(--danger); padding:20px; text-align:center;">
+      <p><strong>Failed to load subjects data.</strong></p>
+      <p>Make sure <code>css_subjects - list.csv</code> is in the same folder.</p>
+    </div>`;
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  if (lines.length === 0) return;
+
+  // Header: srno,subject,group_no,category,marks,type,recommended
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const dataRows = lines.slice(1);
+
+  const groupMap = {};
+
+  dataRows.forEach(line => {
+    // Handle commas inside quotes (though our CSV is simple)
+    const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+    const cleanCols = cols.map(c => c.replace(/^"|"$/g, '').trim());
+
+    const row = {};
+    headers.forEach((h, i) => row[h] = cleanCols[i] || '');
+
+    const gNum = row.group_no;
+    const isComp = row.type.toLowerCase() === 'compulsory';
+    
+    // Skip compulsory subjects for the builder (optional only)
+    if (isComp) return;
+
+    if (!groupMap[gNum]) {
+      groupMap[gNum] = {
+        groupNumber: gNum,
+        name: row.category,
+        rule: getRuleForGroup(gNum),
+        maxSubjects: gNum === "II" ? 2 : 1,
+        maxMarks: gNum === "I" || gNum === "II" ? 200 : 100,
+        subjects: []
+      };
+    }
+
+    groupMap[gNum].subjects.push({
+      name: row.subject,
+      marks: parseInt(row.marks, 10),
+      recommended: row.recommended || "Any background"
+    });
+  });
+
+  // Convert map to sorted array (I, II, III...)
+  GROUPS = Object.values(groupMap).sort((a, b) => a.groupNumber.localeCompare(b.groupNumber));
+  
+  // Initialize state
+  GROUPS.forEach(g => state[g.groupNumber] = []);
+}
+
+function getRuleForGroup(g) {
+  switch(g) {
+    case "I": return "Select ONE (200 marks).";
+    case "II": return "ONE 200-mark OR up to TWO 100-mark (max 200).";
+    default: return "Select ONE (100 marks).";
+  }
+}
+
+/* ================= STATE PERSISTENCE ================= */
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw || !GROUPS.length) return;
+    const parsed = JSON.parse(raw);
+    GROUPS.forEach(g => {
+      const saved = parsed[g.groupNumber];
+      if (Array.isArray(saved)) {
+        state[g.groupNumber] = saved.filter(n => g.subjects.some(s => s.name === n));
+      }
+    });
+  } catch(e) {}
+}
 
 /* ================= HELPERS ================= */
 const subj = (g, n) => GROUPS.find(x => x.groupNumber === g).subjects.find(s => s.name === n);
@@ -607,22 +551,19 @@ function getViolations() {
     if (!sel.length) return;
     const m = groupMarks(g.groupNumber);
     if (sel.length > g.maxSubjects)
-      v.push({group:g.groupNumber, type:"count",
-        message:`Group ${g.groupNumber}: ${sel.length} picked — FPSC allows ${g.maxSubjects}. Remove ${sel.length-g.maxSubjects}.`});
+      v.push({group:g.groupNumber, type:"count", message:`Group ${g.groupNumber}: ${sel.length} picked — allows ${g.maxSubjects}.`});
     if (m > g.maxMarks)
-      v.push({group:g.groupNumber, type:"marks",
-        message:`Group ${g.groupNumber}: ${m} marks — cap is ${g.maxMarks}. Remove ${m-g.maxMarks}.`});
-    if (g.groupNumber === "II" && sel.length > 1 &&
-        sel.some(n => subj("II", n).marks === 200))
-      v.push({group:"II", type:"mix",
-        message:`Group II: a 200-mark subject can't be combined with another. Remove the extra subject(s).`});
+      v.push({group:g.groupNumber, type:"marks", message:`Group ${g.groupNumber}: ${m} marks — cap is ${g.maxMarks}.`});
+    if (g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200))
+      v.push({group:"II", type:"mix", message:`Group II: a 200-mark subject can't be combined with another.`});
   });
+  
   const t = totalMarks();
-  if (t !== TARGET)
-    v.push({group:null, type:"total",
-      message: t > TARGET
+  if (t !== TARGET) {
+    v.push({group:null, type:"total", message: t > TARGET
         ? `Total ${t} — over by ${t-TARGET}. Remove ${t-TARGET} marks.`
         : `Total ${t} — need ${TARGET-t} more marks.`});
+  }
   return v;
 }
 
@@ -634,15 +575,12 @@ function violatingKeys() {
     const m = groupMarks(g.groupNumber);
     const overCount = sel.length > g.maxSubjects;
     const overMarks = m > g.maxMarks;
-    const mixII = g.groupNumber === "II" && sel.length > 1 &&
-                  sel.some(n => subj("II", n).marks === 200);
-    if (overCount || overMarks || mixII)
-      sel.forEach(n => keys.add(`${g.groupNumber}|${n}`));
+    const mixII = g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200);
+    if (overCount || overMarks || mixII) sel.forEach(n => keys.add(`${g.groupNumber}|${n}`));
   });
   return keys;
 }
 
-/* build the chip list markup for a given <ul> element */
 function buildChips(ulEl, flagged, onRemove) {
   ulEl.innerHTML = "";
   let any = false;
@@ -653,12 +591,14 @@ function buildChips(ulEl, flagged, onRemove) {
       const li = document.createElement("li");
       li.className = chipClass[g.groupNumber];
       if (flagged.has(`${g.groupNumber}|${n}`)) li.classList.add("violating");
+      
       li.innerHTML = `
         <span class="chip-left">
           <span class="group-dot"></span>
           <span>G${g.groupNumber}: ${s.name} <span class="marks">(${s.marks})</span></span>
         </span>
         <button class="rm" title="Remove">×</button>`;
+        
       li.querySelector(".rm").addEventListener("click", (e) => {
         e.stopPropagation();
         onRemove(g.groupNumber, n);
@@ -676,6 +616,7 @@ function renderGroups() {
     const d = document.createElement("div");
     d.className = "group";
     d.dataset.group = g.groupNumber;
+    
     d.innerHTML = `
       <div class="group-header">
         <span class="group-title">
@@ -689,15 +630,25 @@ function renderGroups() {
         <div class="rule">${g.rule}</div>
         <div class="rule-flag" data-flag="${g.groupNumber}"></div>
       </div>`;
-    d.querySelector(".group-header")
-      .addEventListener("click", () => d.classList.toggle("open"));
+      
+    d.querySelector(".group-header").addEventListener("click", () => d.classList.toggle("open"));
+    
     const body = d.querySelector(".group-body");
     g.subjects.forEach(s => {
       const row = document.createElement("div");
       row.className = "subject";
       row.dataset.group = g.groupNumber;
       row.dataset.subject = s.name;
-      row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span>`;
+      
+      // Added the recommended badge inside the row
+      row.innerHTML = `
+        <span>${s.name}</span>
+        <span class="marks">${s.marks}</span>
+        <div class="rec-badge">
+          <strong>Recommended Background:</strong> ${s.recommended}
+        </div>
+      `;
+      
       row.addEventListener("click", () => toggle(g.groupNumber, s.name));
       body.appendChild(row);
     });
@@ -713,15 +664,16 @@ function toggle(g, n) {
   saveState();
 }
 
-/* ================= UPDATE ================= */
+/* ================= UPDATE UI ================= */
 function updateUI() {
+  if (!isDataLoaded) return;
+
   const violations = getViolations();
   const flagged = violatingKeys();
   const total = totalMarks();
-  const count = totalCount();
   const isValid = total === TARGET;
 
-  /* subjects in group panels */
+  // Subjects
   document.querySelectorAll(".subject").forEach(row => {
     const g = row.dataset.group, s = row.dataset.subject;
     const isSel = state[g].includes(s);
@@ -729,7 +681,7 @@ function updateUI() {
     row.classList.toggle("violating", isSel && flagged.has(`${g}|${s}`));
   });
 
-  /* group violation outlines */
+  // Group outlines
   GROUPS.forEach(g => {
     const gd = document.querySelector(`.group[data-group="${g.groupNumber}"]`);
     const flagEl = gd.querySelector(`.rule-flag[data-flag="${g.groupNumber}"]`);
@@ -738,16 +690,16 @@ function updateUI() {
     flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
   });
 
-  /* home total pill */
+  // Pill
   totalPill.textContent = `${total} / ${TARGET}`;
   totalPill.className = "total-pill";
   if (isValid) totalPill.classList.add("valid-grey");
   else if (total > TARGET) totalPill.classList.add("over");
   else totalPill.classList.add("ok");
-
+  
   selectedStrip.classList.toggle("valid", isValid);
 
-  /* home status */
+  // Status
   statusEl.className = "status";
   const tv = violations.find(v => v.type === "total");
   const rv = violations.filter(v => v.type !== "total");
@@ -761,16 +713,15 @@ function updateUI() {
     statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + tv.message;
   }
 
-  /* hint */
+  // Hint
   if (violations.length) {
     hintBox.classList.add("show");
-    hintBox.innerHTML = "<strong>To fix:</strong><br>• " +
-      violations.map(v => v.message).join("<br>• ");
+    hintBox.innerHTML = "<strong>To fix:</strong><br>• " + violations.map(v => v.message).join("<br>• ");
   } else {
     hintBox.classList.remove("show"); hintBox.innerHTML = "";
   }
 
-  /* home chips — same row format */
+  // Home Chips
   chosenListEl.classList.toggle("valid", isValid);
   const anyHome = buildChips(chosenListEl, flagged, (g, n) => {
     state[g] = state[g].filter(x => x !== n);
@@ -779,7 +730,7 @@ function updateUI() {
   });
   if (!anyHome) chosenListEl.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
 
-  /* keep overlay in sync */
+  // Overlay
   if (finalOverlay.classList.contains("open")) renderFinal();
 }
 
@@ -797,16 +748,13 @@ function renderFinal() {
   if (isValid) finalSummary.classList.add("valid");
   else if (total > TARGET) finalSummary.classList.add("over");
 
-  /* full-screen chips — SAME row layout as home, larger via CSS */
   finalList.classList.toggle("valid", isValid);
   const any = buildChips(finalList, flagged, (g, n) => {
     state[g] = state[g].filter(x => x !== n);
     updateUI();
     saveState();
   });
-  if (!any) {
-    finalList.innerHTML = `<li class="empty">No subjects selected yet. Go back and pick some.</li>`;
-  }
+  if (!any) finalList.innerHTML = `<li class="empty">No subjects selected yet. Go back and pick some.</li>`;
 
   finalStatus.className = "final-status";
   const tv = violations.find(v => v.type === "total");
@@ -826,8 +774,6 @@ function renderFinal() {
   }
 
   finalConfirmBtn.disabled = !isValid;
-
-  /* copy button disabled when nothing selected */
   copyBtn.disabled = totalCount() === 0;
   copyBtn.style.opacity = totalCount() === 0 ? 0.5 : 1;
   copyBtn.style.cursor = totalCount() === 0 ? "not-allowed" : "pointer";
@@ -861,7 +807,6 @@ copyBtn.addEventListener("click", async () => {
   } catch(e) { ok = false; }
 
   if (!ok) {
-    // fallback for older browsers
     try {
       const ta = document.createElement("textarea");
       ta.value = text;
@@ -884,12 +829,11 @@ copyBtn.addEventListener("click", async () => {
       copyBtn.textContent = original;
     }, 1500);
   } else {
-    // show the text so user can copy manually
     alert(text);
   }
 });
 
-/* ================= OPEN / CLOSE OVERLAY ================= */
+/* ================= OVERLAY CONTROLS ================= */
 function openFinal() {
   renderFinal();
   finalOverlay.classList.add("open");
@@ -929,10 +873,7 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 });
 
 /* ================= INIT ================= */
-loadState();
-renderGroups();
-updateUI();
-document.querySelector('.group[data-group="I"]').classList.add("open");
+loadCSV();
 </script>
 </body>
 </html>

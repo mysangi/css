@@ -260,9 +260,9 @@
       --b-grey: #64748b;
     }
     [data-theme="light"] {
-      --b-bg: #f1f5f9;
+      --b-bg: #f8fafc;
       --b-panel: #ffffff;
-      --b-panel-2: #e2e8f0;
+      --b-panel-2: #f1f5f9;
       --b-accent: #0284c7;
       --b-ok: #16a34a;
       --b-danger: #dc2626;
@@ -277,83 +277,96 @@
     .builder-container {
       background: var(--b-bg); color: var(--b-text);
       border-radius: 24px; overflow: hidden; display: flex; flex-direction: column;
-      height: calc(100vh - 120px); min-height: 600px; border: 1px solid #e2e9f3;
+      height: calc(100vh - 130px); min-height: 600px; border: 1px solid #e2e9f3;
+      box-shadow: 0 8px 20px rgba(0, 20, 40, 0.06);
     }
 
-    .b-header { padding: 8px 12px 6px; border-bottom: 1px solid var(--b-border); flex: 0 0 auto; }
-    .b-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .b-title-left { display: flex; align-items: center; gap: 6px; }
-    .b-title-left h2 { font-size: 0.95rem; margin: 0; font-weight: 700; }
-    .b-version { font-size: 0.6rem; color: var(--b-muted); background: var(--b-panel-2); padding: 1px 4px; border-radius: 4px; border: 1px solid var(--b-border); }
-    .b-header-right { display: flex; align-items: center; gap: 6px; }
+    .b-header { padding: 10px 14px; border-bottom: 1px solid var(--b-border); flex: 0 0 auto; }
+    .b-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .b-title-left { display: flex; align-items: center; gap: 8px; }
+    .b-title-left h2 { font-size: 1rem; margin: 0; font-weight: 700; }
+    .b-version { font-size: 0.65rem; color: var(--b-muted); background: var(--b-panel-2); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--b-border); }
+    .b-header-right { display: flex; align-items: center; gap: 8px; }
+    
     .b-toggle-label {
-      display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: var(--b-muted); cursor: pointer;
-      background: var(--b-panel-2); padding: 2px 6px; border-radius: 6px; border: 1px solid var(--b-border);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--b-muted); cursor: pointer;
+      background: var(--b-panel-2); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--b-border);
     }
     .b-toggle-label input { display: none; }
-    .b-toggle-switch { width: 26px; height: 14px; background: var(--b-border); border-radius: 999px; position: relative; transition: 0.2s; }
-    .b-toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; background: #fff; border-radius: 50%; transition: 0.2s; }
+    .b-toggle-switch { width: 28px; height: 16px; background: var(--b-border); border-radius: 999px; position: relative; transition: 0.2s; }
+    .b-toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; background: #fff; border-radius: 50%; transition: 0.2s; }
     .b-toggle-label input:checked + .b-toggle-switch { background: var(--b-ok); }
     .b-toggle-label input:checked + .b-toggle-switch::after { transform: translateX(12px); }
     
     .b-theme-btn {
       background: var(--b-panel-2); color: var(--b-text); border: 1px solid var(--b-border); border-radius: 999px;
-      padding: 2px 8px; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; gap: 2px;
+      padding: 4px 10px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
     }
 
     .b-strip {
-      margin: 2px 10px 0; background: var(--b-panel); border: 1px solid var(--b-border); border-radius: 8px;
-      padding: 6px 8px; max-height: 18vh; overflow-y: auto; flex: 0 0 auto; cursor: pointer; position: relative;
+      margin: 8px 14px 0; background: var(--b-panel); border: 1px solid var(--b-border); border-radius: 8px;
+      padding: 8px 10px; max-height: 20vh; overflow-y: auto; flex: 0 0 auto; cursor: pointer; position: relative;
     }
     .b-strip.valid { border-color: var(--b-ok); }
-    .b-strip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .b-strip-head .lbl { font-size: 0.75rem; color: var(--b-muted); text-transform: uppercase; }
-    .b-total-pill { font-size: 0.85rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--b-panel-2); color: var(--b-text); }
+    .b-strip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .b-strip-head .lbl { font-size: 0.8rem; color: var(--b-muted); text-transform: uppercase; font-weight: 600; }
+    .b-total-pill { font-size: 0.9rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--b-panel-2); color: var(--b-text); }
     .b-total-pill.ok { background: rgba(34,197,94,0.2); color: var(--b-ok); }
     .b-total-pill.over { background: rgba(239,68,68,0.2); color: var(--b-danger); }
     .b-total-pill.valid-grey { background: var(--b-panel-2); color: var(--b-grey); }
     
     .b-chosen-list { list-style: none; padding: 0; margin: 0; }
     .b-chosen-list li {
-      display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 4px 8px;
-      border-radius: 6px; background: var(--b-panel-2); margin-bottom: 3px; font-size: 0.85rem; border-left: 3px solid transparent;
+      display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 6px 10px;
+      border-radius: 6px; background: var(--b-panel-2); margin-bottom: 4px; font-size: 0.85rem; border-left: 3px solid transparent;
     }
     .b-chosen-list li.violating { background: rgba(239,68,68,0.12); border-left-color: var(--b-danger); }
     .b-chosen-list li.g1 { border-left-color: #3b82f6; } .b-chosen-list li.g2 { border-left-color: #22c55e; }
     .b-chosen-list li.g3 { border-left-color: #a855f7; } .b-chosen-list li.g4 { border-left-color: #f59e0b; }
     .b-chosen-list li.g5 { border-left-color: #ec4899; } .b-chosen-list li.g6 { border-left-color: #06b6d4; }
     .b-chosen-list li.g7 { border-left-color: #f97316; }
-    .b-chosen-list .rm { color: var(--b-danger); background: none; border: none; font-size: 1.1rem; cursor: pointer; }
+    .b-chosen-list .rm { color: var(--b-danger); background: none; border: none; font-size: 1.2rem; cursor: pointer; }
     
-    .b-status { font-size: 0.8rem; margin-top: 4px; min-height: 16px; }
+    .b-status { font-size: 0.85rem; margin-top: 6px; min-height: 18px; font-weight: 500; }
     .b-status.ok { color: var(--b-ok); } .b-status.err { color: var(--b-danger); } .b-status.warn { color: var(--b-warn); }
     
-    .b-toolbar { display: flex; gap: 6px; padding: 6px 10px; flex: 0 0 auto; }
+    .b-toolbar { display: flex; gap: 8px; padding: 8px 14px; flex: 0 0 auto; }
     .b-toolbar button {
-      flex: 1; padding: 6px 8px; border-radius: 6px; cursor: pointer; background: var(--b-panel-2);
-      color: var(--b-text); border: 1px solid var(--b-border); font-size: 0.8rem;
+      flex: 1; padding: 8px 10px; border-radius: 6px; cursor: pointer; background: var(--b-panel-2);
+      color: var(--b-text); border: 1px solid var(--b-border); font-size: 0.85rem; font-weight: 500;
     }
 
-    .b-groups-container { flex: 1 1 auto; overflow-y: auto; padding: 0 10px 80px; }
-    .b-group { background: var(--b-panel); border: 1px solid var(--b-border); border-radius: 8px; margin-bottom: 6px; overflow: hidden; }
-    .b-group-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; cursor: pointer; background: var(--b-panel-2); font-size: 0.85rem; }
-    .b-group-title { font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .b-group-title small { color: var(--b-muted); font-weight: 400; font-size: 0.72rem; }
-    .b-group-body { display: none; padding: 6px; }
+    .b-groups-container { flex: 1 1 auto; overflow-y: auto; padding: 0 14px 80px; }
+    .b-group { background: var(--b-panel); border: 1px solid var(--b-border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .b-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; cursor: pointer; background: var(--b-panel-2); font-size: 0.9rem; }
+    .b-group-title { font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .b-group-title small { color: var(--b-muted); font-weight: 400; font-size: 0.75rem; }
+    .b-group-body { display: none; padding: 8px; }
     .b-group.open .b-group-body { display: block; }
+    .b-group.violation { border-color: var(--b-danger); }
+    .rule { font-size: 0.75rem; color: var(--b-accent); margin-bottom: 6px; font-weight: 500; }
     
-    .b-subject { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; margin-bottom: 3px; font-size: 0.85rem; }
+    .b-subject { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; margin-bottom: 4px; font-size: 0.9rem; }
     .b-subject:hover { background: var(--b-hover); }
     .b-subject.selected { background: rgba(56,189,248,0.15); border-color: var(--b-accent); }
     .b-subject.compulsory { cursor: default; }
+    .b-subject.compulsory.selected { background: rgba(148, 163, 184, 0.15); border-color: #94a3b8; }
     
     .b-rec-badge {
-      display: none; position: absolute; top: 100%; left: 6px; right: 6px; margin-top: 2px; padding: 6px 8px;
+      display: none; position: absolute; top: 100%; left: 6px; right: 6px; margin-top: 4px; padding: 8px 10px;
       background: var(--b-panel-2); border: 1px solid var(--b-border); border-left: 3px solid var(--b-accent);
-      border-radius: 4px; font-size: 0.75rem; color: var(--b-text); z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border-radius: 6px; font-size: 0.8rem; color: var(--b-text); z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       pointer-events: none;
     }
     .b-subject:hover .b-rec-badge { display: block; }
+
+    /* OVERLAY */
+    .final-overlay {
+      position: fixed; inset: 0; z-index: 100; background: var(--b-bg); 
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+      display: flex; flex-direction: column; padding: 20px;
+      overflow-y: auto;
+    }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -451,7 +464,7 @@
         <div class="b-title-row">
           <div class="b-title-left">
             <h2>CSS Optional Subject Builder</h2>
-            <span class="b-version">v3.2</span>
+            <span class="b-version">v3.5</span>
           </div>
           <div class="b-header-right">
             <label class="b-toggle-label">
@@ -484,37 +497,33 @@
       <div class="b-groups-container" id="bGroups"></div>
 
       <!-- OVERLAY -->
-      <div class="final-overlay" id="finalOverlay" aria-hidden="true" style="position:fixed; inset:0; z-index:100; background:var(--b-bg); opacity:0; pointer-events:none; transition:opacity 0.2s; overflow-y:auto;">
-        <div style="min-height:100%; display:flex; flex-direction:column; padding:16px;">
-          
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h2 style="font-size:1.15rem; margin:0; font-weight:700; color:var(--b-text);">Final Choice — Review</h2>
-            <button id="finalCloseBtn" style="background:var(--b-panel-2); color:var(--b-text); border:1px solid var(--b-border); border-radius:999px; padding:6px 14px; font-size:0.85rem; cursor:pointer;">✕ Close</button>
+      <div class="final-overlay" id="finalOverlay">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2 style="font-size:1.2rem; font-weight:700; color:var(--b-text); margin:0;">Final Choice Review</h2>
+          <button id="finalCloseBtn" style="background:var(--b-panel-2); color:var(--b-text); border:1px solid var(--b-border); border-radius:999px; padding:6px 14px; font-size:0.85rem; cursor:pointer;">✕ Close</button>
+        </div>
+        
+        <div style="background:var(--b-panel); border:1px solid var(--b-border); border-radius:12px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between;">
+          <div>
+            <span style="font-size:0.75rem; color:var(--b-muted); text-transform:uppercase;">Total marks</span><br>
+            <span id="finalTotal" style="font-size:1.6rem; font-weight:700; color:var(--b-ok);">0 / 1200</span>
           </div>
-          
-          <div style="background:var(--b-panel); border:1px solid var(--b-border); border-radius:12px; padding:12px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <span style="font-size:0.78rem; color:var(--b-muted); text-transform:uppercase;">Total marks</span><br>
-              <span id="finalTotal" style="font-size:1.5rem; font-weight:700; color:var(--b-ok);">0 / 1200</span>
-            </div>
-            <div style="text-align:right;">
-              <span style="font-size:0.78rem; color:var(--b-muted); text-transform:uppercase;">Subjects</span><br>
-              <span id="finalCount" style="font-size:1.5rem; font-weight:700; color:var(--b-ok);">0</span>
-            </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.75rem; color:var(--b-muted); text-transform:uppercase;">Subjects</span><br>
+            <span id="finalCount" style="font-size:1.6rem; font-weight:700; color:var(--b-ok);">0</span>
           </div>
-          
-          <ul class="b-chosen-list" id="finalList" style="flex:1 1 auto;"></ul>
-          
-          <div style="display:flex; gap:10px; margin-top:10px;">
-            <button id="copyBtn" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; border:1px solid var(--b-accent); background:rgba(56,189,248,0.12); color:var(--b-accent);">📋 Copy all selected</button>
-          </div>
-          <div id="finalStatus" style="font-size:0.88rem; margin-top:10px; text-align:center; min-height:18px;"></div>
-          
-          <div style="display:flex; gap:10px; margin-top:auto; padding-top:12px;">
-            <button id="finalBackBtn" style="flex:1; padding:14px; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; border:1px solid var(--b-border); background:var(--b-panel-2); color:var(--b-text);">← Back to builder</button>
-            <button id="finalConfirmBtn" style="flex:1; padding:14px; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; border:1px solid var(--b-ok); background:var(--b-ok); color:#fff;" disabled>✓ Confirm 1200</button>
-          </div>
-
+        </div>
+        
+        <ul class="b-chosen-list" id="finalList" style="flex:1 1 auto;"></ul>
+        
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button id="copyBtn" style="flex:1; padding:12px; border-radius:8px; font-weight:700; cursor:pointer; border:1px solid var(--b-accent); background:rgba(56,189,248,0.1); color:var(--b-accent);">📋 Copy all selected</button>
+        </div>
+        <div id="finalStatus" style="font-size:0.9rem; margin-top:12px; text-align:center;"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:auto; padding-top:16px;">
+          <button id="finalBackBtn" style="flex:1; padding:14px; border-radius:8px; font-weight:700; border:1px solid var(--b-border); background:var(--b-panel-2); color:var(--b-text); cursor:pointer;">← Back</button>
+          <button id="finalConfirmBtn" style="flex:1; padding:14px; border-radius:8px; font-weight:700; border:1px solid var(--b-ok); background:var(--b-ok); color:#fff; cursor:pointer;" disabled>✓ Confirm</button>
         </div>
       </div>
 
@@ -781,7 +790,7 @@
       builderRoot.setAttribute("data-theme", theme);
       bThemeBtn.textContent = theme === "dark" ? "🌙 Dark" : "☀️ Light";
     }
-    applyBTheme("light"); // Default to light for the builder inside the dashboard
+    applyBTheme("light");
     bThemeBtn.addEventListener("click", () => {
       const current = builderRoot.getAttribute("data-theme") || "light";
       applyBTheme(current === "dark" ? "light" : "dark");
@@ -829,7 +838,7 @@
         if (g1) g1.classList.add("open");
       } catch (error) {
         console.error("Error loading CSV:", error);
-        bGroupsEl.innerHTML = `<div style="color:var(--b-danger); padding:20px; text-align:center;">Failed to load subjects data.</div>`;
+        bGroupsEl.innerHTML = `<div style="color:var(--b-danger); padding:20px; text-align:center;">Failed to load subjects data. Check console.</div>`;
       }
     }
 

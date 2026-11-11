@@ -1,0 +1,52 @@
+srno,subject,group_no,category,marks,type,recommended
+1,Accountancy & Auditing,I,Commerce & Social Sciences,200,Optional,Commerce/Accounting/Finance
+2,Economics,I,Commerce & Social Sciences,200,Optional,Economics/Finance
+3,Computer Science,I,Commerce & Social Sciences,200,Optional,Computer Science/IT
+4,Political Science,I,Commerce & Social Sciences,200,Optional,Any (theory/current affairs)
+5,International Relations,I,Commerce & Social Sciences,200,Optional,Any (international affairs)
+6,Physics,II,Sciences & Mathematics,200,Optional,Science/Engineering
+7,Chemistry,II,Sciences & Mathematics,200,Optional,Science/Engineering
+8,Applied Mathematics,II,Sciences & Mathematics,100,Optional,Mathematics/Engineering
+9,Pure Mathematics,II,Sciences & Mathematics,100,Optional,Mathematics/Engineering
+10,Statistics,II,Sciences & Mathematics,100,Optional,Statistics/Data
+11,Geology,II,Sciences & Mathematics,100,Optional,Earth Sciences
+12,Business Administration,III,Administration & Governance,100,Optional,BBA/MBA/Commerce
+13,Public Administration,III,Administration & Governance,100,Optional,Any (governance interest)
+14,Governance & Public Policies,III,Administration & Governance,100,Optional,Any (policy interest)
+15,Town Planning & Urban Management,III,Administration & Governance,100,Optional,Architecture/Planning
+16,History of Pakistan & India,IV,History,100,Optional,History/Arts
+17,Islamic History & Culture,IV,History,100,Optional,History/Islamic Studies
+18,British History,IV,History,100,Optional,History/Arts
+19,European History,IV,History,100,Optional,History/Arts
+20,History of USA,IV,History,100,Optional,History/Arts
+21,Gender Studies,V,Natural Sciences & Literature,100,Optional,Any
+22,Environmental Sciences,V,Natural Sciences & Literature,100,Optional,Any (science helpful)
+23,Agriculture & Forestry,V,Natural Sciences & Literature,100,Optional,Agriculture/Biology
+24,Botany,V,Natural Sciences & Literature,100,Optional,Biology/Pre-Medical
+25,Zoology,V,Natural Sciences & Literature,100,Optional,Biology/Pre-Medical
+26,English Literature,V,Natural Sciences & Literature,100,Optional,English Literature
+27,Urdu Literature,V,Natural Sciences & Literature,100,Optional,Urdu Literature
+28,Law,VI,Law & Philosophy,100,Optional,Law
+29,Constitutional Law,VI,Law & Philosophy,100,Optional,Law
+30,International Law,VI,Law & Philosophy,100,Optional,Law/International Relations
+31,Muslim Law & Jurisprudence,VI,Law & Philosophy,100,Optional,Law/Islamic Studies
+32,Mercantile Law,VI,Law & Philosophy,100,Optional,Law/Commerce
+33,Criminology,VI,Law & Philosophy,100,Optional,Any (law/security helpful)
+34,Philosophy,VI,Law & Philosophy,100,Optional,Any (strong analytical writing)
+35,Journalism & Mass Communication,VII,Social Sciences & Languages,100,Optional,Any (media interest)
+36,Psychology,VII,Social Sciences & Languages,100,Optional,Any (psychology helpful)
+37,Geography,VII,Social Sciences & Languages,100,Optional,Any (geography helpful)
+38,Sociology,VII,Social Sciences & Languages,100,Optional,Any (social science helpful)
+39,Anthropology,VII,Social Sciences & Languages,100,Optional,Any (social science helpful)
+40,Punjabi,VII,Social Sciences & Languages,100,Optional,Native/Literary command
+41,Sindhi,VII,Social Sciences & Languages,100,Optional,Native/Literary command
+42,Pashto,VII,Social Sciences & Languages,100,Optional,Native/Literary command
+43,Balochi,VII,Social Sciences & Languages,100,Optional,Native/Literary command
+44,Persian,VII,Social Sciences & Languages,100,Optional,Persian language background
+45,Arabic,VII,Social Sciences & Languages,100,Optional,Arabic language background
+46,English Essay,Compulsory,Compulsory,100,Compulsory,All candidates
+47,English (Precis & Composition),Compulsory,Compulsory,100,Compulsory,All candidates
+48,General Science & Ability,Compulsory,Compulsory,100,Compulsory,All candidates
+49,Current Affairs,Compulsory,Compulsory,100,Compulsory,All candidates
+50,Pakistan Affairs,Compulsory,Compulsory,100,Compulsory,All candidates
+51,Islamic Studies / Comparative Religion,Compulsory,Compulsory,100,Compulsory,All candidates (non-Muslims take Comparative Religion)

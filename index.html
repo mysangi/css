@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>CSS Portal — Results & Subject Builder</title>
 
+  <!-- PWA & Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3413/3413586.png">
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   
@@ -16,38 +21,14 @@
        SHARED THEME TOKENS
        ============================================================ */
     :root, [data-theme="light"] {
-      --bg: #f4f7fc;
-      --panel: #ffffff;
-      --panel-2: #f1f5f9;
-      --accent: #2563eb;
-      --accent-hover: #1a4fc7;
-      --ok: #16a34a;
-      --danger: #dc2626;
-      --warn: #d97706;
-      --text: #1e2b3c;
-      --text-dark: #0a1e2e;
-      --muted: #64748b;
-      --border: #e2e9f3;
-      --shadow: rgba(0, 20, 40, 0.06);
-      --hover: #f8fafc;
-      --grey: #94a3b8;
+      --bg: #f4f7fc; --panel: #ffffff; --panel-2: #f1f5f9; --accent: #2563eb; --accent-hover: #1a4fc7;
+      --ok: #16a34a; --danger: #dc2626; --warn: #d97706; --text: #1e2b3c; --text-dark: #0a1e2e;
+      --muted: #64748b; --border: #e2e9f3; --shadow: rgba(0, 20, 40, 0.06); --hover: #f8fafc; --grey: #94a3b8;
     }
     [data-theme="dark"] {
-      --bg: #0f172a;
-      --panel: #1e293b;
-      --panel-2: #273449;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --ok: #22c55e;
-      --danger: #ef4444;
-      --warn: #f59e0b;
-      --text: #e2e8f0;
-      --text-dark: #f8fafc;
-      --muted: #94a3b8;
-      --border: #334155;
-      --shadow: rgba(0, 0, 0, 0.3);
-      --hover: #2e3d56;
-      --grey: #64748b;
+      --bg: #0f172a; --panel: #1e293b; --panel-2: #273449; --accent: #38bdf8; --accent-hover: #0284c7;
+      --ok: #22c55e; --danger: #ef4444; --warn: #f59e0b; --text: #e2e8f0; --text-dark: #f8fafc;
+      --muted: #94a3b8; --border: #334155; --shadow: rgba(0, 0, 0, 0.3); --hover: #2e3d56; --grey: #64748b;
     }
 
     /* ============================================================
@@ -68,7 +49,13 @@
       padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center;
       flex: 0 0 auto; z-index: 50; box-shadow: 0 4px 12px var(--shadow);
     }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--text-dark); }
+    
+    /* Brand Icon is now a link */
+    .brand { 
+      display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; 
+      color: var(--text-dark); text-decoration: none; cursor: pointer; transition: 0.2s;
+    }
+    .brand:hover { opacity: 0.8; }
     .brand i { color: var(--accent); font-size: 1.4rem; }
     .brand .version { font-size: 0.6rem; color: var(--muted); background: var(--panel-2); padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border); }
     
@@ -80,6 +67,14 @@
     }
     .nav-tab.active { background: var(--panel); color: var(--accent); box-shadow: 0 2px 8px var(--shadow); }
     
+    /* PWA Install Button */
+    .install-btn {
+      background: var(--accent); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 6px;
+      animation: pulse-install 2s infinite;
+    }
+    @keyframes pulse-install { 0% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); } 70% { box-shadow: 0 0 0 8px rgba(37,99,235,0); } 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); } }
+
     .theme-btn {
       background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 50%;
       width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -88,14 +83,12 @@
     .theme-btn:hover { background: var(--hover); }
 
     /* ============================================================
-       VIEWS
+       VIEWS (Results & Builder)
        ============================================================ */
     .view-section { display: none; flex: 1; min-height: 0; overflow-y: auto; }
     .view-section.active { display: flex; flex-direction: column; }
 
-    /* ============================================================
-       1. RESULTS DASHBOARD
-       ============================================================ */
+    /* 1. RESULTS DASHBOARD */
     .results-wrapper { padding: 1.5rem; max-width: 1440px; margin: 0 auto; width: 100%; }
     .dash-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
     .dash-header h1 { font-weight: 600; font-size: 1.5rem; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
@@ -153,19 +146,14 @@
     .load-more-btn { background: var(--accent); color: white; border: none; border-radius: 60px; padding: 0.9rem 2.2rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
     .load-more-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-    /* ============================================================
-       2. SUBJECT BUILDER (Compact GUI)
-       ============================================================ */
+    /* 2. SUBJECT BUILDER (Compact GUI) */
     .builder-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; max-width: 760px; width: 100%; margin: 0 auto; padding: 0; }
-    
     .b-header { padding: 6px 10px 4px; border-bottom: 1px solid var(--border); flex: 0 0 auto; }
     .title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
     .title-left { display: flex; align-items: center; gap: 6px; }
     .title-left h2 { font-size: 0.9rem; margin: 0; font-weight: 700; }
-    
     .header-right { display: flex; align-items: center; gap: 6px; }
     
-    /* Toggle Switch */
     .toggle-label { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: var(--muted); cursor: pointer; background: var(--panel-2); padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border); }
     .toggle-label input { display: none; }
     .toggle-switch { width: 26px; height: 14px; background: var(--border); border-radius: 999px; position: relative; transition: 0.2s; }
@@ -173,7 +161,6 @@
     .toggle-label input:checked + .toggle-switch { background: var(--ok); }
     .toggle-label input:checked + .toggle-switch::after { transform: translateX(12px); }
 
-    /* Selected strip */
     .selected-strip { margin-top: 2px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; max-height: 18vh; overflow-y: auto; flex: 0 0 auto; transition: border-color 0.2s; cursor: pointer; position: relative; }
     .selected-strip.valid { border-color: var(--ok); }
     .strip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -184,7 +171,6 @@
     .total-pill.valid-grey { background: var(--panel-2); color: var(--grey); }
     .expand-hint { font-size: 0.65rem; color: var(--accent); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
 
-    /* Shared row-chip list */
     .chosen-list { list-style: none; padding: 0; margin: 0; }
     .chosen-list li { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 6px; background: var(--panel-2); margin-bottom: 3px; font-size: 0.85rem; border-left: 3px solid transparent; }
     .chosen-list li.violating { background: rgba(239,68,68,0.12); }
@@ -209,7 +195,6 @@
     .hint { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4); color: var(--danger); margin-top: 4px; display: none; }
     .hint.show { display: block; }
 
-    /* Toolbar & Groups */
     .b-toolbar { display: flex; gap: 6px; padding: 6px 10px; flex: 0 0 auto; }
     .b-toolbar button { flex: 1; padding: 6px 8px; border-radius: 6px; cursor: pointer; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); font-size: 0.8rem; }
     
@@ -231,7 +216,6 @@
     .rule { font-size: 0.72rem; color: var(--accent); padding: 0 6px 4px; }
     .rule-flag { font-size: 0.72rem; color: var(--danger); padding: 0 6px 4px; font-weight: 600; }
 
-    /* Subject Row */
     .subject { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; margin-bottom: 3px; font-size: 0.85rem; transition: background 0.2s; }
     .subject:hover { background: var(--hover); border-color: var(--border); }
     .subject:hover .rec-badge { display: block; }
@@ -278,7 +262,6 @@
     .copy-btn:active { background: rgba(56,189,248,0.25); }
     .copy-btn.copied { border-color: var(--ok); color: var(--ok); background: rgba(34,197,94,0.15); }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .app-header { flex-direction: column; gap: 0.5rem; padding: 0.5rem; }
       .header-actions { width: 100%; justify-content: space-between; }
@@ -293,15 +276,18 @@
 
   <!-- SHARED HEADER -->
   <header class="app-header">
-    <div class="brand">
+    <!-- Brand Icon links to your contact page in a new tab -->
+    <a href="https://sites.google.com/view/sheeraz-hussain/home" target="_blank" class="brand" title="Contact / Portfolio">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.6</span>
-    </div>
+      <span class="version">v0.1</span>
+    </a>
     <div class="header-actions">
       <div class="nav-tabs">
         <button class="nav-tab active" data-target="view-results"><i class="fas fa-list-check"></i> Results</button>
         <button class="nav-tab" data-target="view-builder"><i class="fas fa-book-open"></i> Builder</button>
       </div>
+      <!-- Install Button -->
+      <button class="install-btn" id="installBtn"><i class="fas fa-download"></i> Install App</button>
       <button class="theme-btn" id="themeBtn" title="Toggle Theme">🌙</button>
     </div>
   </header>
@@ -379,9 +365,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       FULL SCREEN OVERLAY
-       ============================================================ -->
+  <!-- FULL SCREEN OVERLAY -->
   <div class="final-overlay" id="finalOverlay" aria-hidden="true">
     <div class="final-inner">
       <div class="final-head">
@@ -416,7 +400,46 @@
   </div>
 
   <!-- ============================================================
-       JAVASCRIPT: THEME & TABS (IIFE)
+       JAVASCRIPT: PWA INSTALL & SW REGISTRATION
+       ============================================================ -->
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('SW registered', reg);
+        }).catch(err => console.log('SW registration failed', err));
+      });
+    }
+
+    // PWA Install Prompt
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'flex'; // Show the install button
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+      console.log('PWA was installed');
+    });
+  </script>
+
+  <!-- ============================================================
+       JAVASCRIPT: THEME & TABS
        ============================================================ -->
   <script>
     (() => {
@@ -447,7 +470,7 @@
   </script>
 
   <!-- ============================================================
-       JAVASCRIPT: RESULTS DASHBOARD (IIFE)
+       JAVASCRIPT: RESULTS DASHBOARD
        ============================================================ -->
   <script>
     (() => {
@@ -605,14 +628,14 @@
   </script>
 
   <!-- ============================================================
-       JAVASCRIPT: SUBJECT BUILDER (IIFE, READS CSV)
+       JAVASCRIPT: SUBJECT BUILDER
        ============================================================ -->
   <script>
     (() => {
       const CSV_URL = 'css_subjects%20-%20list.csv';
       const OPTIONAL_TARGET = 600;
       const TOTAL_TARGET = 1200;
-      const STORAGE_KEY = "css-builder-selection-v4";
+      const STORAGE_KEY = "css-builder-selection-v5";
 
       let GROUPS = [];
       let COMPULSORY = [];

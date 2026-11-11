@@ -61,9 +61,11 @@
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
     margin-bottom: 6px;
   }
+  .title-left { display: flex; align-items: center; gap: 8px; }
   h1 { font-size: 0.95rem; margin: 0; font-weight: 700; }
+  .version { font-size: 0.65rem; color: var(--muted); white-space: nowrap; background: var(--panel-2); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); }
+  
   .header-right { display: flex; align-items: center; gap: 8px; }
-  .version { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
   
   /* Toggle Switch */
   .toggle-label {
@@ -347,7 +349,10 @@
 
 <header>
   <div class="title-row">
-    <h1>CSS Subject Builder</h1>
+    <div class="title-left">
+      <h1>CSS Subject Builder</h1>
+      <span class="version">v3.1</span>
+    </div>
     <div class="header-right">
       <label class="toggle-label">
         <input type="checkbox" id="toggleCompulsory">
@@ -360,7 +365,7 @@
 
   <div class="selected-strip" id="selectedStrip" title="Tap to view full screen">
     <div class="strip-head">
-      <span class="lbl" id="stripLabel">Selected · target 600</span>
+      <span class="lbl" id="stripLabel">Optional · Target 600</span>
       <span class="total-pill" id="totalPill">0 / 600</span>
     </div>
     <ul class="chosen-list" id="chosenList">
@@ -439,7 +444,7 @@ themeBtn.addEventListener("click", () => {
 const CSV_URL = 'css_subjects%20-%20list.csv';
 const OPTIONAL_TARGET = 600;
 const TOTAL_TARGET = 1200;
-const STORAGE_KEY = "css-builder-selection-v2";
+const STORAGE_KEY = "css-builder-selection-v3";
 
 let GROUPS = [];
 let COMPULSORY = [];
@@ -493,28 +498,71 @@ async function loadCSV() {
   }
 }
 
+// Robust CSV Parser (handles commas inside quotes)
 function parseCSV(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-  if (lines.length === 0) return;
+  const lines = [];
+  let currentLine = [];
+  let currentCell = '';
+  let inQuotes = false;
 
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const nextChar = text[i + 1];
+
+    if (inQuotes) {
+      if (char === '"' && nextChar === '"') {
+        currentCell += '"'; // Escaped quote
+        i++;
+      } else if (char === '"') {
+        inQuotes = false;
+      } else {
+        currentCell += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ',') {
+        currentLine.push(currentCell.trim());
+        currentCell = '';
+      } else if (char === '\n' || char === '\r') {
+        if (currentCell !== '' || currentLine.length > 0) {
+          currentLine.push(currentCell.trim());
+          lines.push(currentLine);
+          currentLine = [];
+          currentCell = '';
+        }
+        if (char === '\r' && nextChar === '\n') i++; // Skip \r\n
+      } else {
+        currentCell += char;
+      }
+    }
+  }
+  if (currentCell !== '' || currentLine.length > 0) {
+    currentLine.push(currentCell.trim());
+    lines.push(currentLine);
+  }
+
+  if (lines.length < 2) return;
+
+  // Map headers
+  const headers = lines[0].map(h => h.trim().toLowerCase());
   const dataRows = lines.slice(1);
-
   const groupMap = {};
 
-  dataRows.forEach(line => {
-    const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-    const cleanCols = cols.map(c => c.replace(/^"|"$/g, '').trim());
-
+  dataRows.forEach(cols => {
     const row = {};
-    headers.forEach((h, i) => row[h] = cleanCols[i] || '');
+    headers.forEach((h, i) => row[h] = cols[i] || '');
 
     const gNum = row.group_no;
-    const isComp = row.type.toLowerCase() === 'compulsory';
+    const isComp = (row.type || '').toLowerCase() === 'compulsory';
+
+    // Clean subject name
+    const subjectName = (row.subject || '').replace(/^"|"$/g, '').trim();
+    if (!subjectName) return;
 
     const subjectObj = {
-      name: row.subject,
-      marks: parseInt(row.marks, 10),
+      name: subjectName,
+      marks: parseInt(row.marks, 10) || 100,
       recommended: row.recommended || "Any background"
     };
 
@@ -771,7 +819,7 @@ function updateUI() {
   const isValid = optTotal === OPTIONAL_TARGET;
 
   // Update Labels based on Toggle
-  stripLabel.textContent = showCompulsory ? "Total · target 1200" : "Optional · target 600";
+  stripLabel.textContent = showCompulsory ? "Total · Target 1200" : "Optional · Target 600";
   totalPill.textContent = showCompulsory ? `${fullTotal} / ${TOTAL_TARGET}` : `${optTotal} / ${OPTIONAL_TARGET}`;
 
   // Subjects in groups
@@ -785,6 +833,7 @@ function updateUI() {
   // Group outlines
   GROUPS.forEach(g => {
     const gd = document.querySelector(`.group[data-group="${g.groupNumber}"]`);
+    if (!gd) return;
     const flagEl = gd.querySelector(`.rule-flag[data-flag="${g.groupNumber}"]`);
     const gv = violations.filter(v => v.group === g.groupNumber);
     gd.classList.toggle("violation", gv.length > 0);

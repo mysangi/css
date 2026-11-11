@@ -59,11 +59,32 @@
   }
   .title-row {
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    margin-bottom: 6px;
   }
   h1 { font-size: 0.95rem; margin: 0; font-weight: 700; }
   .header-right { display: flex; align-items: center; gap: 8px; }
   .version { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
   
+  /* Toggle Switch */
+  .toggle-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; color: var(--muted); cursor: pointer;
+    background: var(--panel-2); padding: 4px 8px; border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .toggle-label input { display: none; }
+  .toggle-switch {
+    width: 30px; height: 16px; background: var(--border);
+    border-radius: 999px; position: relative; transition: 0.2s;
+  }
+  .toggle-switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 12px; height: 12px; background: #fff; border-radius: 50%;
+    transition: 0.2s;
+  }
+  .toggle-label input:checked + .toggle-switch { background: var(--ok); }
+  .toggle-label input:checked + .toggle-switch::after { transform: translateX(14px); }
+
   .theme-btn {
     background: var(--panel-2); color: var(--text);
     border: 1px solid var(--border); border-radius: 999px;
@@ -74,7 +95,7 @@
 
   /* ---------- selected strip ---------- */
   .selected-strip {
-    margin-top: 8px;
+    margin-top: 4px;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -135,6 +156,7 @@
   .g5 .group-dot { background: #ec4899; }
   .g6 .group-dot { background: #06b6d4; }
   .g7 .group-dot { background: #f97316; }
+  .comp-dot { background: #94a3b8; }
 
   .chosen-list.valid li { border-left-color: var(--grey) !important; background: var(--panel-2); }
   .chosen-list.valid .group-dot { background: var(--grey) !important; }
@@ -202,6 +224,7 @@
   .group[data-group="V"]   .group-badge { background: #ec4899; }
   .group[data-group="VI"]  .group-badge { background: #06b6d4; }
   .group[data-group="VII"] .group-badge { background: #f97316; }
+  .group[data-group="Comp"] .group-badge { background: #94a3b8; }
 
   .chev { transition: transform 0.2s; color: var(--muted); font-size: 0.85rem; }
   .group.open .chev { transform: rotate(90deg); }
@@ -210,7 +233,7 @@
   .rule { font-size: 0.82rem; color: var(--accent); padding: 2px 8px 6px; }
   .rule-flag { font-size: 0.82rem; color: var(--danger); padding: 0 8px 6px; font-weight: 600; }
 
-  /* ---------- SUBJECT ROW & RECOMMENDED HOVER ---------- */
+  /* ---------- SUBJECT ROW ---------- */
   .subject {
     position: relative;
     display: flex; justify-content: space-between; align-items: center;
@@ -219,19 +242,20 @@
     transition: background 0.2s;
   }
   .subject:active { background: var(--hover); }
-  
-  /* Hover effect that shows recommended background */
   .subject:hover { background: var(--hover); border-color: var(--border); }
   .subject:hover .rec-badge { display: block; }
   
   .subject.selected { background: rgba(56,189,248,0.15); border-color: var(--accent); }
   .subject.selected.violating { background: rgba(239,68,68,0.15); border-color: var(--danger); }
   
+  .subject.compulsory { cursor: default; }
+  .subject.compulsory.selected { background: rgba(148, 163, 184, 0.15); border-color: #94a3b8; }
+
   .marks { font-size: 0.82rem; color: var(--muted); }
   .subject.selected .marks { color: var(--accent); }
   .subject.selected.violating .marks { color: var(--danger); }
+  .subject.compulsory.selected .marks { color: #94a3b8; }
 
-  /* Recommended Popup */
   .rec-badge {
     display: none;
     position: absolute;
@@ -246,7 +270,7 @@
     color: var(--text);
     z-index: 10;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    pointer-events: none; /* Prevents flickering when moving mouse over the popup */
+    pointer-events: none;
   }
   .rec-badge strong { color: var(--accent); }
 
@@ -323,16 +347,20 @@
 
 <header>
   <div class="title-row">
-    <h1>CSS Optional Subject Builder</h1>
+    <h1>CSS Subject Builder</h1>
     <div class="header-right">
-      <span class="version">v3.0</span>
+      <label class="toggle-label">
+        <input type="checkbox" id="toggleCompulsory">
+        <span class="toggle-switch"></span>
+        Compulsory
+      </label>
       <button class="theme-btn" id="themeBtn" title="Toggle theme">🌙 Dark</button>
     </div>
   </div>
 
   <div class="selected-strip" id="selectedStrip" title="Tap to view full screen">
     <div class="strip-head">
-      <span class="lbl">Selected · target 600</span>
+      <span class="lbl" id="stripLabel">Selected · target 600</span>
       <span class="total-pill" id="totalPill">0 / 600</span>
     </div>
     <ul class="chosen-list" id="chosenList">
@@ -347,7 +375,7 @@
 <div class="toolbar">
   <button id="expandAllBtn">Expand All</button>
   <button id="collapseAllBtn">Collapse All</button>
-  <button id="resetBtn">Reset</button>
+  <button id="resetBtn">Reset Optional</button>
 </div>
 
 <div id="groups"></div>
@@ -363,7 +391,7 @@
     <div class="final-summary" id="finalSummary">
       <div class="sum-block">
         <span class="sum-label">Total marks</span>
-        <span class="sum-total" id="finalTotal">0 / 600</span>
+        <span class="sum-total" id="finalTotal">0 / 1200</span>
       </div>
       <div class="sum-block right">
         <span class="sum-label">Subjects</span>
@@ -381,7 +409,7 @@
 
     <div class="final-foot">
       <button id="finalBackBtn">← Back to builder</button>
-      <button class="confirm" id="finalConfirmBtn" disabled>✓ Confirm 600</button>
+      <button class="confirm" id="finalConfirmBtn" disabled>✓ Confirm 1200</button>
     </div>
   </div>
 </div>
@@ -408,19 +436,23 @@ themeBtn.addEventListener("click", () => {
 });
 
 /* ================= DATA & CONSTANTS ================= */
-const CSV_URL = 'css_subjects%20-%20list.csv'; // Encoded for the space and hyphen
-const TARGET = 600;
-const STORAGE_KEY = "css-builder-selection";
+const CSV_URL = 'css_subjects%20-%20list.csv';
+const OPTIONAL_TARGET = 600;
+const TOTAL_TARGET = 1200;
+const STORAGE_KEY = "css-builder-selection-v2";
 
 let GROUPS = [];
-const state = {};
+let COMPULSORY = [];
+const state = {}; 
+let showCompulsory = false; 
 let isDataLoaded = false;
 
-const chipClass = { "I":"g1","II":"g2","III":"g3","IV":"g4","V":"g5","VI":"g6","VII":"g7" };
+const chipClass = { "I":"g1","II":"g2","III":"g3","IV":"g4","V":"g5","VI":"g6","VII":"g7", "Comp":"comp" };
 
 // Elements
 const groupsEl      = document.getElementById("groups");
 const totalPill     = document.getElementById("totalPill");
+const stripLabel    = document.getElementById("stripLabel");
 const statusEl      = document.getElementById("status");
 const hintBox       = document.getElementById("hintBox");
 const chosenListEl  = document.getElementById("chosenList");
@@ -433,11 +465,11 @@ const finalSummary    = document.getElementById("finalSummary");
 const finalStatus     = document.getElementById("finalStatus");
 const finalConfirmBtn = document.getElementById("finalConfirmBtn");
 const copyBtn         = document.getElementById("copyBtn");
+const toggleCompulsory= document.getElementById("toggleCompulsory");
 
 /* ================= FETCH & PARSE CSV ================= */
 async function loadCSV() {
   try {
-    // Cache buster ensures we get the latest file from GitHub Pages
     const response = await fetch(`${CSV_URL}?t=${new Date().getTime()}`);
     if (!response.ok) throw new Error("Network response was not ok");
     
@@ -446,10 +478,9 @@ async function loadCSV() {
     
     isDataLoaded = true;
     renderGroups();
-    loadState(); // Restore selections after groups are built
+    loadState();
     updateUI();
     
-    // Auto-open Group I
     const g1 = document.querySelector('.group[data-group="I"]');
     if (g1) g1.classList.add("open");
     
@@ -466,14 +497,12 @@ function parseCSV(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
   if (lines.length === 0) return;
 
-  // Header: srno,subject,group_no,category,marks,type,recommended
   const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
   const dataRows = lines.slice(1);
 
   const groupMap = {};
 
   dataRows.forEach(line => {
-    // Handle commas inside quotes (though our CSV is simple)
     const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
     const cleanCols = cols.map(c => c.replace(/^"|"$/g, '').trim());
 
@@ -482,9 +511,17 @@ function parseCSV(text) {
 
     const gNum = row.group_no;
     const isComp = row.type.toLowerCase() === 'compulsory';
-    
-    // Skip compulsory subjects for the builder (optional only)
-    if (isComp) return;
+
+    const subjectObj = {
+      name: row.subject,
+      marks: parseInt(row.marks, 10),
+      recommended: row.recommended || "Any background"
+    };
+
+    if (isComp) {
+      COMPULSORY.push(subjectObj);
+      return; 
+    }
 
     if (!groupMap[gNum]) {
       groupMap[gNum] = {
@@ -497,17 +534,10 @@ function parseCSV(text) {
       };
     }
 
-    groupMap[gNum].subjects.push({
-      name: row.subject,
-      marks: parseInt(row.marks, 10),
-      recommended: row.recommended || "Any background"
-    });
+    groupMap[gNum].subjects.push(subjectObj);
   });
 
-  // Convert map to sorted array (I, II, III...)
   GROUPS = Object.values(groupMap).sort((a, b) => a.groupNumber.localeCompare(b.groupNumber));
-  
-  // Initialize state
   GROUPS.forEach(g => state[g.groupNumber] = []);
 }
 
@@ -541,8 +571,10 @@ function loadState() {
 /* ================= HELPERS ================= */
 const subj = (g, n) => GROUPS.find(x => x.groupNumber === g).subjects.find(s => s.name === n);
 const groupMarks = g => state[g].reduce((s, n) => s + subj(g, n).marks, 0);
-const totalMarks = () => GROUPS.reduce((s, g) => s + groupMarks(g.groupNumber), 0);
-const totalCount = () => GROUPS.reduce((s, g) => s + state[g.groupNumber].length, 0);
+const optionalMarks = () => GROUPS.reduce((s, g) => s + groupMarks(g.groupNumber), 0);
+const compulsoryMarks = () => COMPULSORY.reduce((s, c) => s + c.marks, 0);
+const totalMarks = () => optionalMarks() + compulsoryMarks();
+const totalCount = () => GROUPS.reduce((s, g) => s + state[g.groupNumber].length, 0) + COMPULSORY.length;
 
 function getViolations() {
   const v = [];
@@ -558,11 +590,11 @@ function getViolations() {
       v.push({group:"II", type:"mix", message:`Group II: a 200-mark subject can't be combined with another.`});
   });
   
-  const t = totalMarks();
-  if (t !== TARGET) {
-    v.push({group:null, type:"total", message: t > TARGET
-        ? `Total ${t} — over by ${t-TARGET}. Remove ${t-TARGET} marks.`
-        : `Total ${t} — need ${TARGET-t} more marks.`});
+  const optTotal = optionalMarks();
+  if (optTotal !== OPTIONAL_TARGET) {
+    v.push({group:null, type:"total", message: optTotal > OPTIONAL_TARGET
+        ? `Optional total ${optTotal} — over by ${optTotal-OPTIONAL_TARGET}. Remove ${optTotal-OPTIONAL_TARGET} marks.`
+        : `Optional total ${optTotal} — need ${OPTIONAL_TARGET-optTotal} more marks.`});
   }
   return v;
 }
@@ -584,6 +616,22 @@ function violatingKeys() {
 function buildChips(ulEl, flagged, onRemove) {
   ulEl.innerHTML = "";
   let any = false;
+
+  // Add Compulsory first
+  COMPULSORY.forEach(c => {
+    any = true;
+    const li = document.createElement("li");
+    li.className = "comp";
+    li.innerHTML = `
+      <span class="chip-left">
+        <span class="group-dot comp-dot"></span>
+        <span>Comp: ${c.name} <span class="marks">(${c.marks})</span></span>
+      </span>
+      <span style="color:var(--muted); font-size:0.8rem;">Fixed</span>`;
+    ulEl.appendChild(li);
+  });
+
+  // Add Optional
   GROUPS.forEach(g => {
     state[g.groupNumber].forEach(n => {
       any = true;
@@ -612,6 +660,45 @@ function buildChips(ulEl, flagged, onRemove) {
 /* ================= RENDER GROUPS ================= */
 function renderGroups() {
   groupsEl.innerHTML = "";
+
+  // 1. Render Compulsory Section (Hidden by default)
+  const compDiv = document.createElement("div");
+  compDiv.className = "group";
+  compDiv.dataset.group = "Comp";
+  compDiv.id = "compGroup";
+  compDiv.style.display = showCompulsory ? "block" : "none";
+  
+  compDiv.innerHTML = `
+    <div class="group-header">
+      <span class="group-title">
+        <span class="group-badge"></span>
+        Compulsory Subjects
+        <small>Fixed (600 marks)</small>
+      </span>
+      <span class="chev">▶</span>
+    </div>
+    <div class="group-body">
+      <div class="rule">All candidates must take these 6 subjects.</div>
+    </div>`;
+    
+  compDiv.querySelector(".group-header").addEventListener("click", () => compDiv.classList.toggle("open"));
+  
+  const compBody = compDiv.querySelector(".group-body");
+  COMPULSORY.forEach(s => {
+    const row = document.createElement("div");
+    row.className = "subject compulsory selected";
+    row.innerHTML = `
+      <span>${s.name}</span>
+      <span class="marks">${s.marks}</span>
+      <div class="rec-badge">
+        <strong>Recommended Background:</strong> ${s.recommended}
+      </div>
+    `;
+    compBody.appendChild(row);
+  });
+  groupsEl.appendChild(compDiv);
+
+  // 2. Render Optional Groups
   GROUPS.forEach(g => {
     const d = document.createElement("div");
     d.className = "group";
@@ -640,7 +727,6 @@ function renderGroups() {
       row.dataset.group = g.groupNumber;
       row.dataset.subject = s.name;
       
-      // Added the recommended badge inside the row
       row.innerHTML = `
         <span>${s.name}</span>
         <span class="marks">${s.marks}</span>
@@ -664,17 +750,32 @@ function toggle(g, n) {
   saveState();
 }
 
+/* ================= TOGGLE COMPULSORY ================= */
+toggleCompulsory.addEventListener("change", (e) => {
+  showCompulsory = e.target.checked;
+  const compGroup = document.getElementById("compGroup");
+  if (compGroup) {
+    compGroup.style.display = showCompulsory ? "block" : "none";
+    if (showCompulsory) compGroup.classList.add("open");
+  }
+});
+
 /* ================= UPDATE UI ================= */
 function updateUI() {
   if (!isDataLoaded) return;
 
   const violations = getViolations();
   const flagged = violatingKeys();
-  const total = totalMarks();
-  const isValid = total === TARGET;
+  const optTotal = optionalMarks();
+  const fullTotal = totalMarks();
+  const isValid = optTotal === OPTIONAL_TARGET;
 
-  // Subjects
-  document.querySelectorAll(".subject").forEach(row => {
+  // Update Labels based on Toggle
+  stripLabel.textContent = showCompulsory ? "Total · target 1200" : "Optional · target 600";
+  totalPill.textContent = showCompulsory ? `${fullTotal} / ${TOTAL_TARGET}` : `${optTotal} / ${OPTIONAL_TARGET}`;
+
+  // Subjects in groups
+  document.querySelectorAll(".subject:not(.compulsory)").forEach(row => {
     const g = row.dataset.group, s = row.dataset.subject;
     const isSel = state[g].includes(s);
     row.classList.toggle("selected", isSel);
@@ -690,11 +791,10 @@ function updateUI() {
     flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
   });
 
-  // Pill
-  totalPill.textContent = `${total} / ${TARGET}`;
+  // Pill colors
   totalPill.className = "total-pill";
   if (isValid) totalPill.classList.add("valid-grey");
-  else if (total > TARGET) totalPill.classList.add("over");
+  else if (optTotal > OPTIONAL_TARGET) totalPill.classList.add("over");
   else totalPill.classList.add("ok");
   
   selectedStrip.classList.toggle("valid", isValid);
@@ -708,7 +808,7 @@ function updateUI() {
   } else if (rv.length) {
     statusEl.classList.add("err"); statusEl.textContent = "❌ FPSC rule violation — see highlighted groups.";
   } else if (isValid) {
-    statusEl.classList.add("ok"); statusEl.textContent = "✅ Valid FPSC combination — exactly 600 marks!";
+    statusEl.classList.add("ok"); statusEl.textContent = "✅ Valid combination — 600 optional marks!";
   } else {
     statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + tv.message;
   }
@@ -738,15 +838,16 @@ function updateUI() {
 function renderFinal() {
   const violations = getViolations();
   const flagged = violatingKeys();
-  const total = totalMarks();
+  const optTotal = optionalMarks();
+  const fullTotal = totalMarks();
   const count = totalCount();
-  const isValid = total === TARGET;
+  const isValid = optTotal === OPTIONAL_TARGET;
 
-  finalTotal.textContent = `${total} / ${TARGET}`;
+  finalTotal.textContent = `${fullTotal} / ${TOTAL_TARGET}`;
   finalCount.textContent = `${count}`;
   finalSummary.className = "final-summary";
   if (isValid) finalSummary.classList.add("valid");
-  else if (total > TARGET) finalSummary.classList.add("over");
+  else if (optTotal > OPTIONAL_TARGET) finalSummary.classList.add("over");
 
   finalList.classList.toggle("valid", isValid);
   const any = buildChips(finalList, flagged, (g, n) => {
@@ -761,16 +862,16 @@ function renderFinal() {
   const rv = violations.filter(v => v.type !== "total");
   if (isValid) {
     finalStatus.classList.add("ok");
-    finalStatus.textContent = "✅ Exactly 600 marks — ready to confirm.";
-  } else if (total > TARGET) {
+    finalStatus.textContent = "✅ 600 optional + 600 compulsory = 1200 marks! Ready to confirm.";
+  } else if (optTotal > OPTIONAL_TARGET) {
     finalStatus.classList.add("err");
-    finalStatus.textContent = `❌ Over by ${total-TARGET} marks — remove subjects to reach 600.`;
+    finalStatus.textContent = `❌ Optional over by ${optTotal-OPTIONAL_TARGET} marks — remove subjects to reach 600.`;
   } else if (rv.length) {
     finalStatus.classList.add("err");
     finalStatus.textContent = "❌ FPSC rule violation — remove the red items.";
   } else {
     finalStatus.classList.add("warn");
-    finalStatus.textContent = `⚠ Need ${TARGET-total} more marks to confirm.`;
+    finalStatus.textContent = `⚠ Need ${OPTIONAL_TARGET-optTotal} more optional marks to confirm.`;
   }
 
   finalConfirmBtn.disabled = !isValid;
@@ -782,17 +883,24 @@ function renderFinal() {
 /* ================= COPY ALL SELECTED ================= */
 function buildCopyText() {
   const lines = [];
-  lines.push("CSS Optional Subjects — Final Choice");
-  lines.push("====================================");
+  lines.push("CSS Final Choice (Compulsory + Optional)");
+  lines.push("========================================");
+  
+  lines.push("\n[ Compulsory Subjects ]");
+  COMPULSORY.forEach(c => lines.push(`- ${c.name} (${c.marks} marks)`));
+  lines.push(`Compulsory Total: ${compulsoryMarks()} marks`);
+
+  lines.push("\n[ Optional Subjects ]");
   GROUPS.forEach(g => {
     state[g.groupNumber].forEach(n => {
       const s = subj(g.groupNumber, n);
-      lines.push(`Group ${g.groupNumber} — ${s.name} (${s.marks} marks)`);
+      lines.push(`- Group ${g.groupNumber}: ${s.name} (${s.marks} marks)`);
     });
   });
-  lines.push("------------------------------------");
-  lines.push(`Total subjects: ${totalCount()}`);
-  lines.push(`Total marks: ${totalMarks()} / ${TARGET}`);
+  lines.push(`Optional Total: ${optionalMarks()} / 600 marks`);
+  
+  lines.push("----------------------------------------");
+  lines.push(`Grand Total: ${totalMarks()} / 1200 marks`);
   return lines.join("\n");
 }
 
@@ -849,7 +957,7 @@ selectedStrip.addEventListener("click", openFinal);
 document.getElementById("finalCloseBtn").addEventListener("click", closeFinal);
 document.getElementById("finalBackBtn").addEventListener("click", closeFinal);
 finalConfirmBtn.addEventListener("click", () => {
-  if (totalMarks() !== TARGET) return;
+  if (optionalMarks() !== OPTIONAL_TARGET) return;
   closeFinal();
   selectedStrip.style.transition = "box-shadow 0.15s";
   selectedStrip.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.5)";

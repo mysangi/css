@@ -1,44 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>CSS Portal — Results & Subject Builder</title>
 
-  <!-- Favicon: blue graduation cap (inline SVG, no extra file needed) -->
+  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='38' r='2.5' fill='%23ffffff'/%3E%3C/svg%3E">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M32 14 L52 22 L32 30 L12 22 Z' fill='%23ffffff'/%3E%3Cpath d='M20 26 L20 38 C20 42 26 46 32 46 C38 46 44 42 44 38 L44 26' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ============================================================
+       GLOBAL RESET & THEME
+       ============================================================ */
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Inter', sans-serif;
       background: #f4f7fc;
-      padding: 2rem 1.5rem;
       color: #1e2b3c;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    .container { max-width: 1440px; margin: 0 auto; }
 
-    .header {
+    /* ============================================================
+       SHARED HEADER & TABS
+       ============================================================ */
+    .app-header {
+      background: #ffffff;
+      border-bottom: 1px solid #eef2f7;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0, 20, 40, 0.03);
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 700; font-size: 1.3rem; color: #0a1e2e;
+    }
+    .brand i { color: #2563eb; font-size: 1.6rem; }
+    
+    .nav-tabs {
+      display: flex; gap: 6px; background: #eef2f7; padding: 4px;
+      border-radius: 40px; border: 1px solid #e2e9f3;
+    }
+    .nav-tab {
+      padding: 0.6rem 1.2rem; border-radius: 40px;
+      font-size: 0.9rem; font-weight: 600; color: #5b6f85;
+      cursor: pointer; border: none; background: transparent;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .nav-tab:hover { color: #1e2b3c; }
+    .nav-tab.active {
+      background: #ffffff; color: #2563eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* ============================================================
+       VIEWS (Results & Builder)
+       ============================================================ */
+    .view-section {
+      display: none;
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .view-section.active { display: block; }
+
+    /* ============================================================
+       1. RESULTS DASHBOARD (From CSS Results Code)
+       ============================================================ */
+    .dash-header {
       display: flex; flex-wrap: wrap; justify-content: space-between;
       align-items: center; gap: 1rem; margin-bottom: 1.5rem;
     }
-    .header h1 {
-      font-weight: 600; font-size: 1.9rem; letter-spacing: -0.02em;
+    .dash-header h1 {
+      font-weight: 600; font-size: 1.6rem; letter-spacing: -0.02em;
       color: #0a1e2e; display: flex; align-items: center; gap: 10px;
     }
-    .header h1 i { color: #2563eb; font-size: 2rem; }
+    .dash-header h1 i { color: #2563eb; font-size: 1.6rem; }
+    
     .badge-count {
       background: #e6edf9; color: #1e4b8c;
       padding: 0.4rem 1rem; border-radius: 40px;
-      font-size: 0.9rem; font-weight: 500;
+      font-size: 0.85rem; font-weight: 500;
       display: inline-flex; align-items: center; gap: 6px;
     }
-
     .load-status {
-      background: white; padding: 0.8rem 1.4rem;
+      background: white; padding: 0.6rem 1.2rem;
       border-radius: 40px; font-size: 0.85rem;
       color: #4a5b6e; display: inline-flex;
       align-items: center; gap: 10px;
@@ -54,7 +112,7 @@
 
     .toolbar {
       display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
-      background: white; padding: 1.25rem 1.8rem; border-radius: 30px;
+      background: white; padding: 1.25rem 1.5rem; border-radius: 24px;
       box-shadow: 0 8px 20px rgba(0, 20, 40, 0.06);
       align-items: center; border: 1px solid #e9eef3;
     }
@@ -68,15 +126,14 @@
       transform: translateY(-50%); color: #7c8b9e;
     }
     .search-wrapper input {
-      width: 100%; padding: 0.85rem 1rem 0.85rem 3rem;
-      font-family: 'Inter', sans-serif; font-size: 0.95rem;
+      width: 100%; padding: 0.8rem 1rem 0.8rem 3rem;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem;
       border: 1.5px solid #dee5ed; border-radius: 60px;
       background: #fff; outline: none; transition: 0.2s;
     }
     .search-wrapper input:focus {
       border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
     }
-
     .filter-group {
       display: flex; flex-wrap: wrap; gap: 1rem; flex: 3;
       justify-content: flex-end;
@@ -88,7 +145,7 @@
       pointer-events: none; font-size: 0.9rem;
     }
     .select-wrapper select {
-      width: 100%; padding: 0.85rem 2rem 0.85rem 2.7rem;
+      width: 100%; padding: 0.8rem 2rem 0.8rem 2.7rem;
       font-family: 'Inter', sans-serif; font-size: 0.9rem;
       appearance: none; background: white;
       border: 1.5px solid #dee5ed; border-radius: 60px;
@@ -103,10 +160,9 @@
       transform: translateY(-50%); color: #7c8b9e;
       pointer-events: none; font-size: 0.9rem;
     }
-
     .clear-btn {
       background: #f0f4fa; border: none; border-radius: 60px;
-      padding: 0.85rem 1.5rem; font-family: 'Inter', sans-serif;
+      padding: 0.8rem 1.5rem; font-family: 'Inter', sans-serif;
       font-weight: 500; color: #4a5b6e; cursor: pointer;
       display: flex; align-items: center; gap: 8px;
       transition: 0.15s; font-size: 0.9rem; white-space: nowrap;
@@ -115,592 +171,1020 @@
 
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 1.5rem;
     }
-
     .student-card {
-      background: white; border-radius: 28px;
-      padding: 1.5rem 1.5rem 1.2rem 1.5rem;
-      box-shadow: 0 12px 30px rgba(0, 20, 40, 0.08);
-      border: 1px solid #eef2f7;
-      transition: all 0.2s ease;
+      background: white; border-radius: 24px;
+      padding: 1.5rem; box-shadow: 0 12px 30px rgba(0, 20, 40, 0.06);
+      border: 1px solid #eef2f7; transition: all 0.2s ease;
       display: flex; flex-direction: column; gap: 0.9rem;
     }
     .student-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 35px rgba(0, 30, 60, 0.12);
-      border-color: #d0ddea;
+      transform: translateY(-4px); box-shadow: 0 20px 35px rgba(0, 30, 60, 0.12);
     }
-
-    .card-header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .card-header { display: flex; justify-content: space-between; align-items: center; }
     .sr-badge {
-      background: #e9eff9; color: #1e4b8c;
-      font-weight: 600; font-size: 0.8rem;
+      background: #e9eff9; color: #1e4b8c; font-weight: 600; font-size: 0.8rem;
       padding: 0.3rem 0.9rem; border-radius: 40px;
       display: flex; align-items: center; gap: 5px;
     }
-
     .status-badge {
-      font-size: 0.75rem; font-weight: 600;
-      padding: 0.3rem 1rem; border-radius: 40px;
-      text-transform: uppercase; letter-spacing: 0.3px;
-      background: #eef2f7; color: #5b6f85;
+      font-size: 0.75rem; font-weight: 600; padding: 0.3rem 1rem; border-radius: 40px;
+      text-transform: uppercase; letter-spacing: 0.3px; background: #eef2f7; color: #5b6f85;
     }
-    .status-badge.status-fail {
-      background: #ffeae9; color: #b42318; border: 1px solid #ffcdca;
-    }
-    .status-badge.status-pass {
-      background: #e6f7ec; color: #0e6b3e; border: 1px solid #c3ebd3;
-    }
-    .status-badge.status-rejected {
-      background: #e6f0ff; color: #1e4b8c; border: 1px solid #c9dbf9;
-    }
-
+    .status-badge.status-fail { background: #ffeae9; color: #b42318; border: 1px solid #ffcdca; }
+    .status-badge.status-pass { background: #e6f7ec; color: #0e6b3e; border: 1px solid #c3ebd3; }
+    .status-badge.status-rejected { background: #e6f0ff; color: #1e4b8c; border: 1px solid #c9dbf9; }
+    
     .student-name {
-      font-weight: 700; font-size: 1.4rem;
-      letter-spacing: -0.02em; color: #0b1e2e;
-      line-height: 1.2;
+      font-weight: 700; font-size: 1.3rem; color: #0b1e2e; line-height: 1.2;
       display: flex; align-items: center; gap: 8px;
     }
-    .student-name i { font-size: 1.2rem; color: #2563eb; opacity: 0.8; }
-
+    .student-name i { font-size: 1.1rem; color: #2563eb; opacity: 0.8; }
     .info-row {
       display: flex; flex-wrap: wrap; gap: 1rem 1.5rem;
-      background: #f9fbfe; padding: 0.9rem 1.1rem; border-radius: 18px;
+      background: #f9fbfe; padding: 0.8rem 1rem; border-radius: 16px;
     }
-    .info-item {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.9rem; color: #1e3a5f;
-    }
+    .info-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #1e3a5f; }
     .info-item i { width: 18px; color: #5b7aa2; }
     .info-item strong { font-weight: 600; color: #0b2a4a; margin-right: 4px; }
-
     .card-footer {
       display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 0.8rem;
-      border-top: 1px solid #eef3f9; padding-top: 0.9rem;
+      flex-wrap: wrap; gap: 0.8rem; border-top: 1px solid #eef3f9; padding-top: 0.8rem;
     }
-    .updated {
-      font-size: 0.75rem; color: #7c8b9e;
-      display: flex; align-items: center; gap: 5px;
-    }
+    .updated { font-size: 0.75rem; color: #7c8b9e; display: flex; align-items: center; gap: 5px; }
     .pdf-link {
       background: #2563eb; color: white; text-decoration: none;
       padding: 0.5rem 1.2rem; border-radius: 60px;
       font-weight: 500; font-size: 0.8rem;
-      display: inline-flex; align-items: center; gap: 7px;
-      transition: 0.15s; border: 1px solid #2563eb;
+      display: inline-flex; align-items: center; gap: 7px; transition: 0.15s;
     }
-    .pdf-link:hover { background: #1a4fc7; border-color: #1a4fc7; }
-    .pdf-link.disabled {
-      background: #dce3ec; border-color: #dce3ec;
-      color: #8899aa; pointer-events: none;
-    }
+    .pdf-link:hover { background: #1a4fc7; }
+    .pdf-link.disabled { background: #dce3ec; color: #8899aa; pointer-events: none; }
 
-    .no-results {
-      grid-column: 1 / -1; text-align: center;
-      padding: 3.5rem 2rem; background: white; border-radius: 40px;
-      color: #5b6f85; font-size: 1.1rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.02);
-      border: 1px dashed #cbd6e4;
+    .no-results, .loading-spinner, .error-message {
+      grid-column: 1 / -1; text-align: center; padding: 3rem; background: white;
+      border-radius: 24px; color: #5b6f85; border: 1px dashed #cbd6e4;
     }
-    .no-results i {
-      font-size: 2.5rem; color: #b0c0d4;
-      margin-bottom: 1rem; display: block;
-    }
-
-    .loading-spinner {
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center;
-      padding: 3rem; grid-column: 1 / -1; gap: 1rem;
-      color: #5b6f85;
-    }
-    .spinner {
-      width: 44px; height: 44px;
-      border: 4px solid #e0e9f2;
-      border-top: 4px solid #2563eb;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .no-results i, .error-message i { font-size: 2.5rem; color: #b0c0d4; margin-bottom: 1rem; display: block; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #e0e9f2; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error-message {
-      background: #fff0f0; color: #b42318;
-      padding: 1.5rem; border-radius: 24px;
-      grid-column: 1 / -1; text-align: center;
-      border: 1px solid #ffcdca;
-    }
-    .error-message i {
-      font-size: 1.8rem; margin-bottom: 0.5rem; display: block;
-    }
-
-    .load-more-wrap {
-      grid-column: 1 / -1;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 0.75rem;
-      padding: 2rem 1rem 1rem;
-    }
+    .load-more-wrap { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 2rem 1rem; }
     .load-more-btn {
-      background: #2563eb; color: white;
-      border: none; border-radius: 60px;
-      padding: 0.9rem 2.2rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600; font-size: 0.95rem;
-      cursor: pointer; display: inline-flex;
-      align-items: center; gap: 10px;
-      transition: 0.15s;
+      background: #2563eb; color: white; border: none; border-radius: 60px;
+      padding: 0.9rem 2.2rem; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 10px; transition: 0.15s;
       box-shadow: 0 8px 20px rgba(37,99,235,0.25);
     }
-    .load-more-btn:hover:not(:disabled) {
-      background: #1a4fc7; transform: translateY(-1px);
+    .load-more-btn:hover:not(:disabled) { background: #1a4fc7; transform: translateY(-1px); }
+    .load-more-info { font-size: 0.85rem; color: #5b6f85; }
+
+
+    /* ============================================================
+       2. SUBJECT BUILDER (From CSS Builder Code)
+       ============================================================ */
+    :root {
+      --b-bg: #0f172a;
+      --b-panel: #1e293b;
+      --b-panel-2: #273449;
+      --b-accent: #38bdf8;
+      --b-ok: #22c55e;
+      --b-danger: #ef4444;
+      --b-warn: #f59e0b;
+      --b-text: #e2e8f0;
+      --b-muted: #94a3b8;
+      --b-border: #334155;
+      --b-hover: #2e3d56;
+      --b-grey: #64748b;
     }
-    .load-more-btn:disabled {
-      background: #c3d1e6; cursor: not-allowed;
-      box-shadow: none; color: #f0f4fa;
-    }
-    .load-more-info {
-      font-size: 0.85rem; color: #5b6f85;
+    [data-theme="light"] {
+      --b-bg: #f1f5f9;
+      --b-panel: #ffffff;
+      --b-panel-2: #e2e8f0;
+      --b-accent: #0284c7;
+      --b-ok: #16a34a;
+      --b-danger: #dc2626;
+      --b-warn: #d97706;
+      --b-text: #0f172a;
+      --b-muted: #64748b;
+      --b-border: #cbd5e1;
+      --b-hover: #f1f5f9;
+      --b-grey: #94a3b8;
     }
 
-    @media (max-width: 640px) {
-      body { padding: 1rem; }
+    .builder-container {
+      background: var(--b-bg); color: var(--b-text);
+      border-radius: 24px; overflow: hidden; display: flex; flex-direction: column;
+      height: calc(100vh - 120px); min-height: 600px; border: 1px solid #e2e9f3;
+    }
+
+    .b-header { padding: 8px 12px 6px; border-bottom: 1px solid var(--b-border); flex: 0 0 auto; }
+    .b-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .b-title-left { display: flex; align-items: center; gap: 6px; }
+    .b-title-left h2 { font-size: 0.95rem; margin: 0; font-weight: 700; }
+    .b-version { font-size: 0.6rem; color: var(--b-muted); background: var(--b-panel-2); padding: 1px 4px; border-radius: 4px; border: 1px solid var(--b-border); }
+    .b-header-right { display: flex; align-items: center; gap: 6px; }
+    .b-toggle-label {
+      display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: var(--b-muted); cursor: pointer;
+      background: var(--b-panel-2); padding: 2px 6px; border-radius: 6px; border: 1px solid var(--b-border);
+    }
+    .b-toggle-label input { display: none; }
+    .b-toggle-switch { width: 26px; height: 14px; background: var(--b-border); border-radius: 999px; position: relative; transition: 0.2s; }
+    .b-toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; background: #fff; border-radius: 50%; transition: 0.2s; }
+    .b-toggle-label input:checked + .b-toggle-switch { background: var(--b-ok); }
+    .b-toggle-label input:checked + .b-toggle-switch::after { transform: translateX(12px); }
+    
+    .b-theme-btn {
+      background: var(--b-panel-2); color: var(--b-text); border: 1px solid var(--b-border); border-radius: 999px;
+      padding: 2px 8px; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; gap: 2px;
+    }
+
+    .b-strip {
+      margin: 2px 10px 0; background: var(--b-panel); border: 1px solid var(--b-border); border-radius: 8px;
+      padding: 6px 8px; max-height: 18vh; overflow-y: auto; flex: 0 0 auto; cursor: pointer; position: relative;
+    }
+    .b-strip.valid { border-color: var(--b-ok); }
+    .b-strip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .b-strip-head .lbl { font-size: 0.75rem; color: var(--b-muted); text-transform: uppercase; }
+    .b-total-pill { font-size: 0.85rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--b-panel-2); color: var(--b-text); }
+    .b-total-pill.ok { background: rgba(34,197,94,0.2); color: var(--b-ok); }
+    .b-total-pill.over { background: rgba(239,68,68,0.2); color: var(--b-danger); }
+    .b-total-pill.valid-grey { background: var(--b-panel-2); color: var(--b-grey); }
+    
+    .b-chosen-list { list-style: none; padding: 0; margin: 0; }
+    .b-chosen-list li {
+      display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 4px 8px;
+      border-radius: 6px; background: var(--b-panel-2); margin-bottom: 3px; font-size: 0.85rem; border-left: 3px solid transparent;
+    }
+    .b-chosen-list li.violating { background: rgba(239,68,68,0.12); border-left-color: var(--b-danger); }
+    .b-chosen-list li.g1 { border-left-color: #3b82f6; } .b-chosen-list li.g2 { border-left-color: #22c55e; }
+    .b-chosen-list li.g3 { border-left-color: #a855f7; } .b-chosen-list li.g4 { border-left-color: #f59e0b; }
+    .b-chosen-list li.g5 { border-left-color: #ec4899; } .b-chosen-list li.g6 { border-left-color: #06b6d4; }
+    .b-chosen-list li.g7 { border-left-color: #f97316; }
+    .b-chosen-list .rm { color: var(--b-danger); background: none; border: none; font-size: 1.1rem; cursor: pointer; }
+    
+    .b-status { font-size: 0.8rem; margin-top: 4px; min-height: 16px; }
+    .b-status.ok { color: var(--b-ok); } .b-status.err { color: var(--b-danger); } .b-status.warn { color: var(--b-warn); }
+    
+    .b-toolbar { display: flex; gap: 6px; padding: 6px 10px; flex: 0 0 auto; }
+    .b-toolbar button {
+      flex: 1; padding: 6px 8px; border-radius: 6px; cursor: pointer; background: var(--b-panel-2);
+      color: var(--b-text); border: 1px solid var(--b-border); font-size: 0.8rem;
+    }
+
+    .b-groups-container { flex: 1 1 auto; overflow-y: auto; padding: 0 10px 80px; }
+    .b-group { background: var(--b-panel); border: 1px solid var(--b-border); border-radius: 8px; margin-bottom: 6px; overflow: hidden; }
+    .b-group-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; cursor: pointer; background: var(--b-panel-2); font-size: 0.85rem; }
+    .b-group-title { font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .b-group-title small { color: var(--b-muted); font-weight: 400; font-size: 0.72rem; }
+    .b-group-body { display: none; padding: 6px; }
+    .b-group.open .b-group-body { display: block; }
+    
+    .b-subject { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; margin-bottom: 3px; font-size: 0.85rem; }
+    .b-subject:hover { background: var(--b-hover); }
+    .b-subject.selected { background: rgba(56,189,248,0.15); border-color: var(--b-accent); }
+    .b-subject.compulsory { cursor: default; }
+    
+    .b-rec-badge {
+      display: none; position: absolute; top: 100%; left: 6px; right: 6px; margin-top: 2px; padding: 6px 8px;
+      background: var(--b-panel-2); border: 1px solid var(--b-border); border-left: 3px solid var(--b-accent);
+      border-radius: 4px; font-size: 0.75rem; color: var(--b-text); z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+    .b-subject:hover .b-rec-badge { display: block; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
       .toolbar { flex-direction: column; align-items: stretch; }
       .search-group { flex-direction: column; }
       .filter-group { justify-content: stretch; }
       .select-wrapper { min-width: 100%; }
       .card-grid { grid-template-columns: 1fr; }
-      .student-name { font-size: 1.2rem; }
-      .info-row { flex-direction: column; gap: 0.5rem; }
+      .nav-tabs { width: 100%; justify-content: space-between; }
+      .nav-tab { flex: 1; justify-content: center; padding: 0.6rem 0.5rem; font-size: 0.8rem; }
+      .app-header { flex-direction: column; gap: 1rem; padding: 1rem; }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1><i class="fas fa-graduation-cap"></i> Student Results</h1>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-      <div class="load-status" id="loadStatus">
-        <span class="dot"></span>
-        <span id="loadStatusText">Loading CSV...</span>
-      </div>
-      <div class="badge-count">
-        <i class="fas fa-layer-group"></i>
-        Showing <span id="shownCount">0</span> of <span id="totalCount">0</span>
-      </div>
-    </div>
-  </div>
 
-  <div class="toolbar">
-    <div class="search-group">
-      <div class="search-wrapper">
-        <i class="fas fa-user"></i>
-        <input type="text" id="nameSearch" placeholder="Search by name...">
-      </div>
-      <div class="search-wrapper">
-        <i class="fas fa-id-card"></i>
-        <input type="text" id="rollSearch" placeholder="Search by roll number...">
-      </div>
+  <!-- SHARED HEADER -->
+  <header class="app-header">
+    <div class="brand">
+      <i class="fas fa-graduation-cap"></i> CSS Portal
     </div>
-    <div class="filter-group">
-      <div class="select-wrapper">
-        <i class="fas fa-calendar-alt"></i>
-        <select id="yearFilter">
-          <option value="all">All years</option>
-        </select>
-      </div>
-      <div class="select-wrapper">
-        <i class="fas fa-circle-check"></i>
-        <select id="statusFilter">
-          <option value="all">All status</option>
-        </select>
-      </div>
-      <button class="clear-btn" id="clearFiltersBtn">
-        <i class="fas fa-rotate-left"></i> Clear
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-target="view-results">
+        <i class="fas fa-list-check"></i> Results
+      </button>
+      <button class="nav-tab" data-target="view-builder">
+        <i class="fas fa-book-open"></i> Subject Builder
       </button>
     </div>
-  </div>
+  </header>
 
-  <div class="card-grid" id="cardGrid">
-    <div class="loading-spinner">
-      <div class="spinner"></div>
-      <div>Loading students...</div>
+  <!-- ============================================================
+       VIEW 1: RESULTS DASHBOARD
+       ============================================================ -->
+  <section class="view-section active" id="view-results">
+    <div class="dash-header">
+      <h1><i class="fas fa-user-graduate"></i> MPT Results</h1>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div class="load-status" id="loadStatus">
+          <span class="dot"></span>
+          <span id="loadStatusText">Loading CSV...</span>
+        </div>
+        <div class="badge-count">
+          <i class="fas fa-layer-group"></i>
+          Showing <span id="shownCount">0</span> of <span id="totalCount">0</span>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<script>
-  // ============================================================
-  // CONFIG — change this to your CSV filename
-  // ============================================================
-  const CSV_FILE = 'css mpt results - all.csv';
-  const CSV_URL  = encodeURI(CSV_FILE);
+    <div class="toolbar">
+      <div class="search-group">
+        <div class="search-wrapper">
+          <i class="fas fa-user"></i>
+          <input type="text" id="nameSearch" placeholder="Search by name...">
+        </div>
+        <div class="search-wrapper">
+          <i class="fas fa-id-card"></i>
+          <input type="text" id="rollSearch" placeholder="Search by roll number...">
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="select-wrapper">
+          <i class="fas fa-calendar-alt"></i>
+          <select id="yearFilter">
+            <option value="all">All years</option>
+          </select>
+        </div>
+        <div class="select-wrapper">
+          <i class="fas fa-circle-check"></i>
+          <select id="statusFilter">
+            <option value="all">All status</option>
+          </select>
+        </div>
+        <button class="clear-btn" id="clearFiltersBtn">
+          <i class="fas fa-rotate-left"></i> Clear
+        </button>
+      </div>
+    </div>
 
-  const PAGE_SIZE = 1000;
+    <div class="card-grid" id="cardGrid">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <div>Loading students...</div>
+      </div>
+    </div>
+  </section>
 
-  // ---------- STATE ----------
-  let ALL_STUDENTS = [];
-  let filtered = [];
-  let currentOffset = 0;
-  let nameSearch = '';
-  let rollSearch = '';
-  let currentYear = 'all';
-  let currentStatus = 'all';
-  let totalMatching = 0;
-  let loadedCount = 0;
-  let hasMore = true;
-  let dataReady = false;
+  <!-- ============================================================
+       VIEW 2: SUBJECT BUILDER
+       ============================================================ -->
+  <section class="view-section" id="view-builder">
+    <div class="builder-container" data-theme="light" id="builderRoot">
+      
+      <div class="b-header">
+        <div class="b-title-row">
+          <div class="b-title-left">
+            <h2>CSS Optional Subject Builder</h2>
+            <span class="b-version">v3.2</span>
+          </div>
+          <div class="b-header-right">
+            <label class="b-toggle-label">
+              <input type="checkbox" id="toggleCompulsory">
+              <span class="b-toggle-switch"></span>
+              Compulsory
+            </label>
+            <button class="b-theme-btn" id="bThemeBtn" title="Toggle theme">🌙 Dark</button>
+          </div>
+        </div>
 
-  // ---------- DOM ----------
-  const nameInput    = document.getElementById('nameSearch');
-  const rollInput    = document.getElementById('rollSearch');
-  const yearFilter   = document.getElementById('yearFilter');
-  const statusFilter = document.getElementById('statusFilter');
-  const clearBtn     = document.getElementById('clearFiltersBtn');
-  const cardGrid     = document.getElementById('cardGrid');
-  const shownCount   = document.getElementById('shownCount');
-  const totalCount   = document.getElementById('totalCount');
-  const loadStatus   = document.getElementById('loadStatus');
-  const loadStatusText = document.getElementById('loadStatusText');
+        <div class="b-strip" id="selectedStrip" title="Tap to view full screen">
+          <div class="b-strip-head">
+            <span class="lbl" id="stripLabel">Optional · Target 600</span>
+            <span class="b-total-pill" id="totalPill">0 / 600</span>
+          </div>
+          <ul class="b-chosen-list" id="chosenList">
+            <li class="empty">Loading subjects...</li>
+          </ul>
+          <div class="b-status" id="status">Select subjects to begin.</div>
+        </div>
+      </div>
 
-  let nameDebounce = null;
-  let rollDebounce = null;
+      <div class="b-toolbar">
+        <button id="expandAllBtn">Expand All</button>
+        <button id="collapseAllBtn">Collapse All</button>
+        <button id="resetBtn">Reset Optional</button>
+      </div>
 
-  // ---------- INIT ----------
-  window.addEventListener('load', () => {
-    loadCSV();
-  });
+      <div class="b-groups-container" id="bGroups"></div>
 
-  // ---------- LOAD & PARSE CSV ----------
-  async function loadCSV() {
-    loadStatusText.textContent = 'Downloading CSV...';
+      <!-- OVERLAY -->
+      <div class="final-overlay" id="finalOverlay" aria-hidden="true" style="position:fixed; inset:0; z-index:100; background:var(--b-bg); opacity:0; pointer-events:none; transition:opacity 0.2s; overflow-y:auto;">
+        <div style="min-height:100%; display:flex; flex-direction:column; padding:16px;">
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h2 style="font-size:1.15rem; margin:0; font-weight:700; color:var(--b-text);">Final Choice — Review</h2>
+            <button id="finalCloseBtn" style="background:var(--b-panel-2); color:var(--b-text); border:1px solid var(--b-border); border-radius:999px; padding:6px 14px; font-size:0.85rem; cursor:pointer;">✕ Close</button>
+          </div>
+          
+          <div style="background:var(--b-panel); border:1px solid var(--b-border); border-radius:12px; padding:12px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="font-size:0.78rem; color:var(--b-muted); text-transform:uppercase;">Total marks</span><br>
+              <span id="finalTotal" style="font-size:1.5rem; font-weight:700; color:var(--b-ok);">0 / 1200</span>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.78rem; color:var(--b-muted); text-transform:uppercase;">Subjects</span><br>
+              <span id="finalCount" style="font-size:1.5rem; font-weight:700; color:var(--b-ok);">0</span>
+            </div>
+          </div>
+          
+          <ul class="b-chosen-list" id="finalList" style="flex:1 1 auto;"></ul>
+          
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button id="copyBtn" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; border:1px solid var(--b-accent); background:rgba(56,189,248,0.12); color:var(--b-accent);">📋 Copy all selected</button>
+          </div>
+          <div id="finalStatus" style="font-size:0.88rem; margin-top:10px; text-align:center; min-height:18px;"></div>
+          
+          <div style="display:flex; gap:10px; margin-top:auto; padding-top:12px;">
+            <button id="finalBackBtn" style="flex:1; padding:14px; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; border:1px solid var(--b-border); background:var(--b-panel-2); color:var(--b-text);">← Back to builder</button>
+            <button id="finalConfirmBtn" style="flex:1; padding:14px; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; border:1px solid var(--b-ok); background:var(--b-ok); color:#fff;" disabled>✓ Confirm 1200</button>
+          </div>
 
-    try {
-      const res = await fetch(CSV_URL, { cache: 'default' });
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + CSV_URL);
+        </div>
+      </div>
 
-      const text = await res.text();
+    </div>
+  </section>
 
-      loadStatusText.textContent = 'Parsing ' + (text.length / 1024 / 1024).toFixed(1) + 'MB...';
+  <!-- ============================================================
+       JAVASCRIPT: TAB SWITCHING
+       ============================================================ -->
+  <script>
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.target).classList.add('active');
+      });
+    });
+  </script>
 
-      ALL_STUDENTS = parseCSV(text);
+  <!-- ============================================================
+       JAVASCRIPT: RESULTS DASHBOARD
+       ============================================================ -->
+  <script>
+    const CSV_FILE = 'css mpt results - all.csv';
+    const CSV_URL  = encodeURI(CSV_FILE);
+    const PAGE_SIZE = 1000;
 
-      loadStatus.classList.add('done');
-      loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString() + ' students';
+    let ALL_STUDENTS = [];
+    let filtered = [];
+    let currentOffset = 0;
+    let nameSearch = '';
+    let rollSearch = '';
+    let currentYear = 'all';
+    let currentStatus = 'all';
+    let totalMatching = 0;
+    let loadedCount = 0;
+    let hasMore = true;
+    let dataReady = false;
 
-      dataReady = true;
-      loadFilterMeta();
-      applyFilters();
+    const nameInput    = document.getElementById('nameSearch');
+    const rollInput    = document.getElementById('rollSearch');
+    const yearFilter   = document.getElementById('yearFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const clearBtn     = document.getElementById('clearFiltersBtn');
+    const cardGrid     = document.getElementById('cardGrid');
+    const shownCount   = document.getElementById('shownCount');
+    const totalCount   = document.getElementById('totalCount');
+    const loadStatus   = document.getElementById('loadStatus');
+    const loadStatusText = document.getElementById('loadStatusText');
 
-    } catch (err) {
-      console.error(err);
-      loadStatus.classList.add('error');
-      loadStatusText.textContent = 'Failed to load CSV';
-      showError(
-        'Could not load CSV from "' + CSV_FILE + '".<br>' +
-        'Make sure the file is in the same folder as index.html.<br><br>' +
-        '<code>' + escapeHtml(err.message) + '</code>'
-      );
+    let nameDebounce = null;
+    let rollDebounce = null;
+
+    window.addEventListener('load', () => { loadCSV(); });
+
+    async function loadCSV() {
+      loadStatusText.textContent = 'Downloading CSV...';
+      try {
+        const res = await fetch(CSV_URL, { cache: 'default' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        loadStatusText.textContent = 'Parsing ' + (text.length / 1024 / 1024).toFixed(1) + 'MB...';
+        ALL_STUDENTS = parseCSV(text);
+        loadStatus.classList.add('done');
+        loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString() + ' students';
+        dataReady = true;
+        loadFilterMeta();
+        applyFilters();
+      } catch (err) {
+        console.error(err);
+        loadStatus.classList.add('error');
+        loadStatusText.textContent = 'Failed to load CSV';
+        cardGrid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Could not load CSV from "' + CSV_FILE + '".<br>' + escapeHtml(err.message) + '</div>';
+      }
     }
-  }
 
-  // ---------- CSV PARSER (RFC 4180 with quoted fields) ----------
-  function parseCSV(text) {
-    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-
-    const rows = [];
-    let row = [];
-    let field = '';
-    let inQuotes = false;
-    let i = 0;
-    const len = text.length;
-
-    while (i < len) {
-      const ch = text[i];
-      const next = i + 1 < len ? text[i + 1] : '';
-
-      if (inQuotes) {
-        if (ch === '"') {
-          if (next === '"') { field += '"'; i += 2; continue; }
-          inQuotes = false; i++; continue;
+    function parseCSV(text) {
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      const rows = [];
+      let row = [], field = '', inQuotes = false, i = 0;
+      const len = text.length;
+      while (i < len) {
+        const ch = text[i], next = i + 1 < len ? text[i + 1] : '';
+        if (inQuotes) {
+          if (ch === '"') {
+            if (next === '"') { field += '"'; i += 2; continue; }
+            inQuotes = false; i++; continue;
+          }
+          field += ch; i++; continue;
         }
-        field += ch; i++; continue;
+        if (ch === '"') { inQuotes = true; i++; continue; }
+        if (ch === ',') { row.push(field); field = ''; i++; continue; }
+        if (ch === '\r') { i++; continue; }
+        if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+        field += ch; i++;
       }
-
-      if (ch === '"') { inQuotes = true; i++; continue; }
-      if (ch === ',') { row.push(field); field = ''; i++; continue; }
-      if (ch === '\r') { i++; continue; }
-      if (ch === '\n') {
-        row.push(field);
-        rows.push(row);
-        row = []; field = ''; i++;
-        continue;
+      if (field.length || row.length) { row.push(field); rows.push(row); }
+      if (rows.length < 2) return [];
+      const header = rows[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, '_'));
+      const col = {};
+      header.forEach((h, idx) => { col[h] = idx; });
+      const get = (arr, ...keys) => {
+        for (const k of keys) if (col[k] !== undefined) return arr[col[k]] ?? '';
+        return '';
+      };
+      const out = [];
+      for (let r = 1; r < rows.length; r++) {
+        const rowArr = rows[r];
+        if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
+        out.push({
+          sr_no: get(rowArr, 'sr_no', 'srno', 'sr') || r,
+          name: String(get(rowArr, 'name') || '').trim(),
+          roll_no: String(get(rowArr, 'roll_no', 'rollno', 'roll') || '').trim(),
+          status: String(get(rowArr, 'status') || '').trim(),
+          url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url_result_pdf', 'url') || '').trim(),
+          year: String(get(rowArr, 'year') || '').trim(),
+          updated_on: String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—'
+        });
       }
-      field += ch;
-      i++;
-    }
-    if (field.length || row.length) {
-      row.push(field);
-      rows.push(row);
+      return out;
     }
 
-    if (rows.length < 2) return [];
+    function loadFilterMeta() {
+      const years = {}, statuses = {};
+      for (let i = 0; i < ALL_STUDENTS.length; i++) {
+        if (ALL_STUDENTS[i].year) years[ALL_STUDENTS[i].year] = true;
+        if (ALL_STUDENTS[i].status) statuses[ALL_STUDENTS[i].status] = true;
+      }
+      const sortedYears = Object.keys(years).sort();
+      yearFilter.innerHTML = '<option value="all">All years</option>';
+      sortedYears.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        yearFilter.appendChild(opt);
+      });
+      if (sortedYears.length) {
+        const latest = sortedYears[sortedYears.length - 1];
+        yearFilter.value = latest; currentYear = latest;
+      } else { yearFilter.value = 'all'; currentYear = 'all'; }
 
-    const header = rows[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, '_'));
-    const col = {};
-    header.forEach((h, idx) => { col[h] = idx; });
-    const get = (arr, ...keys) => {
-      for (const k of keys) if (col[k] !== undefined) return arr[col[k]] ?? '';
-      return '';
-    };
-
-    const out = [];
-    for (let r = 1; r < rows.length; r++) {
-      const rowArr = rows[r];
-      if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
-
-      out.push({
-        sr_no:           get(rowArr, 'sr_no', 'srno', 'sr') || r,
-        name:            String(get(rowArr, 'name') || '').trim(),
-        roll_no:         String(get(rowArr, 'roll_no', 'rollno', 'roll') || '').trim(),
-        status:          String(get(rowArr, 'status') || '').trim(),
-        url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url_result_pdf', 'url') || '').trim(),
-        year:            String(get(rowArr, 'year') || '').trim(),
-        updated_on:      String(get(rowArr, 'updated_on', 'updatedon', 'updated') || '').trim() || '—'
+      statusFilter.innerHTML = '<option value="all">All status</option>';
+      Object.keys(statuses).sort().forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        statusFilter.appendChild(opt);
       });
     }
-    return out;
-  }
 
-  // ---------- FILTER META (with latest-year default) ----------
-  function loadFilterMeta() {
-    const years = {}, statuses = {};
-    for (let i = 0; i < ALL_STUDENTS.length; i++) {
-      if (ALL_STUDENTS[i].year) years[ALL_STUDENTS[i].year] = true;
-      if (ALL_STUDENTS[i].status) statuses[ALL_STUDENTS[i].status] = true;
-    }
-
-    const sortedYears = Object.keys(years).sort();
-
-    yearFilter.innerHTML = '<option value="all">All years</option>';
-    sortedYears.forEach(y => {
-      const opt = document.createElement('option');
-      opt.value = y; opt.textContent = y;
-      yearFilter.appendChild(opt);
-    });
-
-    // ---- DEFAULT TO LATEST YEAR ----
-    if (sortedYears.length) {
-      const latest = sortedYears[sortedYears.length - 1];
-      yearFilter.value = latest;
-      currentYear = latest;
-    } else {
-      yearFilter.value = 'all';
-      currentYear = 'all';
-    }
-
-    statusFilter.innerHTML = '<option value="all">All status</option>';
-    Object.keys(statuses).sort().forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s; opt.textContent = s;
-      statusFilter.appendChild(opt);
-    });
-  }
-
-  // ---------- APPLY FILTERS ----------
-  function applyFilters() {
-    if (!dataReady) return;
-
-    const nameQ = nameSearch.trim().toLowerCase();
-    const rollQ = rollSearch.trim().toLowerCase();
-    const yearQ = currentYear;
-    const statusQ = currentStatus.toLowerCase();
-
-    filtered = [];
-    for (let i = 0; i < ALL_STUDENTS.length; i++) {
-      const s = ALL_STUDENTS[i];
-      if (nameQ && s.name.toLowerCase().indexOf(nameQ) === -1) continue;
-      if (rollQ && s.roll_no.toLowerCase().indexOf(rollQ) === -1) continue;
-      if (yearQ !== 'all' && s.year !== yearQ) continue;
-      if (statusQ !== 'all' && s.status.toLowerCase() !== statusQ) continue;
-      filtered.push(s);
-    }
-
-    totalMatching = filtered.length;
-    currentOffset = 0;
-    loadedCount = 0;
-    hasMore = totalMatching > 0;
-
-    cardGrid.innerHTML = '';
-
-    if (totalMatching === 0) {
-      cardGrid.innerHTML =
-        '<div class="no-results">' +
-          '<i class="fas fa-inbox"></i>' +
-          'No students match your filters.<br>Try adjusting your search.' +
-        '</div>';
-      updateCounts();
-      return;
-    }
-
-    renderNextPage();
-  }
-
-  // ---------- RENDER ----------
-  function renderNextPage() {
-    const end = Math.min(currentOffset + PAGE_SIZE, totalMatching);
-    if (currentOffset >= end) return;
-
-    const oldWrap = document.getElementById('loadMoreWrapper');
-    if (oldWrap) oldWrap.remove();
-
-    const slice = filtered.slice(currentOffset, end);
-    cardGrid.insertAdjacentHTML('beforeend', buildCardsHtml(slice));
-
-    currentOffset = end;
-    loadedCount = currentOffset;
-    hasMore = currentOffset < totalMatching;
-
-    updateCounts();
-    renderLoadMore();
-  }
-
-  function getStatusClass(status) {
-    const s = String(status || '').trim().toLowerCase();
-    if (s === 'fail') return 'status-fail';
-    if (s === 'pass' || s === 'qualified') return 'status-pass';
-    if (s === 'rejected') return 'status-rejected';
-    return '';
-  }
-
-  function buildCardsHtml(students) {
-    let html = '';
-    for (let i = 0; i < students.length; i++) {
-      const s = students[i];
-      const statusClass = getStatusClass(s.status);
-
-      const hasPdf = s.url_results_pdf && s.url_results_pdf.trim() !== '';
-      const pdfLink = hasPdf
-        ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" rel="noopener" class="pdf-link"><i class="fas fa-file-pdf"></i> Results PDF</a>'
-        : '<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>';
-
-      html +=
-        '<div class="student-card">' +
-          '<div class="card-header">' +
-            '<span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span>' +
-            '<span class="status-badge ' + statusClass + '">' + escapeHtml(s.status || '—') + '</span>' +
-          '</div>' +
-          '<div class="student-name">' +
-            '<i class="fas fa-user-circle"></i> ' + escapeHtml(s.name || '—') +
-          '</div>' +
-          '<div class="info-row">' +
-            '<div class="info-item"><i class="fas fa-id-card"></i> <strong>Roll</strong> ' + escapeHtml(s.roll_no || '—') + '</div>' +
-            '<div class="info-item"><i class="fas fa-calendar"></i> <strong>Year</strong> ' + escapeHtml(s.year || '—') + '</div>' +
-          '</div>' +
-          '<div class="card-footer">' +
-            '<div class="updated"><i class="far fa-clock"></i> Updated ' + escapeHtml(s.updated_on) + '</div>' +
-            pdfLink +
-          '</div>' +
-        '</div>';
-    }
-    return html;
-  }
-
-  function renderLoadMore() {
-    const oldWrap = document.getElementById('loadMoreWrapper');
-    if (oldWrap) oldWrap.remove();
-    if (!hasMore) return;
-
-    const wrap = document.createElement('div');
-    wrap.id = 'loadMoreWrapper';
-    wrap.className = 'load-more-wrap';
-    wrap.innerHTML =
-      '<button id="loadMoreBtn" class="load-more-btn">' +
-        '<i class="fas fa-arrow-down"></i> Load next ' + PAGE_SIZE.toLocaleString() + ' students' +
-      '</button>' +
-      '<div class="load-more-info">' +
-        'Showing ' + loadedCount.toLocaleString() + ' of ' + totalMatching.toLocaleString() +
-      '</div>';
-
-    cardGrid.appendChild(wrap);
-    document.getElementById('loadMoreBtn').addEventListener('click', () => {
+    function applyFilters() {
+      if (!dataReady) return;
+      const nameQ = nameSearch.trim().toLowerCase();
+      const rollQ = rollSearch.trim().toLowerCase();
+      const yearQ = currentYear;
+      const statusQ = currentStatus.toLowerCase();
+      filtered = [];
+      for (let i = 0; i < ALL_STUDENTS.length; i++) {
+        const s = ALL_STUDENTS[i];
+        if (nameQ && s.name.toLowerCase().indexOf(nameQ) === -1) continue;
+        if (rollQ && s.roll_no.toLowerCase().indexOf(rollQ) === -1) continue;
+        if (yearQ !== 'all' && s.year !== yearQ) continue;
+        if (statusQ !== 'all' && s.status.toLowerCase() !== statusQ) continue;
+        filtered.push(s);
+      }
+      totalMatching = filtered.length;
+      currentOffset = 0; loadedCount = 0;
+      hasMore = totalMatching > 0;
+      cardGrid.innerHTML = '';
+      if (totalMatching === 0) {
+        cardGrid.innerHTML = '<div class="no-results"><i class="fas fa-inbox"></i>No students match your filters.</div>';
+        updateCounts(); return;
+      }
       renderNextPage();
-    });
-  }
-
-  function updateCounts() {
-    shownCount.textContent = loadedCount.toLocaleString();
-    totalCount.textContent = totalMatching.toLocaleString();
-  }
-
-  // ---------- FILTER EVENTS ----------
-  nameInput.addEventListener('input', e => {
-    nameSearch = e.target.value;
-    clearTimeout(nameDebounce);
-    nameDebounce = setTimeout(applyFilters, 250);
-  });
-
-  rollInput.addEventListener('input', e => {
-    rollSearch = e.target.value;
-    clearTimeout(rollDebounce);
-    rollDebounce = setTimeout(applyFilters, 250);
-  });
-
-  yearFilter.addEventListener('change', e => {
-    currentYear = e.target.value;
-    applyFilters();
-  });
-
-  statusFilter.addEventListener('change', e => {
-    currentStatus = e.target.value;
-    applyFilters();
-  });
-
-  clearBtn.addEventListener('click', () => {
-    nameInput.value = '';
-    rollInput.value = '';
-    statusFilter.value = 'all';
-    nameSearch = '';
-    rollSearch = '';
-    currentStatus = 'all';
-
-    // Reset year to the latest year (not "all")
-    const options = Array.from(yearFilter.options).filter(o => o.value !== 'all');
-    if (options.length) {
-      const latest = options[options.length - 1].value;
-      yearFilter.value = latest;
-      currentYear = latest;
-    } else {
-      yearFilter.value = 'all';
-      currentYear = 'all';
     }
 
-    applyFilters();
-  });
+    function renderNextPage() {
+      const end = Math.min(currentOffset + PAGE_SIZE, totalMatching);
+      if (currentOffset >= end) return;
+      const oldWrap = document.getElementById('loadMoreWrapper');
+      if (oldWrap) oldWrap.remove();
+      const slice = filtered.slice(currentOffset, end);
+      cardGrid.insertAdjacentHTML('beforeend', buildCardsHtml(slice));
+      currentOffset = end; loadedCount = currentOffset;
+      hasMore = currentOffset < totalMatching;
+      updateCounts(); renderLoadMore();
+    }
 
-  // ---------- HELPERS ----------
-  function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    return String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-  function escapeAttr(text) { return escapeHtml(text); }
+    function getStatusClass(status) {
+      const s = String(status || '').trim().toLowerCase();
+      if (s === 'fail') return 'status-fail';
+      if (s === 'pass' || s === 'qualified') return 'status-pass';
+      if (s === 'rejected') return 'status-rejected';
+      return '';
+    }
 
-  function showError(msg) {
-    cardGrid.innerHTML =
-      '<div class="error-message">' +
-        '<i class="fas fa-exclamation-triangle"></i>' +
-        msg +
-      '</div>';
-    shownCount.textContent = '0';
-    totalCount.textContent = '0';
-  }
-</script>
+    function buildCardsHtml(students) {
+      let html = '';
+      for (let i = 0; i < students.length; i++) {
+        const s = students[i];
+        const statusClass = getStatusClass(s.status);
+        const hasPdf = s.url_results_pdf && s.url_results_pdf.trim() !== '';
+        const pdfLink = hasPdf
+          ? '<a href="' + escapeAttr(s.url_results_pdf) + '" target="_blank" class="pdf-link"><i class="fas fa-file-pdf"></i> PDF</a>'
+          : '<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>';
+        html +=
+          '<div class="student-card"><div class="card-header"><span class="sr-badge"><i class="fas fa-hashtag"></i> ' + escapeHtml(String(s.sr_no)) + '</span><span class="status-badge ' + statusClass + '">' + escapeHtml(s.status || '—') + '</span></div><div class="student-name"><i class="fas fa-user-circle"></i> ' + escapeHtml(s.name || '—') + '</div><div class="info-row"><div class="info-item"><i class="fas fa-id-card"></i> <strong>Roll</strong> ' + escapeHtml(s.roll_no || '—') + '</div><div class="info-item"><i class="fas fa-calendar"></i> <strong>Year</strong> ' + escapeHtml(s.year || '—') + '</div></div><div class="card-footer"><div class="updated"><i class="far fa-clock"></i> Updated ' + escapeHtml(s.updated_on) + '</div>' + pdfLink + '</div></div>';
+      }
+      return html;
+    }
+
+    function renderLoadMore() {
+      const oldWrap = document.getElementById('loadMoreWrapper');
+      if (oldWrap) oldWrap.remove();
+      if (!hasMore) return;
+      const wrap = document.createElement('div');
+      wrap.id = 'loadMoreWrapper'; wrap.className = 'load-more-wrap';
+      wrap.innerHTML = '<button id="loadMoreBtn" class="load-more-btn"><i class="fas fa-arrow-down"></i> Load next ' + PAGE_SIZE.toLocaleString() + '</button><div class="load-more-info">Showing ' + loadedCount.toLocaleString() + ' of ' + totalMatching.toLocaleString() + '</div>';
+      cardGrid.appendChild(wrap);
+      document.getElementById('loadMoreBtn').addEventListener('click', renderNextPage);
+    }
+
+    function updateCounts() {
+      shownCount.textContent = loadedCount.toLocaleString();
+      totalCount.textContent = totalMatching.toLocaleString();
+    }
+
+    nameInput.addEventListener('input', e => {
+      nameSearch = e.target.value; clearTimeout(nameDebounce);
+      nameDebounce = setTimeout(applyFilters, 250);
+    });
+    rollInput.addEventListener('input', e => {
+      rollSearch = e.target.value; clearTimeout(rollDebounce);
+      rollDebounce = setTimeout(applyFilters, 250);
+    });
+    yearFilter.addEventListener('change', e => { currentYear = e.target.value; applyFilters(); });
+    statusFilter.addEventListener('change', e => { currentStatus = e.target.value; applyFilters(); });
+    clearBtn.addEventListener('click', () => {
+      nameInput.value = ''; rollInput.value = ''; statusFilter.value = 'all';
+      nameSearch = ''; rollSearch = ''; currentStatus = 'all';
+      const options = Array.from(yearFilter.options).filter(o => o.value !== 'all');
+      if (options.length) {
+        const latest = options[options.length - 1].value;
+        yearFilter.value = latest; currentYear = latest;
+      } else { yearFilter.value = 'all'; currentYear = 'all'; }
+      applyFilters();
+    });
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    function escapeAttr(text) { return escapeHtml(text); }
+  </script>
+
+  <!-- ============================================================
+       JAVASCRIPT: SUBJECT BUILDER
+       ============================================================ -->
+  <script>
+    const builderRoot = document.getElementById("builderRoot");
+    const bThemeBtn = document.getElementById("bThemeBtn");
+    
+    function applyBTheme(theme) {
+      builderRoot.setAttribute("data-theme", theme);
+      bThemeBtn.textContent = theme === "dark" ? "🌙 Dark" : "☀️ Light";
+    }
+    applyBTheme("light"); // Default to light for the builder inside the dashboard
+    bThemeBtn.addEventListener("click", () => {
+      const current = builderRoot.getAttribute("data-theme") || "light";
+      applyBTheme(current === "dark" ? "light" : "dark");
+    });
+
+    const CSV_SUBJECTS = 'css_subjects%20-%20list.csv';
+    const OPTIONAL_TARGET = 600;
+    const TOTAL_TARGET = 1200;
+    const STORAGE_KEY = "css-builder-selection-v3";
+
+    let GROUPS = [];
+    let COMPULSORY = [];
+    const state = {}; 
+    let showCompulsory = false; 
+    let isDataLoaded = false;
+
+    const chipClass = { "I":"g1","II":"g2","III":"g3","IV":"g4","V":"g5","VI":"g6","VII":"g7", "Comp":"comp" };
+
+    const bGroupsEl      = document.getElementById("bGroups");
+    const totalPill     = document.getElementById("totalPill");
+    const stripLabel    = document.getElementById("stripLabel");
+    const statusEl      = document.getElementById("status");
+    const chosenListEl  = document.getElementById("chosenList");
+    const selectedStrip = document.getElementById("selectedStrip");
+    const finalOverlay    = document.getElementById("finalOverlay");
+    const finalList       = document.getElementById("finalList");
+    const finalTotal      = document.getElementById("finalTotal");
+    const finalCount      = document.getElementById("finalCount");
+    const finalStatus     = document.getElementById("finalStatus");
+    const finalConfirmBtn = document.getElementById("finalConfirmBtn");
+    const copyBtn         = document.getElementById("copyBtn");
+    const toggleCompulsory= document.getElementById("toggleCompulsory");
+
+    async function loadCSVSubjects() {
+      try {
+        const response = await fetch(`${CSV_SUBJECTS}?t=${new Date().getTime()}`);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const csvText = await response.text();
+        parseCSVSubjects(csvText);
+        isDataLoaded = true;
+        renderBGroups();
+        loadBState();
+        updateBUI();
+        const g1 = document.querySelector('.b-group[data-group="I"]');
+        if (g1) g1.classList.add("open");
+      } catch (error) {
+        console.error("Error loading CSV:", error);
+        bGroupsEl.innerHTML = `<div style="color:var(--b-danger); padding:20px; text-align:center;">Failed to load subjects data.</div>`;
+      }
+    }
+
+    function parseCSVSubjects(text) {
+      const lines = [];
+      let currentLine = [], currentCell = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i], nextChar = text[i + 1];
+        if (inQuotes) {
+          if (char === '"' && nextChar === '"') { currentCell += '"'; i++; }
+          else if (char === '"') { inQuotes = false; }
+          else { currentCell += char; }
+        } else {
+          if (char === '"') { inQuotes = true; }
+          else if (char === ',') { currentLine.push(currentCell.trim()); currentCell = ''; }
+          else if (char === '\n' || char === '\r') {
+            if (currentCell !== '' || currentLine.length > 0) {
+              currentLine.push(currentCell.trim());
+              lines.push(currentLine);
+              currentLine = []; currentCell = '';
+            }
+            if (char === '\r' && nextChar === '\n') i++;
+          } else { currentCell += char; }
+        }
+      }
+      if (currentCell !== '' || currentLine.length > 0) {
+        currentLine.push(currentCell.trim());
+        lines.push(currentLine);
+      }
+      if (lines.length < 2) return;
+      const headers = lines[0].map(h => h.trim().toLowerCase());
+      const dataRows = lines.slice(1);
+      const groupMap = {};
+
+      dataRows.forEach(cols => {
+        const row = {};
+        headers.forEach((h, i) => row[h] = cols[i] || '');
+        const gNum = row.group_no;
+        const isComp = (row.type || '').toLowerCase() === 'compulsory';
+        const subjectName = (row.subject || '').replace(/^"|"$/g, '').trim();
+        if (!subjectName) return;
+        const subjectObj = {
+          name: subjectName,
+          marks: parseInt(row.marks, 10) || 100,
+          recommended: row.recommended || "Any background"
+        };
+        if (isComp) { COMPULSORY.push(subjectObj); return; }
+        if (!groupMap[gNum]) {
+          groupMap[gNum] = {
+            groupNumber: gNum, name: row.category,
+            rule: getRuleForGroup(gNum),
+            maxSubjects: gNum === "II" ? 2 : 1,
+            maxMarks: gNum === "I" || gNum === "II" ? 200 : 100,
+            subjects: []
+          };
+        }
+        groupMap[gNum].subjects.push(subjectObj);
+      });
+      GROUPS = Object.values(groupMap).sort((a, b) => a.groupNumber.localeCompare(b.groupNumber));
+      GROUPS.forEach(g => state[g.groupNumber] = []);
+    }
+
+    function getRuleForGroup(g) {
+      switch(g) {
+        case "I": return "Select ONE (200 marks).";
+        case "II": return "ONE 200-mark OR up to TWO 100-mark (max 200).";
+        default: return "Select ONE (100 marks).";
+      }
+    }
+
+    function saveBState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+    }
+    function loadBState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw || !GROUPS.length) return;
+        const parsed = JSON.parse(raw);
+        GROUPS.forEach(g => {
+          const saved = parsed[g.groupNumber];
+          if (Array.isArray(saved)) state[g.groupNumber] = saved.filter(n => g.subjects.some(s => s.name === n));
+        });
+      } catch(e) {}
+    }
+
+    const subj = (g, n) => GROUPS.find(x => x.groupNumber === g).subjects.find(s => s.name === n);
+    const groupMarks = g => state[g].reduce((s, n) => s + subj(g, n).marks, 0);
+    const optionalMarks = () => GROUPS.reduce((s, g) => s + groupMarks(g.groupNumber), 0);
+    const compulsoryMarks = () => COMPULSORY.reduce((s, c) => s + c.marks, 0);
+    const totalMarks = () => optionalMarks() + compulsoryMarks();
+    const totalCount = () => GROUPS.reduce((s, g) => s + state[g.groupNumber].length, 0) + COMPULSORY.length;
+
+    function getViolations() {
+      const v = [];
+      GROUPS.forEach(g => {
+        const sel = state[g.groupNumber];
+        if (!sel.length) return;
+        const m = groupMarks(g.groupNumber);
+        if (sel.length > g.maxSubjects) v.push({group:g.groupNumber, type:"count", message:`Group ${g.groupNumber}: ${sel.length} picked — allows ${g.maxSubjects}.`});
+        if (m > g.maxMarks) v.push({group:g.groupNumber, type:"marks", message:`Group ${g.groupNumber}: ${m} marks — cap is ${g.maxMarks}.`});
+        if (g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200)) v.push({group:"II", type:"mix", message:`Group II: 200-mark subject can't be combined.`});
+      });
+      const optTotal = optionalMarks();
+      if (optTotal !== OPTIONAL_TARGET) {
+        v.push({group:null, type:"total", message: optTotal > OPTIONAL_TARGET ? `Optional total ${optTotal} — over by ${optTotal-OPTIONAL_TARGET}. Remove ${optTotal-OPTIONAL_TARGET} marks.` : `Optional total ${optTotal} — need ${OPTIONAL_TARGET-optTotal} more marks.`});
+      }
+      return v;
+    }
+
+    function violatingKeys() {
+      const keys = new Set();
+      GROUPS.forEach(g => {
+        const sel = state[g.groupNumber];
+        if (!sel.length) return;
+        const m = groupMarks(g.groupNumber);
+        const overCount = sel.length > g.maxSubjects;
+        const overMarks = m > g.maxMarks;
+        const mixII = g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200);
+        if (overCount || overMarks || mixII) sel.forEach(n => keys.add(`${g.groupNumber}|${n}`));
+      });
+      return keys;
+    }
+
+    function buildChips(ulEl, flagged, onRemove) {
+      ulEl.innerHTML = "";
+      let any = false;
+      COMPULSORY.forEach(c => {
+        any = true;
+        const li = document.createElement("li");
+        li.className = "comp";
+        li.innerHTML = `<span class="chip-left"><span class="group-dot comp-dot"></span><span>Comp: ${c.name} <span class="marks">(${c.marks})</span></span></span><span style="color:var(--b-muted); font-size:0.75rem;">Fixed</span>`;
+        ulEl.appendChild(li);
+      });
+      GROUPS.forEach(g => {
+        state[g.groupNumber].forEach(n => {
+          any = true;
+          const s = subj(g.groupNumber, n);
+          const li = document.createElement("li");
+          li.className = chipClass[g.groupNumber];
+          if (flagged.has(`${g.groupNumber}|${n}`)) li.classList.add("violating");
+          li.innerHTML = `<span class="chip-left"><span class="group-dot"></span><span>G${g.groupNumber}: ${s.name} <span class="marks">(${s.marks})</span></span></span><button class="rm" title="Remove">×</button>`;
+          li.querySelector(".rm").addEventListener("click", (e) => { e.stopPropagation(); onRemove(g.groupNumber, n); });
+          ulEl.appendChild(li);
+        });
+      });
+      return any;
+    }
+
+    function renderBGroups() {
+      bGroupsEl.innerHTML = "";
+      const compDiv = document.createElement("div");
+      compDiv.className = "b-group";
+      compDiv.dataset.group = "Comp";
+      compDiv.id = "compGroup";
+      compDiv.style.display = showCompulsory ? "block" : "none";
+      compDiv.innerHTML = `
+        <div class="b-group-header"><span class="b-group-title">Compulsory Subjects <small>Fixed (600 marks)</small></span><span class="chev">▶</span></div>
+        <div class="b-group-body"><div class="rule">All candidates must take these 6 subjects.</div></div>`;
+      compDiv.querySelector(".b-group-header").addEventListener("click", () => compDiv.classList.toggle("open"));
+      const compBody = compDiv.querySelector(".b-group-body");
+      COMPULSORY.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "b-subject compulsory selected";
+        row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span><div class="b-rec-badge"><strong>Recommended:</strong> ${s.recommended}</div>`;
+        compBody.appendChild(row);
+      });
+      bGroupsEl.appendChild(compDiv);
+
+      GROUPS.forEach(g => {
+        const d = document.createElement("div");
+        d.className = "b-group";
+        d.dataset.group = g.groupNumber;
+        d.innerHTML = `
+          <div class="b-group-header"><span class="b-group-title">Group ${g.groupNumber} — ${g.name} <small>${g.rule}</small></span><span class="chev">▶</span></div>
+          <div class="b-group-body"><div class="rule">${g.rule}</div><div class="rule-flag" data-flag="${g.groupNumber}"></div></div>`;
+        d.querySelector(".b-group-header").addEventListener("click", () => d.classList.toggle("open"));
+        const body = d.querySelector(".b-group-body");
+        g.subjects.forEach(s => {
+          const row = document.createElement("div");
+          row.className = "b-subject";
+          row.dataset.group = g.groupNumber;
+          row.dataset.subject = s.name;
+          row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span><div class="b-rec-badge"><strong>Recommended:</strong> ${s.recommended}</div>`;
+          row.addEventListener("click", () => toggleB(g.groupNumber, s.name));
+          body.appendChild(row);
+        });
+        bGroupsEl.appendChild(d);
+      });
+    }
+
+    function toggleB(g, n) {
+      const sel = state[g];
+      const i = sel.indexOf(n);
+      if (i === -1) sel.push(n); else sel.splice(i, 1);
+      updateBUI();
+      saveBState();
+    }
+
+    toggleCompulsory.addEventListener("change", (e) => {
+      showCompulsory = e.target.checked;
+      const compGroup = document.getElementById("compGroup");
+      if (compGroup) {
+        compGroup.style.display = showCompulsory ? "block" : "none";
+        if (showCompulsory) compGroup.classList.add("open");
+      }
+    });
+
+    function updateBUI() {
+      if (!isDataLoaded) return;
+      const violations = getViolations();
+      const flagged = violatingKeys();
+      const optTotal = optionalMarks();
+      const fullTotal = totalMarks();
+      const isValid = optTotal === OPTIONAL_TARGET;
+
+      stripLabel.textContent = showCompulsory ? "Total · Target 1200" : "Optional · Target 600";
+      totalPill.textContent = showCompulsory ? `${fullTotal} / ${TOTAL_TARGET}` : `${optTotal} / ${OPTIONAL_TARGET}`;
+
+      document.querySelectorAll(".b-subject:not(.compulsory)").forEach(row => {
+        const g = row.dataset.group, s = row.dataset.subject;
+        const isSel = state[g].includes(s);
+        row.classList.toggle("selected", isSel);
+        row.classList.toggle("violating", isSel && flagged.has(`${g}|${s}`));
+      });
+
+      GROUPS.forEach(g => {
+        const gd = document.querySelector(`.b-group[data-group="${g.groupNumber}"]`);
+        if (!gd) return;
+        const flagEl = gd.querySelector(`.rule-flag[data-flag="${g.groupNumber}"]`);
+        const gv = violations.filter(v => v.group === g.groupNumber);
+        gd.classList.toggle("violation", gv.length > 0);
+        if (flagEl) flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
+      });
+
+      totalPill.className = "b-total-pill";
+      if (isValid) totalPill.classList.add("valid-grey");
+      else if (optTotal > OPTIONAL_TARGET) totalPill.classList.add("over");
+      else totalPill.classList.add("ok");
+      selectedStrip.classList.toggle("valid", isValid);
+
+      statusEl.className = "b-status";
+      const tv = violations.find(v => v.type === "total");
+      const rv = violations.filter(v => v.type !== "total");
+      if (tv && tv.message.includes("over")) {
+        statusEl.classList.add("err"); statusEl.textContent = "❌ " + tv.message;
+      } else if (rv.length) {
+        statusEl.classList.add("err"); statusEl.textContent = "❌ FPSC rule violation — see highlighted groups.";
+      } else if (isValid) {
+        statusEl.classList.add("ok"); statusEl.textContent = "✅ Valid combination — 600 optional marks!";
+      } else {
+        statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + tv.message;
+      }
+
+      chosenListEl.classList.toggle("valid", isValid);
+      const anyHome = buildChips(chosenListEl, flagged, (g, n) => {
+        state[g] = state[g].filter(x => x !== n);
+        updateBUI(); saveBState();
+      });
+      if (!anyHome) chosenListEl.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
+      if (finalOverlay.style.opacity === "1") renderFinal();
+    }
+
+    function renderFinal() {
+      const violations = getViolations();
+      const flagged = violatingKeys();
+      const optTotal = optionalMarks();
+      const fullTotal = totalMarks();
+      const count = totalCount();
+      const isValid = optTotal === OPTIONAL_TARGET;
+
+      finalTotal.textContent = `${fullTotal} / ${TOTAL_TARGET}`;
+      finalCount.textContent = `${count}`;
+      
+      finalList.classList.toggle("valid", isValid);
+      const any = buildChips(finalList, flagged, (g, n) => {
+        state[g] = state[g].filter(x => x !== n);
+        updateBUI(); saveBState();
+      });
+      if (!any) finalList.innerHTML = `<li class="empty">No subjects selected yet. Go back and pick some.</li>`;
+
+      finalStatus.className = "b-status";
+      const tv = violations.find(v => v.type === "total");
+      const rv = violations.filter(v => v.type !== "total");
+      if (isValid) {
+        finalStatus.style.color = "var(--b-ok)";
+        finalStatus.textContent = "✅ 600 optional + 600 compulsory = 1200 marks! Ready to confirm.";
+      } else if (optTotal > OPTIONAL_TARGET) {
+        finalStatus.style.color = "var(--b-danger)";
+        finalStatus.textContent = `❌ Optional over by ${optTotal-OPTIONAL_TARGET} marks — remove subjects to reach 600.`;
+      } else if (rv.length) {
+        finalStatus.style.color = "var(--b-danger)";
+        finalStatus.textContent = "❌ FPSC rule violation — remove the red items.";
+      } else {
+        finalStatus.style.color = "var(--b-warn)";
+        finalStatus.textContent = `⚠ Need ${OPTIONAL_TARGET-optTotal} more optional marks to confirm.`;
+      }
+      finalConfirmBtn.disabled = !isValid;
+      copyBtn.disabled = totalCount() === 0;
+      copyBtn.style.opacity = totalCount() === 0 ? 0.5 : 1;
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      const lines = [];
+      lines.push("CSS Final Choice (Compulsory + Optional)");
+      lines.push("========================================");
+      lines.push("\n[ Compulsory Subjects ]");
+      COMPULSORY.forEach(c => lines.push(`- ${c.name} (${c.marks} marks)`));
+      lines.push(`Compulsory Total: ${compulsoryMarks()} marks`);
+      lines.push("\n[ Optional Subjects ]");
+      GROUPS.forEach(g => {
+        state[g.groupNumber].forEach(n => {
+          const s = subj(g.groupNumber, n);
+          lines.push(`- Group ${g.groupNumber}: ${s.name} (${s.marks} marks)`);
+        });
+      });
+      lines.push(`Optional Total: ${optionalMarks()} / 600 marks`);
+      lines.push("----------------------------------------");
+      lines.push(`Grand Total: ${totalMarks()} / 1200 marks`);
+      
+      try {
+        await navigator.clipboard.writeText(lines.join("\n"));
+        const original = copyBtn.textContent;
+        copyBtn.textContent = "✓ Copied!";
+        setTimeout(() => { copyBtn.textContent = original; }, 1500);
+      } catch(e) { alert("Could not copy."); }
+    });
+
+    selectedStrip.addEventListener("click", () => {
+      renderFinal();
+      finalOverlay.style.opacity = "1";
+      finalOverlay.style.pointerEvents = "auto";
+    });
+    
+    function closeFinal() {
+      finalOverlay.style.opacity = "0";
+      finalOverlay.style.pointerEvents = "none";
+    }
+    document.getElementById("finalCloseBtn").addEventListener("click", closeFinal);
+    document.getElementById("finalBackBtn").addEventListener("click", closeFinal);
+    
+    finalConfirmBtn.addEventListener("click", () => {
+      if (optionalMarks() !== OPTIONAL_TARGET) return;
+      closeFinal();
+      selectedStrip.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.5)";
+      setTimeout(() => { selectedStrip.style.boxShadow = ""; }, 600);
+    });
+
+    document.getElementById("expandAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.add("open")));
+    document.getElementById("collapseAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.remove("open")));
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      GROUPS.forEach(g => state[g.groupNumber] = []);
+      updateBUI(); saveBState();
+    });
+
+    loadCSVSubjects();
+  </script>
 </body>
 </html>

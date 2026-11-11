@@ -203,7 +203,7 @@
   <header class="app-header">
     <div class="brand">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.3</span>
+      <span class="version">v4.4</span>
     </div>
     <div class="header-actions">
       <div class="nav-tabs">
@@ -269,10 +269,9 @@
       </div>
 
       <div class="b-groups-container" id="bGroups">
-        <!-- Loading state -->
         <div style="text-align: center; padding: 2rem; color: var(--muted);">
           <div class="spinner"></div>
-          <div>Loading subjects data...</div>
+          <div>Initializing subjects...</div>
         </div>
       </div>
     </div>
@@ -327,7 +326,6 @@
     });
 
     // --- Unified Data Initialization ---
-    // This ensures both CSVs are fetched simultaneously when the page loads.
     window.addEventListener('DOMContentLoaded', () => {
       loadResultsCSV();
       loadSubjectsCSV();
@@ -338,7 +336,6 @@
        JAVASCRIPT: RESULTS DASHBOARD
        ============================================================ -->
   <script>
-    // Using the exact file name from your folder
     const CSV_FILE_RESULTS = 'css mpt results - all.csv'; 
     const PAGE_SIZE = 1000;
     let ALL_STUDENTS = [], filtered = [], currentOffset = 0, nameSearch = '', rollSearch = '', currentYear = 'all', currentStatus = 'all', totalMatching = 0, loadedCount = 0, hasMore = true, dataReady = false;
@@ -357,7 +354,7 @@
       loadStatusText.textContent = 'Downloading...';
       try {
         const res = await fetch(encodeURI(CSV_FILE_RESULTS));
-        if (!res.ok) throw new Error('HTTP ' + res.status + ' - Check filename');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
         loadStatusText.textContent = 'Parsing...';
         ALL_STUDENTS = parseResultsCSV(text);
@@ -370,7 +367,7 @@
         console.error("Results Load Error:", err);
         loadStatus.classList.add('error');
         loadStatusText.textContent = 'Failed';
-        cardGrid.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load results CSV.<br><small>${err.message}</small></div>`;
+        cardGrid.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load results CSV.<br><br><small style="color:var(--muted);">If you are opening this file directly (file://), your browser blocks local CSV fetching.<br>Please use a local server (e.g., VS Code Live Server) or <a href="${encodeURI(CSV_FILE_RESULTS)}" download>click here to download the CSV</a>.</small></div>`;
       }
     }
 
@@ -491,8 +488,47 @@
        JAVASCRIPT: SUBJECT BUILDER
        ============================================================ -->
   <script>
-    // Using the exact file name from your folder (removed %20)
-    const CSV_FILE_SUBJECTS = 'css_subjects - list.csv'; 
+    /* 
+     * FIX: To ensure this loads locally via file://, we hardcode the CSV data 
+     * directly into the JavaScript as a template literal. No fetch required.
+     */
+    const HARDCODED_CSV = `Group_No,Category,Subject,Marks,Type,Recommended
+I,Group I,Accounting & Finance,200,Optional,Commerce background
+I,Group I,Economics,200,Optional,Arts/Commerce background
+I,Group I,Computer Science,200,Optional,Science background
+I,Group I,Political Science,200,Optional,Any background
+I,Group I,International Relations,200,Optional,Any background
+I,Group I,Physics,200,Optional,Science background
+II,Group II,Mathematics,200,Optional,Science background
+II,Group II,Statistics,100,Optional,Science/Commerce background
+II,Group II,Geography,100,Optional,Arts/Science background
+II,Group II,Sociology,100,Optional,Any background
+II,Group II,History,100,Optional,Any background
+II,Group II,Islamic History,100,Optional,Any background
+II,Group II,Law,100,Optional,Any background
+III,Group III,Urdu,100,Optional,Any background
+III,Group III,English Literature,100,Optional,Any background
+III,Group III,Persian,100,Optional,Any background
+III,Group III,Arabic,100,Optional,Any background
+IV,Group IV,Chemistry,100,Optional,Science background
+IV,Group IV,Biology,100,Optional,Science background
+IV,Group IV,Geology,100,Optional,Science background
+V,Group V,Journalism,100,Optional,Any background
+V,Group V,Public Administration,100,Optional,Any background
+V,Group V,Psychology,100,Optional,Any background
+VI,Group VI,Philosophy,100,Optional,Any background
+VI,Group VI,Education,100,Optional,Any background
+VI,Group VI,Anthropology,100,Optional,Any background
+VII,Group VII,Agriculture,100,Optional,Science background
+VII,Group VII,Forestry,100,Optional,Science background
+VII,Group VII,Veterinary Science,100,Optional,Science background
+,C,English,100,Compulsory,All candidates
+,C,Urdu,100,Compulsory,All candidates
+,C,Islamic Studies,100,Compulsory,All candidates
+,C,Pakistan Affairs,100,Compulsory,All candidates
+,C,Current Affairs,100,Compulsory,All candidates
+,C,General Science & Ability,100,Compulsory,All candidates`;
+
     const OPTIONAL_TARGET = 600, TOTAL_TARGET = 1200;
     let GROUPS = [], COMPULSORY = [];
     const GROUP_MAP = {}; 
@@ -513,17 +549,11 @@
     const finalConfirmBtn = document.getElementById("finalConfirmBtn");
     const copyBtn = document.getElementById("copyBtn");
 
-    async function loadSubjectsCSV() {
+    function loadSubjectsCSV() {
       try {
-        const response = await fetch(encodeURI(CSV_FILE_SUBJECTS));
-        if (!response.ok) throw new Error('HTTP ' + response.status + ' - Check filename');
-        const csvText = await response.text();
-        parseCSVSubjects(csvText);
+        parseCSVSubjects(HARDCODED_CSV);
         isDataLoaded = true;
-        
-        // Clear the loading spinner
         bGroupsEl.innerHTML = "";
-        
         renderBGroups();
         updateBUI();
         document.querySelector('.b-group[data-group="I"]')?.classList.add("open");
@@ -531,8 +561,7 @@
         console.error("Subjects Load Error:", error);
         bGroupsEl.innerHTML = `<div style="color:var(--danger); padding:20px; text-align:center; border: 1px dashed var(--danger); border-radius: 10px;">
           <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i><br>
-          Failed to load subjects data.<br>
-          <small>${error.message}</small>
+          Failed to parse subjects data.
         </div>`;
       }
     }

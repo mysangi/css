@@ -203,7 +203,7 @@
   <header class="app-header">
     <div class="brand">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.2</span>
+      <span class="version">v4.3</span>
     </div>
     <div class="header-actions">
       <div class="nav-tabs">
@@ -268,7 +268,13 @@
         <button id="resetBtn">Reset</button>
       </div>
 
-      <div class="b-groups-container" id="bGroups"></div>
+      <div class="b-groups-container" id="bGroups">
+        <!-- Loading state -->
+        <div style="text-align: center; padding: 2rem; color: var(--muted);">
+          <div class="spinner"></div>
+          <div>Loading subjects data...</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -291,9 +297,10 @@
   </div>
 
   <!-- ============================================================
-       JAVASCRIPT: THEME & TABS
+       JAVASCRIPT: CORE INITIALIZATION & THEME
        ============================================================ -->
   <script>
+    // --- Theme Engine ---
     const root = document.documentElement;
     const themeBtn = document.getElementById('themeBtn');
     
@@ -309,6 +316,7 @@
       localStorage.setItem('css-theme', newTheme);
     });
 
+    // --- Tab Navigation ---
     document.querySelectorAll('.nav-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -317,14 +325,21 @@
         document.getElementById(tab.dataset.target).classList.add('active');
       });
     });
+
+    // --- Unified Data Initialization ---
+    // This ensures both CSVs are fetched simultaneously when the page loads.
+    window.addEventListener('DOMContentLoaded', () => {
+      loadResultsCSV();
+      loadSubjectsCSV();
+    });
   </script>
 
   <!-- ============================================================
        JAVASCRIPT: RESULTS DASHBOARD
        ============================================================ -->
   <script>
-    const CSV_FILE = 'css mpt results - all.csv';
-    const CSV_URL  = encodeURI(CSV_FILE);
+    // Using the exact file name from your folder
+    const CSV_FILE_RESULTS = 'css mpt results - all.csv'; 
     const PAGE_SIZE = 1000;
     let ALL_STUDENTS = [], filtered = [], currentOffset = 0, nameSearch = '', rollSearch = '', currentYear = 'all', currentStatus = 'all', totalMatching = 0, loadedCount = 0, hasMore = true, dataReady = false;
 
@@ -338,29 +353,28 @@
     const loadStatusText = document.getElementById('loadStatusText');
     const loadStatus = document.getElementById('loadStatus');
 
-    window.addEventListener('load', () => { loadCSV(); });
-
-    async function loadCSV() {
+    async function loadResultsCSV() {
       loadStatusText.textContent = 'Downloading...';
       try {
-        const res = await fetch(CSV_URL);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const res = await fetch(encodeURI(CSV_FILE_RESULTS));
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' - Check filename');
         const text = await res.text();
         loadStatusText.textContent = 'Parsing...';
-        ALL_STUDENTS = parseCSV(text);
+        ALL_STUDENTS = parseResultsCSV(text);
         loadStatus.classList.add('done');
         loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString();
         dataReady = true;
         loadFilterMeta();
         applyFilters();
       } catch (err) {
+        console.error("Results Load Error:", err);
         loadStatus.classList.add('error');
         loadStatusText.textContent = 'Failed';
-        cardGrid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load CSV.</div>';
+        cardGrid.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load results CSV.<br><small>${err.message}</small></div>`;
       }
     }
 
-    function parseCSV(text) {
+    function parseResultsCSV(text) {
       if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       const rows = []; let row = [], field = '', inQuotes = false, i = 0;
       while (i < text.length) {
@@ -477,7 +491,8 @@
        JAVASCRIPT: SUBJECT BUILDER
        ============================================================ -->
   <script>
-    const CSV_SUBJECTS = 'css_subjects%20-%20list.csv';
+    // Using the exact file name from your folder (removed %20)
+    const CSV_FILE_SUBJECTS = 'css_subjects - list.csv'; 
     const OPTIONAL_TARGET = 600, TOTAL_TARGET = 1200;
     let GROUPS = [], COMPULSORY = [];
     const GROUP_MAP = {}; 
@@ -498,19 +513,27 @@
     const finalConfirmBtn = document.getElementById("finalConfirmBtn");
     const copyBtn = document.getElementById("copyBtn");
 
-    async function loadCSVSubjects() {
+    async function loadSubjectsCSV() {
       try {
-        const response = await fetch(`${CSV_SUBJECTS}?t=${new Date().getTime()}`);
-        if (!response.ok) throw new Error("Network error");
+        const response = await fetch(encodeURI(CSV_FILE_SUBJECTS));
+        if (!response.ok) throw new Error('HTTP ' + response.status + ' - Check filename');
         const csvText = await response.text();
         parseCSVSubjects(csvText);
         isDataLoaded = true;
+        
+        // Clear the loading spinner
+        bGroupsEl.innerHTML = "";
+        
         renderBGroups();
         updateBUI();
         document.querySelector('.b-group[data-group="I"]')?.classList.add("open");
       } catch (error) {
-        console.error(error);
-        bGroupsEl.innerHTML = `<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load subjects data. Check file name.</div>`;
+        console.error("Subjects Load Error:", error);
+        bGroupsEl.innerHTML = `<div style="color:var(--danger); padding:20px; text-align:center; border: 1px dashed var(--danger); border-radius: 10px;">
+          <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i><br>
+          Failed to load subjects data.<br>
+          <small>${error.message}</small>
+        </div>`;
       }
     }
 
@@ -750,8 +773,6 @@
     document.getElementById("expandAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.add("open")));
     document.getElementById("collapseAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.remove("open")));
     document.getElementById("resetBtn").addEventListener("click", () => { GROUPS.forEach(g => state[g.groupNumber] = []); updateBUI(); });
-
-    loadCSVSubjects();
   </script>
 </body>
 </html>

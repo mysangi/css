@@ -203,7 +203,7 @@
   <header class="app-header">
     <div class="brand">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.5</span>
+      <span class="version">v4.6</span>
     </div>
     <div class="header-actions">
       <div class="nav-tabs">
@@ -257,7 +257,7 @@
             <span class="lbl" id="stripLabel">Optional · Target 600</span>
             <span class="b-total-pill" id="totalPill">0 / 600</span>
           </div>
-          <ul class="b-chosen-list" id="chosenList"><li class="empty">Loading subjects...</li></ul>
+          <ul class="b-chosen-list" id="chosenList"><li class="empty">No subjects selected yet.</li></ul>
           <div class="b-status" id="status">Select subjects to begin.</div>
         </div>
       </div>
@@ -268,6 +268,7 @@
         <button id="resetBtn">Reset</button>
       </div>
 
+      <!-- Removed the hardcoded loading spinner here -->
       <div class="b-groups-container" id="bGroups"></div>
     </div>
   </section>
@@ -318,12 +319,6 @@
         tab.classList.add('active');
         document.getElementById(tab.dataset.target).classList.add('active');
       });
-    });
-
-    // --- Unified Data Initialization ---
-    window.addEventListener('DOMContentLoaded', () => {
-      loadResultsCSV();
-      loadSubjectsJSON();
     });
   </script>
 
@@ -483,10 +478,6 @@
        JAVASCRIPT: SUBJECT BUILDER
        ============================================================ -->
   <script>
-    /* 
-     * FIX: The JSON data is embedded directly here as a native JavaScript Array.
-     * This completely bypasses browser CORS restrictions for local files.
-     */
     const SUBJECTS_DATA = [
       { "srno": 1, "subject": "Accountancy & Auditing", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Commerce/Accounting/Finance" },
       { "srno": 2, "subject": "Economics", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Economics/Finance" },
@@ -801,6 +792,11 @@
     document.getElementById("expandAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.add("open")));
     document.getElementById("collapseAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.remove("open")));
     document.getElementById("resetBtn").addEventListener("click", () => { GROUPS.forEach(g => state[g.groupNumber] = []); updateBUI(); });
+
+    // --- IMMEDIATE EXECUTION (Replaces window.addEventListener) ---
+    // This runs instantly after the DOM is constructed in this block.
+    loadResultsCSV();
+    loadSubjectsJSON();
   </script>
 </body>
 </html>

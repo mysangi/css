@@ -203,7 +203,7 @@
   <header class="app-header">
     <div class="brand">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.4</span>
+      <span class="version">v4.5</span>
     </div>
     <div class="header-actions">
       <div class="nav-tabs">
@@ -268,12 +268,7 @@
         <button id="resetBtn">Reset</button>
       </div>
 
-      <div class="b-groups-container" id="bGroups">
-        <div style="text-align: center; padding: 2rem; color: var(--muted);">
-          <div class="spinner"></div>
-          <div>Initializing subjects...</div>
-        </div>
-      </div>
+      <div class="b-groups-container" id="bGroups"></div>
     </div>
   </section>
 
@@ -328,7 +323,7 @@
     // --- Unified Data Initialization ---
     window.addEventListener('DOMContentLoaded', () => {
       loadResultsCSV();
-      loadSubjectsCSV();
+      loadSubjectsJSON();
     });
   </script>
 
@@ -367,7 +362,7 @@
         console.error("Results Load Error:", err);
         loadStatus.classList.add('error');
         loadStatusText.textContent = 'Failed';
-        cardGrid.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load results CSV.<br><br><small style="color:var(--muted);">If you are opening this file directly (file://), your browser blocks local CSV fetching.<br>Please use a local server (e.g., VS Code Live Server) or <a href="${encodeURI(CSV_FILE_RESULTS)}" download>click here to download the CSV</a>.</small></div>`;
+        cardGrid.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load results CSV.<br><br><small style="color:var(--muted);">If you are opening this file directly (file://), your browser blocks local CSV fetching.<br>Please use a local server (e.g., VS Code Live Server).</small></div>`;
       }
     }
 
@@ -489,45 +484,62 @@
        ============================================================ -->
   <script>
     /* 
-     * FIX: To ensure this loads locally via file://, we hardcode the CSV data 
-     * directly into the JavaScript as a template literal. No fetch required.
+     * FIX: The JSON data is embedded directly here as a native JavaScript Array.
+     * This completely bypasses browser CORS restrictions for local files.
      */
-    const HARDCODED_CSV = `Group_No,Category,Subject,Marks,Type,Recommended
-I,Group I,Accounting & Finance,200,Optional,Commerce background
-I,Group I,Economics,200,Optional,Arts/Commerce background
-I,Group I,Computer Science,200,Optional,Science background
-I,Group I,Political Science,200,Optional,Any background
-I,Group I,International Relations,200,Optional,Any background
-I,Group I,Physics,200,Optional,Science background
-II,Group II,Mathematics,200,Optional,Science background
-II,Group II,Statistics,100,Optional,Science/Commerce background
-II,Group II,Geography,100,Optional,Arts/Science background
-II,Group II,Sociology,100,Optional,Any background
-II,Group II,History,100,Optional,Any background
-II,Group II,Islamic History,100,Optional,Any background
-II,Group II,Law,100,Optional,Any background
-III,Group III,Urdu,100,Optional,Any background
-III,Group III,English Literature,100,Optional,Any background
-III,Group III,Persian,100,Optional,Any background
-III,Group III,Arabic,100,Optional,Any background
-IV,Group IV,Chemistry,100,Optional,Science background
-IV,Group IV,Biology,100,Optional,Science background
-IV,Group IV,Geology,100,Optional,Science background
-V,Group V,Journalism,100,Optional,Any background
-V,Group V,Public Administration,100,Optional,Any background
-V,Group V,Psychology,100,Optional,Any background
-VI,Group VI,Philosophy,100,Optional,Any background
-VI,Group VI,Education,100,Optional,Any background
-VI,Group VI,Anthropology,100,Optional,Any background
-VII,Group VII,Agriculture,100,Optional,Science background
-VII,Group VII,Forestry,100,Optional,Science background
-VII,Group VII,Veterinary Science,100,Optional,Science background
-,C,English,100,Compulsory,All candidates
-,C,Urdu,100,Compulsory,All candidates
-,C,Islamic Studies,100,Compulsory,All candidates
-,C,Pakistan Affairs,100,Compulsory,All candidates
-,C,Current Affairs,100,Compulsory,All candidates
-,C,General Science & Ability,100,Compulsory,All candidates`;
+    const SUBJECTS_DATA = [
+      { "srno": 1, "subject": "Accountancy & Auditing", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Commerce/Accounting/Finance" },
+      { "srno": 2, "subject": "Economics", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Economics/Finance" },
+      { "srno": 3, "subject": "Computer Science", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Computer Science/IT" },
+      { "srno": 4, "subject": "Political Science", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Any (theory/current affairs)" },
+      { "srno": 5, "subject": "International Relations", "group_no": "I", "category": "Commerce & Social Sciences", "marks": 200, "type": "Optional", "recommended": "Any (international affairs)" },
+      { "srno": 6, "subject": "Physics", "group_no": "II", "category": "Sciences & Mathematics", "marks": 200, "type": "Optional", "recommended": "Science/Engineering" },
+      { "srno": 7, "subject": "Chemistry", "group_no": "II", "category": "Sciences & Mathematics", "marks": 200, "type": "Optional", "recommended": "Science/Engineering" },
+      { "srno": 8, "subject": "Applied Mathematics", "group_no": "II", "category": "Sciences & Mathematics", "marks": 100, "type": "Optional", "recommended": "Mathematics/Engineering" },
+      { "srno": 9, "subject": "Pure Mathematics", "group_no": "II", "category": "Sciences & Mathematics", "marks": 100, "type": "Optional", "recommended": "Mathematics/Engineering" },
+      { "srno": 10, "subject": "Statistics", "group_no": "II", "category": "Sciences & Mathematics", "marks": 100, "type": "Optional", "recommended": "Statistics/Data" },
+      { "srno": 11, "subject": "Geology", "group_no": "II", "category": "Sciences & Mathematics", "marks": 100, "type": "Optional", "recommended": "Earth Sciences" },
+      { "srno": 12, "subject": "Business Administration", "group_no": "III", "category": "Administration & Governance", "marks": 100, "type": "Optional", "recommended": "BBA/MBA/Commerce" },
+      { "srno": 13, "subject": "Public Administration", "group_no": "III", "category": "Administration & Governance", "marks": 100, "type": "Optional", "recommended": "Any (governance interest)" },
+      { "srno": 14, "subject": "Governance & Public Policies", "group_no": "III", "category": "Administration & Governance", "marks": 100, "type": "Optional", "recommended": "Any (policy interest)" },
+      { "srno": 15, "subject": "Town Planning & Urban Management", "group_no": "III", "category": "Administration & Governance", "marks": 100, "type": "Optional", "recommended": "Architecture/Planning" },
+      { "srno": 16, "subject": "History of Pakistan & India", "group_no": "IV", "category": "History", "marks": 100, "type": "Optional", "recommended": "History/Arts" },
+      { "srno": 17, "subject": "Islamic History & Culture", "group_no": "IV", "category": "History", "marks": 100, "type": "Optional", "recommended": "History/Islamic Studies" },
+      { "srno": 18, "subject": "British History", "group_no": "IV", "category": "History", "marks": 100, "type": "Optional", "recommended": "History/Arts" },
+      { "srno": 19, "subject": "European History", "group_no": "IV", "category": "History", "marks": 100, "type": "Optional", "recommended": "History/Arts" },
+      { "srno": 20, "subject": "History of USA", "group_no": "IV", "category": "History", "marks": 100, "type": "Optional", "recommended": "History/Arts" },
+      { "srno": 21, "subject": "Gender Studies", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "Any" },
+      { "srno": 22, "subject": "Environmental Sciences", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "Any (science helpful)" },
+      { "srno": 23, "subject": "Agriculture & Forestry", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "Agriculture/Biology" },
+      { "srno": 24, "subject": "Botany", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "Biology/Pre-Medical" },
+      { "srno": 25, "subject": "Zoology", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "Biology/Pre-Medical" },
+      { "srno": 26, "subject": "English Literature", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "English Literature" },
+      { "srno": 27, "subject": "Urdu Literature", "group_no": "V", "category": "Natural Sciences & Literature", "marks": 100, "type": "Optional", "recommended": "Urdu Literature" },
+      { "srno": 28, "subject": "Law", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Law" },
+      { "srno": 29, "subject": "Constitutional Law", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Law" },
+      { "srno": 30, "subject": "International Law", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Law/International Relations" },
+      { "srno": 31, "subject": "Muslim Law & Jurisprudence", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Law/Islamic Studies" },
+      { "srno": 32, "subject": "Mercantile Law", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Law/Commerce" },
+      { "srno": 33, "subject": "Criminology", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Any (law/security helpful)" },
+      { "srno": 34, "subject": "Philosophy", "group_no": "VI", "category": "Law & Philosophy", "marks": 100, "type": "Optional", "recommended": "Any (strong analytical writing)" },
+      { "srno": 35, "subject": "Journalism & Mass Communication", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Any (media interest)" },
+      { "srno": 36, "subject": "Psychology", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Any (psychology helpful)" },
+      { "srno": 37, "subject": "Geography", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Any (geography helpful)" },
+      { "srno": 38, "subject": "Sociology", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Any (social science helpful)" },
+      { "srno": 39, "subject": "Anthropology", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Any (social science helpful)" },
+      { "srno": 40, "subject": "Punjabi", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Native/Literary command" },
+      { "srno": 41, "subject": "Sindhi", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Native/Literary command" },
+      { "srno": 42, "subject": "Pashto", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Native/Literary command" },
+      { "srno": 43, "subject": "Balochi", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Native/Literary command" },
+      { "srno": 44, "subject": "Persian", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Persian language background" },
+      { "srno": 45, "subject": "Arabic", "group_no": "VII", "category": "Social Sciences & Languages", "marks": 100, "type": "Optional", "recommended": "Arabic language background" },
+      { "srno": 46, "subject": "English Essay", "group_no": "Compulsory", "category": "Compulsory", "marks": 100, "type": "Compulsory", "recommended": "All candidates" },
+      { "srno": 47, "subject": "English (Precis & Composition)", "group_no": "Compulsory", "category": "Compulsory", "marks": 100, "type": "Compulsory", "recommended": "All candidates" },
+      { "srno": 48, "subject": "General Science & Ability", "group_no": "Compulsory", "category": "Compulsory", "marks": 100, "type": "Compulsory", "recommended": "All candidates" },
+      { "srno": 49, "subject": "Current Affairs", "group_no": "Compulsory", "category": "Compulsory", "marks": 100, "type": "Compulsory", "recommended": "All candidates" },
+      { "srno": 50, "subject": "Pakistan Affairs", "group_no": "Compulsory", "category": "Compulsory", "marks": 100, "type": "Compulsory", "recommended": "All candidates" },
+      { "srno": 51, "subject": "Islamic Studies / Comparative Religion", "group_no": "Compulsory", "category": "Compulsory", "marks": 100, "type": "Compulsory", "recommended": "All candidates (non-Muslims take Comparative Religion)" }
+    ];
 
     const OPTIONAL_TARGET = 600, TOTAL_TARGET = 1200;
     let GROUPS = [], COMPULSORY = [];
@@ -549,9 +561,9 @@ VII,Group VII,Veterinary Science,100,Optional,Science background
     const finalConfirmBtn = document.getElementById("finalConfirmBtn");
     const copyBtn = document.getElementById("copyBtn");
 
-    function loadSubjectsCSV() {
+    function loadSubjectsJSON() {
       try {
-        parseCSVSubjects(HARDCODED_CSV);
+        parseSubjectsJSON(SUBJECTS_DATA);
         isDataLoaded = true;
         bGroupsEl.innerHTML = "";
         renderBGroups();
@@ -566,42 +578,29 @@ VII,Group VII,Veterinary Science,100,Optional,Science background
       }
     }
 
-    function parseCSVSubjects(text) {
-      const lines = []; let currentLine = [], currentCell = '', inQuotes = false;
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i], nextChar = text[i + 1];
-        if (inQuotes) {
-          if (char === '"' && nextChar === '"') { currentCell += '"'; i++; }
-          else if (char === '"') { inQuotes = false; }
-          else { currentCell += char; }
-        } else {
-          if (char === '"') { inQuotes = true; }
-          else if (char === ',') { currentLine.push(currentCell.trim()); currentCell = ''; }
-          else if (char === '\n' || char === '\r') {
-            if (currentCell !== '' || currentLine.length > 0) {
-              currentLine.push(currentCell.trim()); lines.push(currentLine);
-              currentLine = []; currentCell = '';
-            }
-            if (char === '\r' && nextChar === '\n') i++;
-          } else { currentCell += char; }
-        }
-      }
-      if (currentCell !== '' || currentLine.length > 0) { currentLine.push(currentCell.trim()); lines.push(currentLine); }
-      if (lines.length < 2) return;
-      const headers = lines[0].map(h => h.trim().toLowerCase());
-      
-      lines.slice(1).forEach(cols => {
-        const row = {}; headers.forEach((h, i) => row[h] = cols[i] || '');
+    function parseSubjectsJSON(data) {
+      data.forEach(row => {
         const gNum = row.group_no, isComp = (row.type || '').toLowerCase() === 'compulsory';
-        const subjectName = (row.subject || '').replace(/^"|"$/g, '').trim();
+        const subjectName = (row.subject || '').trim();
         if (!subjectName) return;
         
-        const subjectObj = { name: subjectName, marks: parseInt(row.marks, 10) || 100, recommended: row.recommended || "Any background" };
+        const subjectObj = { 
+          name: subjectName, 
+          marks: parseInt(row.marks, 10) || 100, 
+          recommended: row.recommended || "Any background" 
+        };
         
         if (isComp) { COMPULSORY.push(subjectObj); return; }
         
         if (!GROUP_MAP[gNum]) {
-          GROUP_MAP[gNum] = { groupNumber: gNum, name: row.category, rule: getRuleForGroup(gNum), maxSubjects: gNum === "II" ? 2 : 1, maxMarks: gNum === "I" || gNum === "II" ? 200 : 100, subjects: [] };
+          GROUP_MAP[gNum] = { 
+            groupNumber: gNum, 
+            name: row.category, 
+            rule: getRuleForGroup(gNum), 
+            maxSubjects: gNum === "II" ? 2 : 1, 
+            maxMarks: gNum === "I" || gNum === "II" ? 200 : 100, 
+            subjects: [] 
+          };
         }
         GROUP_MAP[gNum].subjects.push(subjectObj);
       });

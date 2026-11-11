@@ -362,138 +362,17 @@
     background: rgba(34,197,94,0.15);
   }
 
-  /* ============================================================
-     DESKTOP ENHANCEMENTS (min-width: 760px)
-     ============================================================ */
   @media (min-width: 760px) {
-    body { max-width: 1100px; margin: 0 auto; font-size: 17px; }
-    h1 { font-size: 1.2rem; }
+    body { max-width: 760px; margin: 0 auto; font-size: 17px; }
+    h1 { font-size: 1.1rem; }
     .version { font-size: 0.7rem; }
-    .theme-btn { font-size: 0.78rem; padding: 5px 12px; }
-
-    /* two-column layout: left = selected summary, right = groups */
-    .desktop-layout {
-      display: flex;
-      flex: 1 1 auto;
-      overflow: hidden;
-      gap: 16px;
-      padding: 12px 20px;
-      min-height: 0;
-    }
-
-    .desktop-left {
-      flex: 0 0 340px;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      max-height: 100%;
-    }
-
-    .desktop-right {
-      flex: 1 1 auto;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      min-height: 0;
-    }
-
-    /* selected strip becomes a panel in left column */
-    .selected-strip {
-      max-height: none;
-      overflow-y: visible;
-      margin-top: 0;
-      cursor: default;
-      flex: 0 0 auto;
-    }
-    .selected-strip .expand-hint { display: none; }
-
-    /* toolbar above right column */
-    .toolbar {
-      padding: 0 0 8px 0;
-      flex: 0 0 auto;
-    }
-
-    #groups {
-      padding: 0;
-      padding-bottom: 0;
-      scroll-padding-bottom: 0;
-      overflow-y: visible;
-      flex: 1 1 auto;
-    }
-
-    .group-header { padding: 14px 16px; font-size: 1rem; }
-    .subject { padding: 12px 16px; font-size: 1rem; }
-    .chosen-list li { font-size: 0.98rem; padding: 8px 12px; }
-
-    /* larger subject rows for better mouse targeting */
-    .subject:hover:not(.selected) { background: var(--hover); }
-    .group-header:hover { background: var(--hover); }
-
-    /* final overlay wider, centered, with more padding */
-    .final-inner {
-      max-width: 760px;
-      margin: 0 auto;
-      padding-top: 40px;
-      padding-bottom: 40px;
-    }
-    .final-head h2 { font-size: 1.5rem; }
-    .final-overlay .chosen-list li { font-size: 1.05rem; padding: 16px 18px; }
-    .final-summary { padding: 18px 22px; }
-    .sum-total, .sum-count { font-size: 2rem; }
-    .final-foot button { padding: 16px; font-size: 1.05rem; }
-    .copy-btn { padding: 16px; font-size: 1rem; }
-
-    /* no bottom padding needed on desktop */
-    body { overflow: hidden; }
-
-    /* keyboard focus styles */
-    .subject:focus-visible,
-    .group-header:focus-visible,
-    .toolbar button:focus-visible,
-    .theme-btn:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-  }
-
-  /* ---------- Mobile-only wrappers ---------- */
-  .desktop-layout {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    overflow: hidden;
-    min-height: 0;
-  }
-  .desktop-left, .desktop-right {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  .desktop-left { flex: 0 0 auto; }
-  .desktop-right { flex: 1 1 auto; overflow: hidden; }
-
-  /* On mobile: hide the desktop-left's extra spacing, keep it at top */
-  @media (max-width: 759px) {
-    .desktop-layout { padding: 0; }
-    .desktop-left { flex: 0 0 auto; }
-    .desktop-right { flex: 1 1 auto; }
-    .toolbar { padding: 8px 14px; }
-  }
-
-  /* Scrollbar styling (desktop) */
-  @media (min-width: 760px) {
-    #groups::-webkit-scrollbar,
-    .desktop-left::-webkit-scrollbar,
-    .desktop-right::-webkit-scrollbar { width: 8px; }
-    #groups::-webkit-scrollbar-track,
-    .desktop-left::-webkit-scrollbar-track,
-    .desktop-right::-webkit-scrollbar-track { background: var(--panel-2); border-radius: 4px; }
-    #groups::-webkit-scrollbar-thumb,
-    .desktop-left::-webkit-scrollbar-thumb,
-    .desktop-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    #groups::-webkit-scrollbar-thumb:hover,
-    .desktop-left::-webkit-scrollbar-thumb:hover,
-    .desktop-right::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    .theme-btn { font-size: 0.75rem; padding: 4px 10px; }
+    .selected-strip { max-height: 24vh; }
+    .subject { padding: 12px 14px; font-size: 1rem; }
+    .group-header { padding: 13px 16px; font-size: 1rem; }
+    .chosen-list li { font-size: 1rem; }
+    .final-head h2 { font-size: 1.3rem; }
+    .final-overlay .chosen-list li { font-size: 1.05rem; padding: 16px; }
   }
 </style>
 </head>
@@ -503,38 +382,32 @@
   <div class="title-row">
     <h1>CSS Optional Subject Builder</h1>
     <div class="header-right">
-      <span class="version">v3.0</span>
+      <span class="version">v2.9</span>
       <button class="theme-btn" id="themeBtn" title="Toggle theme">🌙 Dark</button>
     </div>
   </div>
+
+  <div class="selected-strip" id="selectedStrip" title="Tap to view full screen">
+    <div class="strip-head">
+      <span class="lbl">Selected · target 600</span>
+      <span class="total-pill" id="totalPill">0 / 600</span>
+    </div>
+    <ul class="chosen-list" id="chosenList">
+      <li class="empty">No subjects selected yet.</li>
+    </ul>
+    <div class="status" id="status">Select subjects to begin.</div>
+    <div class="hint" id="hintBox"></div>
+    <div class="expand-hint">⤢ Tap to view full screen &amp; confirm</div>
+  </div>
 </header>
 
-<!-- DESKTOP LAYOUT: left = selected, right = groups -->
-<div class="desktop-layout">
-  <div class="desktop-left">
-    <div class="selected-strip" id="selectedStrip" title="Click to view full screen">
-      <div class="strip-head">
-        <span class="lbl">Selected · target 600</span>
-        <span class="total-pill" id="totalPill">0 / 600</span>
-      </div>
-      <ul class="chosen-list" id="chosenList">
-        <li class="empty">No subjects selected yet.</li>
-      </ul>
-      <div class="status" id="status">Select subjects to begin.</div>
-      <div class="hint" id="hintBox"></div>
-      <div class="expand-hint">⤢ Click to view full screen &amp; confirm</div>
-    </div>
-  </div>
-
-  <div class="desktop-right">
-    <div class="toolbar">
-      <button id="expandAllBtn">Expand All</button>
-      <button id="collapseAllBtn">Collapse All</button>
-      <button id="resetBtn">Reset</button>
-    </div>
-    <div id="groups"></div>
-  </div>
+<div class="toolbar">
+  <button id="expandAllBtn">Expand All</button>
+  <button id="collapseAllBtn">Collapse All</button>
+  <button id="resetBtn">Reset</button>
 </div>
+
+<div id="groups"></div>
 
 <!-- ============ FULL-SCREEN FINAL CHOICE OVERLAY (scrolls) ============ -->
 <div class="final-overlay" id="finalOverlay" aria-hidden="true">
@@ -556,8 +429,10 @@
       </div>
     </div>
 
+    <!-- SAME row-chip layout as home, just bigger -->
     <ul class="chosen-list" id="finalList"></ul>
 
+    <!-- Copy all selected -->
     <div class="copy-row">
       <button class="copy-btn" id="copyBtn">📋 Copy all selected</button>
     </div>
@@ -691,6 +566,7 @@ function loadState() {
     GROUPS.forEach(g => {
       const saved = parsed[g.groupNumber];
       if (Array.isArray(saved)) {
+        // only keep names that actually exist in this group
         state[g.groupNumber] = saved.filter(n =>
           g.subjects.some(s => s.name === n)
         );
@@ -766,6 +642,7 @@ function violatingKeys() {
   return keys;
 }
 
+/* build the chip list markup for a given <ul> element */
 function buildChips(ulEl, flagged, onRemove) {
   ulEl.innerHTML = "";
   let any = false;
@@ -841,8 +718,10 @@ function updateUI() {
   const violations = getViolations();
   const flagged = violatingKeys();
   const total = totalMarks();
+  const count = totalCount();
   const isValid = total === TARGET;
 
+  /* subjects in group panels */
   document.querySelectorAll(".subject").forEach(row => {
     const g = row.dataset.group, s = row.dataset.subject;
     const isSel = state[g].includes(s);
@@ -850,6 +729,7 @@ function updateUI() {
     row.classList.toggle("violating", isSel && flagged.has(`${g}|${s}`));
   });
 
+  /* group violation outlines */
   GROUPS.forEach(g => {
     const gd = document.querySelector(`.group[data-group="${g.groupNumber}"]`);
     const flagEl = gd.querySelector(`.rule-flag[data-flag="${g.groupNumber}"]`);
@@ -858,6 +738,7 @@ function updateUI() {
     flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
   });
 
+  /* home total pill */
   totalPill.textContent = `${total} / ${TARGET}`;
   totalPill.className = "total-pill";
   if (isValid) totalPill.classList.add("valid-grey");
@@ -866,6 +747,7 @@ function updateUI() {
 
   selectedStrip.classList.toggle("valid", isValid);
 
+  /* home status */
   statusEl.className = "status";
   const tv = violations.find(v => v.type === "total");
   const rv = violations.filter(v => v.type !== "total");
@@ -879,6 +761,7 @@ function updateUI() {
     statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + tv.message;
   }
 
+  /* hint */
   if (violations.length) {
     hintBox.classList.add("show");
     hintBox.innerHTML = "<strong>To fix:</strong><br>• " +
@@ -887,6 +770,7 @@ function updateUI() {
     hintBox.classList.remove("show"); hintBox.innerHTML = "";
   }
 
+  /* home chips — same row format */
   chosenListEl.classList.toggle("valid", isValid);
   const anyHome = buildChips(chosenListEl, flagged, (g, n) => {
     state[g] = state[g].filter(x => x !== n);
@@ -895,6 +779,7 @@ function updateUI() {
   });
   if (!anyHome) chosenListEl.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
 
+  /* keep overlay in sync */
   if (finalOverlay.classList.contains("open")) renderFinal();
 }
 
@@ -912,6 +797,7 @@ function renderFinal() {
   if (isValid) finalSummary.classList.add("valid");
   else if (total > TARGET) finalSummary.classList.add("over");
 
+  /* full-screen chips — SAME row layout as home, larger via CSS */
   finalList.classList.toggle("valid", isValid);
   const any = buildChips(finalList, flagged, (g, n) => {
     state[g] = state[g].filter(x => x !== n);
@@ -941,6 +827,7 @@ function renderFinal() {
 
   finalConfirmBtn.disabled = !isValid;
 
+  /* copy button disabled when nothing selected */
   copyBtn.disabled = totalCount() === 0;
   copyBtn.style.opacity = totalCount() === 0 ? 0.5 : 1;
   copyBtn.style.cursor = totalCount() === 0 ? "not-allowed" : "pointer";
@@ -974,6 +861,7 @@ copyBtn.addEventListener("click", async () => {
   } catch(e) { ok = false; }
 
   if (!ok) {
+    // fallback for older browsers
     try {
       const ta = document.createElement("textarea");
       ta.value = text;
@@ -996,6 +884,7 @@ copyBtn.addEventListener("click", async () => {
       copyBtn.textContent = original;
     }, 1500);
   } else {
+    // show the text so user can copy manually
     alert(text);
   }
 });

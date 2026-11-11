@@ -203,7 +203,7 @@
   <header class="app-header">
     <div class="brand">
       <i class="fas fa-graduation-cap"></i> CSS Portal
-      <span class="version">v4.3</span>
+      <span class="version">v4.4</span>
     </div>
     <div class="header-actions">
       <div class="nav-tabs">
@@ -291,503 +291,512 @@
   </div>
 
   <!-- ============================================================
-       JAVASCRIPT: THEME & TABS
+       JAVASCRIPT: THEME & TABS (Wrapped in IIFE)
        ============================================================ -->
   <script>
-    const root = document.documentElement;
-    const themeBtn = document.getElementById('themeBtn');
-    
-    const savedTheme = localStorage.getItem('css-theme') || 'light';
-    root.setAttribute('data-theme', savedTheme);
-    themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    (() => {
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('themeBtn');
+      
+      const savedTheme = localStorage.getItem('css-theme') || 'light';
+      root.setAttribute('data-theme', savedTheme);
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-    themeBtn.addEventListener('click', () => {
-      const isDark = root.getAttribute('data-theme') === 'dark';
-      const newTheme = isDark ? 'light' : 'dark';
-      root.setAttribute('data-theme', newTheme);
-      themeBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-      localStorage.setItem('css-theme', newTheme);
-    });
-
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.target).classList.add('active');
+      themeBtn.addEventListener('click', () => {
+        const isDark = root.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        root.setAttribute('data-theme', newTheme);
+        themeBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('css-theme', newTheme);
       });
-    });
-  </script>
 
-  <!-- ============================================================
-       JAVASCRIPT: RESULTS DASHBOARD (CSV)
-       ============================================================ -->
-  <script>
-    const CSV_FILE = 'css mpt results - all.csv';
-    const CSV_URL  = encodeURI(CSV_FILE);
-    const PAGE_SIZE = 1000;
-    let ALL_STUDENTS = [], filtered = [], currentOffset = 0, nameSearch = '', rollSearch = '', currentYear = 'all', currentStatus = 'all', totalMatching = 0, loadedCount = 0, hasMore = true, dataReady = false;
-
-    const nameInput = document.getElementById('nameSearch');
-    const rollInput = document.getElementById('rollSearch');
-    const yearFilter = document.getElementById('yearFilter');
-    const statusFilter = document.getElementById('statusFilter');
-    const cardGrid = document.getElementById('cardGrid');
-    const shownCount = document.getElementById('shownCount');
-    const totalCount = document.getElementById('totalCount');
-    const loadStatusText = document.getElementById('loadStatusText');
-    const loadStatus = document.getElementById('loadStatus');
-
-    window.addEventListener('load', () => { loadCSV(); });
-
-    async function loadCSV() {
-      loadStatusText.textContent = 'Downloading...';
-      try {
-        const res = await fetch(CSV_URL);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        loadStatusText.textContent = 'Parsing...';
-        ALL_STUDENTS = parseCSV(text);
-        loadStatus.classList.add('done');
-        loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString();
-        dataReady = true;
-        loadFilterMeta();
-        applyFilters();
-      } catch (err) {
-        loadStatus.classList.add('error');
-        loadStatusText.textContent = 'Failed';
-        cardGrid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load CSV.</div>';
-      }
-    }
-
-    function parseCSV(text) {
-      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-      const rows = []; let row = [], field = '', inQuotes = false, i = 0;
-      while (i < text.length) {
-        const ch = text[i], next = text[i + 1] || '';
-        if (inQuotes) {
-          if (ch === '"') { if (next === '"') { field += '"'; i += 2; continue; } inQuotes = false; i++; continue; }
-          field += ch; i++; continue;
-        }
-        if (ch === '"') { inQuotes = true; i++; continue; }
-        if (ch === ',') { row.push(field); field = ''; i++; continue; }
-        if (ch === '\r') { i++; continue; }
-        if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
-        field += ch; i++;
-      }
-      if (field.length || row.length) { row.push(field); rows.push(row); }
-      if (rows.length < 2) return [];
-      const header = rows[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
-      const col = {}; header.forEach((h, idx) => col[h] = idx);
-      const get = (arr, ...keys) => { for (const k of keys) if (col[k] !== undefined) return arr[col[k]] || ''; return ''; };
-      const out = [];
-      for (let r = 1; r < rows.length; r++) {
-        const rowArr = rows[r];
-        if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
-        out.push({
-          sr_no: get(rowArr, 'sr_no', 'srno', 'sr') || r,
-          name: String(get(rowArr, 'name')).trim(),
-          roll_no: String(get(rowArr, 'roll_no', 'rollno', 'roll')).trim(),
-          status: String(get(rowArr, 'status')).trim(),
-          url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url')).trim(),
-          year: String(get(rowArr, 'year')).trim(),
-          updated_on: String(get(rowArr, 'updated_on', 'updated')).trim() || '—'
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.target).classList.add('active');
         });
-      }
-      return out;
-    }
-
-    function loadFilterMeta() {
-      const years = new Set(), statuses = new Set();
-      ALL_STUDENTS.forEach(s => { if(s.year) years.add(s.year); if(s.status) statuses.add(s.status); });
-      const sortedYears = Array.from(years).sort();
-      
-      yearFilter.innerHTML = '<option value="all">All years</option>';
-      sortedYears.forEach(y => yearFilter.innerHTML += `<option value="${y}">${y}</option>`);
-      if (sortedYears.length) { yearFilter.value = sortedYears.pop(); currentYear = yearFilter.value; }
-
-      statusFilter.innerHTML = '<option value="all">All status</option>';
-      Array.from(statuses).sort().forEach(s => statusFilter.innerHTML += `<option value="${s}">${s}</option>`);
-    }
-
-    function applyFilters() {
-      if (!dataReady) return;
-      const nQ = nameSearch.toLowerCase(), rQ = rollSearch.toLowerCase(), yQ = currentYear, sQ = currentStatus.toLowerCase();
-      filtered = ALL_STUDENTS.filter(s => 
-        (!nQ || s.name.toLowerCase().includes(nQ)) &&
-        (!rQ || s.roll_no.toLowerCase().includes(rQ)) &&
-        (yQ === 'all' || s.year === yQ) &&
-        (sQ === 'all' || s.status.toLowerCase() === sQ)
-      );
-      totalMatching = filtered.length; currentOffset = 0; loadedCount = 0;
-      cardGrid.innerHTML = totalMatching === 0 ? '<div class="no-results"><i class="fas fa-inbox"></i> No students found.</div>' : '';
-      if (totalMatching > 0) renderNextPage();
-      updateCounts();
-    }
-
-    function renderNextPage() {
-      const end = Math.min(currentOffset + PAGE_SIZE, totalMatching);
-      if (currentOffset >= end) return;
-      document.getElementById('loadMoreWrapper')?.remove();
-      
-      let html = '';
-      for (let i = currentOffset; i < end; i++) {
-        const s = filtered[i];
-        const statusClass = s.status.toLowerCase() === 'fail' ? 'status-fail' : (s.status.toLowerCase() === 'pass' ? 'status-pass' : '');
-        const pdf = s.url_results_pdf ? `<a href="${s.url_results_pdf}" target="_blank" class="pdf-link"><i class="fas fa-file-pdf"></i> PDF</a>` : `<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>`;
-        
-        html += `
-          <div class="student-card">
-            <div class="card-header"><span class="sr-badge"><i class="fas fa-hashtag"></i> ${s.sr_no}</span><span class="status-badge ${statusClass}">${s.status || '—'}</span></div>
-            <div class="student-name"><i class="fas fa-user-circle"></i> ${s.name || '—'}</div>
-            <div class="info-row"><div class="info-item"><i class="fas fa-id-card"></i> <strong>Roll</strong> ${s.roll_no || '—'}</div><div class="info-item"><i class="fas fa-calendar"></i> <strong>Year</strong> ${s.year || '—'}</div></div>
-            <div class="card-footer"><div class="updated"><i class="far fa-clock"></i> ${s.updated_on}</div>${pdf}</div>
-          </div>`;
-      }
-      cardGrid.insertAdjacentHTML('beforeend', html);
-      currentOffset = end; loadedCount = currentOffset; hasMore = currentOffset < totalMatching;
-      
-      if (hasMore) {
-        const wrap = document.createElement('div'); wrap.id = 'loadMoreWrapper'; wrap.className = 'load-more-wrap';
-        wrap.innerHTML = `<button class="load-more-btn" onclick="renderNextPage()"><i class="fas fa-arrow-down"></i> Load more</button>`;
-        cardGrid.appendChild(wrap);
-      }
-      updateCounts();
-    }
-
-    function updateCounts() {
-      shownCount.textContent = loadedCount.toLocaleString();
-      totalCount.textContent = totalMatching.toLocaleString();
-    }
-
-    nameInput.addEventListener('input', e => { nameSearch = e.target.value; setTimeout(applyFilters, 250); });
-    rollInput.addEventListener('input', e => { rollSearch = e.target.value; setTimeout(applyFilters, 250); });
-    yearFilter.addEventListener('change', e => { currentYear = e.target.value; applyFilters(); });
-    statusFilter.addEventListener('change', e => { currentStatus = e.target.value; applyFilters(); });
-    document.getElementById('clearFiltersBtn').addEventListener('click', () => {
-      nameInput.value = ''; rollInput.value = ''; nameSearch = ''; rollSearch = '';
-      currentStatus = 'all'; statusFilter.value = 'all';
-      const opt = Array.from(yearFilter.options).filter(o => o.value !== 'all');
-      currentYear = opt.length ? opt[opt.length-1].value : 'all'; yearFilter.value = currentYear;
-      applyFilters();
-    });
+      });
+    })();
   </script>
 
   <!-- ============================================================
-       JAVASCRIPT: SUBJECT BUILDER (JSON HARDCODED)
+       JAVASCRIPT: RESULTS DASHBOARD (Wrapped in IIFE)
        ============================================================ -->
   <script>
-    // DATA EMBEDDED AS JSON
-    const SUBJECTS_DATA = [
-      { srno: 1, subject: "Accountancy & Auditing", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Commerce/Accounting/Finance" },
-      { srno: 2, subject: "Economics", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Economics/Finance" },
-      { srno: 3, subject: "Computer Science", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Computer Science/IT" },
-      { srno: 4, subject: "Political Science", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Any (theory/current affairs)" },
-      { srno: 5, subject: "International Relations", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Any (international affairs)" },
-      { srno: 6, subject: "Physics", group_no: "II", category: "Sciences & Mathematics", marks: 200, type: "Optional", recommended: "Science/Engineering" },
-      { srno: 7, subject: "Chemistry", group_no: "II", category: "Sciences & Mathematics", marks: 200, type: "Optional", recommended: "Science/Engineering" },
-      { srno: 8, subject: "Applied Mathematics", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Mathematics/Engineering" },
-      { srno: 9, subject: "Pure Mathematics", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Mathematics/Engineering" },
-      { srno: 10, subject: "Statistics", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Statistics/Data" },
-      { srno: 11, subject: "Geology", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Earth Sciences" },
-      { srno: 12, subject: "Business Administration", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "BBA/MBA/Commerce" },
-      { srno: 13, subject: "Public Administration", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "Any (governance interest)" },
-      { srno: 14, subject: "Governance & Public Policies", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "Any (policy interest)" },
-      { srno: 15, subject: "Town Planning & Urban Management", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "Architecture/Planning" },
-      { srno: 16, subject: "History of Pakistan & India", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
-      { srno: 17, subject: "Islamic History & Culture", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Islamic Studies" },
-      { srno: 18, subject: "British History", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
-      { srno: 19, subject: "European History", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
-      { srno: 20, subject: "History of USA", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
-      { srno: 21, subject: "Gender Studies", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Any" },
-      { srno: 22, subject: "Environmental Sciences", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Any (science helpful)" },
-      { srno: 23, subject: "Agriculture & Forestry", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Agriculture/Biology" },
-      { srno: 24, subject: "Botany", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Biology/Pre-Medical" },
-      { srno: 25, subject: "Zoology", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Biology/Pre-Medical" },
-      { srno: 26, subject: "English Literature", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "English Literature" },
-      { srno: 27, subject: "Urdu Literature", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Urdu Literature" },
-      { srno: 28, subject: "Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law" },
-      { srno: 29, subject: "Constitutional Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law" },
-      { srno: 30, subject: "International Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law/International Relations" },
-      { srno: 31, subject: "Muslim Law & Jurisprudence", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law/Islamic Studies" },
-      { srno: 32, subject: "Mercantile Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law/Commerce" },
-      { srno: 33, subject: "Criminology", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Any (law/security helpful)" },
-      { srno: 34, subject: "Philosophy", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Any (strong analytical writing)" },
-      { srno: 35, subject: "Journalism & Mass Communication", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (media interest)" },
-      { srno: 36, subject: "Psychology", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (psychology helpful)" },
-      { srno: 37, subject: "Geography", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (geography helpful)" },
-      { srno: 38, subject: "Sociology", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (social science helpful)" },
-      { srno: 39, subject: "Anthropology", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (social science helpful)" },
-      { srno: 40, subject: "Punjabi", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
-      { srno: 41, subject: "Sindhi", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
-      { srno: 42, subject: "Pashto", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
-      { srno: 43, subject: "Balochi", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
-      { srno: 44, subject: "Persian", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Persian language background" },
-      { srno: 45, subject: "Arabic", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Arabic language background" },
-      { srno: 46, subject: "English Essay", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
-      { srno: 47, subject: "English (Precis & Composition)", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
-      { srno: 48, subject: "General Science & Ability", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
-      { srno: 49, subject: "Current Affairs", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
-      { srno: 50, subject: "Pakistan Affairs", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
-      { srno: 51, subject: "Islamic Studies / Comparative Religion", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates (non-Muslims take Comparative Religion)" }
-    ];
+    (() => {
+      const CSV_FILE = 'css mpt results - all.csv';
+      const CSV_URL  = encodeURI(CSV_FILE);
+      const PAGE_SIZE = 1000;
+      let ALL_STUDENTS = [], filtered = [], currentOffset = 0, nameSearch = '', rollSearch = '', currentYear = 'all', currentStatus = 'all', totalMatching = 0, loadedCount = 0, hasMore = true, dataReady = false;
 
-    const OPTIONAL_TARGET = 600, TOTAL_TARGET = 1200;
-    let GROUPS = [], COMPULSORY = [];
-    const GROUP_MAP = {}; 
-    const state = {}; 
-    let showCompulsory = false, isDataLoaded = false;
+      const nameInput = document.getElementById('nameSearch');
+      const rollInput = document.getElementById('rollSearch');
+      const yearFilter = document.getElementById('yearFilter');
+      const statusFilter = document.getElementById('statusFilter');
+      const cardGrid = document.getElementById('cardGrid');
+      const shownCount = document.getElementById('shownCount');
+      const totalCountEl = document.getElementById('totalCount'); // Renamed to avoid conflict
+      const loadStatusText = document.getElementById('loadStatusText');
+      const loadStatus = document.getElementById('loadStatus');
 
-    const bGroupsEl = document.getElementById("bGroups");
-    const totalPill = document.getElementById("totalPill");
-    const stripLabel = document.getElementById("stripLabel");
-    const statusEl = document.getElementById("status");
-    const chosenListEl = document.getElementById("chosenList");
-    const selectedStrip = document.getElementById("selectedStrip");
-    const finalOverlay = document.getElementById("finalOverlay");
-    const finalList = document.getElementById("finalList");
-    const finalTotal = document.getElementById("finalTotal");
-    const finalCount = document.getElementById("finalCount");
-    const finalStatus = document.getElementById("finalStatus");
-    const finalConfirmBtn = document.getElementById("finalConfirmBtn");
-    const copyBtn = document.getElementById("copyBtn");
+      window.addEventListener('load', () => { loadCSV(); });
 
-    function initBuilder() {
-      SUBJECTS_DATA.forEach(row => {
-        const gNum = row.group_no;
-        const isComp = (row.type || '').toLowerCase() === 'compulsory';
-        
-        const subjectObj = { 
-          name: row.subject, 
-          marks: parseInt(row.marks, 10) || 100, 
-          recommended: row.recommended || "Any background" 
-        };
-        
-        if (isComp) { 
-          COMPULSORY.push(subjectObj); 
-          return; 
+      async function loadCSV() {
+        loadStatusText.textContent = 'Downloading...';
+        try {
+          const res = await fetch(CSV_URL);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const text = await res.text();
+          loadStatusText.textContent = 'Parsing...';
+          ALL_STUDENTS = parseCSV(text);
+          loadStatus.classList.add('done');
+          loadStatusText.textContent = 'Ready · ' + ALL_STUDENTS.length.toLocaleString();
+          dataReady = true;
+          loadFilterMeta();
+          applyFilters();
+        } catch (err) {
+          loadStatus.classList.add('error');
+          loadStatusText.textContent = 'Failed';
+          cardGrid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load CSV.</div>';
         }
+      }
+
+      function parseCSV(text) {
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        const rows = []; let row = [], field = '', inQuotes = false, i = 0;
+        while (i < text.length) {
+          const ch = text[i], next = text[i + 1] || '';
+          if (inQuotes) {
+            if (ch === '"') { if (next === '"') { field += '"'; i += 2; continue; } inQuotes = false; i++; continue; }
+            field += ch; i++; continue;
+          }
+          if (ch === '"') { inQuotes = true; i++; continue; }
+          if (ch === ',') { row.push(field); field = ''; i++; continue; }
+          if (ch === '\r') { i++; continue; }
+          if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+          field += ch; i++;
+        }
+        if (field.length || row.length) { row.push(field); rows.push(row); }
+        if (rows.length < 2) return [];
+        const header = rows[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+        const col = {}; header.forEach((h, idx) => col[h] = idx);
+        const get = (arr, ...keys) => { for (const k of keys) if (col[k] !== undefined) return arr[col[k]] || ''; return ''; };
+        const out = [];
+        for (let r = 1; r < rows.length; r++) {
+          const rowArr = rows[r];
+          if (!rowArr || rowArr.every(c => String(c).trim() === '')) continue;
+          out.push({
+            sr_no: get(rowArr, 'sr_no', 'srno', 'sr') || r,
+            name: String(get(rowArr, 'name')).trim(),
+            roll_no: String(get(rowArr, 'roll_no', 'rollno', 'roll')).trim(),
+            status: String(get(rowArr, 'status')).trim(),
+            url_results_pdf: String(get(rowArr, 'url_results_pdf', 'url')).trim(),
+            year: String(get(rowArr, 'year')).trim(),
+            updated_on: String(get(rowArr, 'updated_on', 'updated')).trim() || '—'
+          });
+        }
+        return out;
+      }
+
+      function loadFilterMeta() {
+        const years = new Set(), statuses = new Set();
+        ALL_STUDENTS.forEach(s => { if(s.year) years.add(s.year); if(s.status) statuses.add(s.status); });
+        const sortedYears = Array.from(years).sort();
         
-        if (!GROUP_MAP[gNum]) {
-          GROUP_MAP[gNum] = { 
-            groupNumber: gNum, 
-            name: row.category, 
-            rule: getRuleForGroup(gNum), 
-            maxSubjects: gNum === "II" ? 2 : 1, 
-            maxMarks: gNum === "I" || gNum === "II" ? 200 : 100, 
-            subjects: [] 
+        yearFilter.innerHTML = '<option value="all">All years</option>';
+        sortedYears.forEach(y => yearFilter.innerHTML += `<option value="${y}">${y}</option>`);
+        if (sortedYears.length) { yearFilter.value = sortedYears.pop(); currentYear = yearFilter.value; }
+
+        statusFilter.innerHTML = '<option value="all">All status</option>';
+        Array.from(statuses).sort().forEach(s => statusFilter.innerHTML += `<option value="${s}">${s}</option>`);
+      }
+
+      function applyFilters() {
+        if (!dataReady) return;
+        const nQ = nameSearch.toLowerCase(), rQ = rollSearch.toLowerCase(), yQ = currentYear, sQ = currentStatus.toLowerCase();
+        filtered = ALL_STUDENTS.filter(s => 
+          (!nQ || s.name.toLowerCase().includes(nQ)) &&
+          (!rQ || s.roll_no.toLowerCase().includes(rQ)) &&
+          (yQ === 'all' || s.year === yQ) &&
+          (sQ === 'all' || s.status.toLowerCase() === sQ)
+        );
+        totalMatching = filtered.length; currentOffset = 0; loadedCount = 0;
+        cardGrid.innerHTML = totalMatching === 0 ? '<div class="no-results"><i class="fas fa-inbox"></i> No students found.</div>' : '';
+        if (totalMatching > 0) renderNextPage();
+        updateCounts();
+      }
+
+      function renderNextPage() {
+        const end = Math.min(currentOffset + PAGE_SIZE, totalMatching);
+        if (currentOffset >= end) return;
+        document.getElementById('loadMoreWrapper')?.remove();
+        
+        let html = '';
+        for (let i = currentOffset; i < end; i++) {
+          const s = filtered[i];
+          const statusClass = s.status.toLowerCase() === 'fail' ? 'status-fail' : (s.status.toLowerCase() === 'pass' ? 'status-pass' : '');
+          const pdf = s.url_results_pdf ? `<a href="${s.url_results_pdf}" target="_blank" class="pdf-link"><i class="fas fa-file-pdf"></i> PDF</a>` : `<span class="pdf-link disabled"><i class="fas fa-file-pdf"></i> No PDF</span>`;
+          
+          html += `
+            <div class="student-card">
+              <div class="card-header"><span class="sr-badge"><i class="fas fa-hashtag"></i> ${s.sr_no}</span><span class="status-badge ${statusClass}">${s.status || '—'}</span></div>
+              <div class="student-name"><i class="fas fa-user-circle"></i> ${s.name || '—'}</div>
+              <div class="info-row"><div class="info-item"><i class="fas fa-id-card"></i> <strong>Roll</strong> ${s.roll_no || '—'}</div><div class="info-item"><i class="fas fa-calendar"></i> <strong>Year</strong> ${s.year || '—'}</div></div>
+              <div class="card-footer"><div class="updated"><i class="far fa-clock"></i> ${s.updated_on}</div>${pdf}</div>
+            </div>`;
+        }
+        cardGrid.insertAdjacentHTML('beforeend', html);
+        currentOffset = end; loadedCount = currentOffset; hasMore = currentOffset < totalMatching;
+        
+        if (hasMore) {
+          const wrap = document.createElement('div'); wrap.id = 'loadMoreWrapper'; wrap.className = 'load-more-wrap';
+          wrap.innerHTML = `<button class="load-more-btn" onclick="renderNextPage()"><i class="fas fa-arrow-down"></i> Load more</button>`;
+          cardGrid.appendChild(wrap);
+        }
+        updateCounts();
+      }
+
+      function updateCounts() {
+        shownCount.textContent = loadedCount.toLocaleString();
+        totalCountEl.textContent = totalMatching.toLocaleString();
+      }
+
+      nameInput.addEventListener('input', e => { nameSearch = e.target.value; setTimeout(applyFilters, 250); });
+      rollInput.addEventListener('input', e => { rollSearch = e.target.value; setTimeout(applyFilters, 250); });
+      yearFilter.addEventListener('change', e => { currentYear = e.target.value; applyFilters(); });
+      statusFilter.addEventListener('change', e => { currentStatus = e.target.value; applyFilters(); });
+      document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+        nameInput.value = ''; rollInput.value = ''; nameSearch = ''; rollSearch = '';
+        currentStatus = 'all'; statusFilter.value = 'all';
+        const opt = Array.from(yearFilter.options).filter(o => o.value !== 'all');
+        currentYear = opt.length ? opt[opt.length-1].value : 'all'; yearFilter.value = currentYear;
+        applyFilters();
+      });
+      
+      // Expose to window for inline onclick handler
+      window.renderNextPage = renderNextPage;
+    })();
+  </script>
+
+  <!-- ============================================================
+       JAVASCRIPT: SUBJECT BUILDER (Wrapped in IIFE)
+       ============================================================ -->
+  <script>
+    (() => {
+      // DATA EMBEDDED AS JSON
+      const SUBJECTS_DATA = [
+        { srno: 1, subject: "Accountancy & Auditing", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Commerce/Accounting/Finance" },
+        { srno: 2, subject: "Economics", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Economics/Finance" },
+        { srno: 3, subject: "Computer Science", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Computer Science/IT" },
+        { srno: 4, subject: "Political Science", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Any (theory/current affairs)" },
+        { srno: 5, subject: "International Relations", group_no: "I", category: "Commerce & Social Sciences", marks: 200, type: "Optional", recommended: "Any (international affairs)" },
+        { srno: 6, subject: "Physics", group_no: "II", category: "Sciences & Mathematics", marks: 200, type: "Optional", recommended: "Science/Engineering" },
+        { srno: 7, subject: "Chemistry", group_no: "II", category: "Sciences & Mathematics", marks: 200, type: "Optional", recommended: "Science/Engineering" },
+        { srno: 8, subject: "Applied Mathematics", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Mathematics/Engineering" },
+        { srno: 9, subject: "Pure Mathematics", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Mathematics/Engineering" },
+        { srno: 10, subject: "Statistics", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Statistics/Data" },
+        { srno: 11, subject: "Geology", group_no: "II", category: "Sciences & Mathematics", marks: 100, type: "Optional", recommended: "Earth Sciences" },
+        { srno: 12, subject: "Business Administration", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "BBA/MBA/Commerce" },
+        { srno: 13, subject: "Public Administration", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "Any (governance interest)" },
+        { srno: 14, subject: "Governance & Public Policies", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "Any (policy interest)" },
+        { srno: 15, subject: "Town Planning & Urban Management", group_no: "III", category: "Administration & Governance", marks: 100, type: "Optional", recommended: "Architecture/Planning" },
+        { srno: 16, subject: "History of Pakistan & India", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
+        { srno: 17, subject: "Islamic History & Culture", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Islamic Studies" },
+        { srno: 18, subject: "British History", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
+        { srno: 19, subject: "European History", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
+        { srno: 20, subject: "History of USA", group_no: "IV", category: "History", marks: 100, type: "Optional", recommended: "History/Arts" },
+        { srno: 21, subject: "Gender Studies", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Any" },
+        { srno: 22, subject: "Environmental Sciences", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Any (science helpful)" },
+        { srno: 23, subject: "Agriculture & Forestry", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Agriculture/Biology" },
+        { srno: 24, subject: "Botany", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Biology/Pre-Medical" },
+        { srno: 25, subject: "Zoology", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Biology/Pre-Medical" },
+        { srno: 26, subject: "English Literature", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "English Literature" },
+        { srno: 27, subject: "Urdu Literature", group_no: "V", category: "Natural Sciences & Literature", marks: 100, type: "Optional", recommended: "Urdu Literature" },
+        { srno: 28, subject: "Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law" },
+        { srno: 29, subject: "Constitutional Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law" },
+        { srno: 30, subject: "International Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law/International Relations" },
+        { srno: 31, subject: "Muslim Law & Jurisprudence", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law/Islamic Studies" },
+        { srno: 32, subject: "Mercantile Law", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Law/Commerce" },
+        { srno: 33, subject: "Criminology", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Any (law/security helpful)" },
+        { srno: 34, subject: "Philosophy", group_no: "VI", category: "Law & Philosophy", marks: 100, type: "Optional", recommended: "Any (strong analytical writing)" },
+        { srno: 35, subject: "Journalism & Mass Communication", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (media interest)" },
+        { srno: 36, subject: "Psychology", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (psychology helpful)" },
+        { srno: 37, subject: "Geography", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (geography helpful)" },
+        { srno: 38, subject: "Sociology", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (social science helpful)" },
+        { srno: 39, subject: "Anthropology", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Any (social science helpful)" },
+        { srno: 40, subject: "Punjabi", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
+        { srno: 41, subject: "Sindhi", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
+        { srno: 42, subject: "Pashto", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
+        { srno: 43, subject: "Balochi", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Native/Literary command" },
+        { srno: 44, subject: "Persian", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Persian language background" },
+        { srno: 45, subject: "Arabic", group_no: "VII", category: "Social Sciences & Languages", marks: 100, type: "Optional", recommended: "Arabic language background" },
+        { srno: 46, subject: "English Essay", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
+        { srno: 47, subject: "English (Precis & Composition)", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
+        { srno: 48, subject: "General Science & Ability", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
+        { srno: 49, subject: "Current Affairs", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
+        { srno: 50, subject: "Pakistan Affairs", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates" },
+        { srno: 51, subject: "Islamic Studies / Comparative Religion", group_no: "Compulsory", category: "Compulsory", marks: 100, type: "Compulsory", recommended: "All candidates (non-Muslims take Comparative Religion)" }
+      ];
+
+      const OPTIONAL_TARGET = 600, TOTAL_TARGET = 1200;
+      let GROUPS = [], COMPULSORY = [];
+      const GROUP_MAP = {}; 
+      const state = {}; 
+      let showCompulsory = false, isDataLoaded = false;
+
+      const bGroupsEl = document.getElementById("bGroups");
+      const totalPill = document.getElementById("totalPill");
+      const stripLabel = document.getElementById("stripLabel");
+      const statusEl = document.getElementById("status");
+      const chosenListEl = document.getElementById("chosenList");
+      const selectedStrip = document.getElementById("selectedStrip");
+      const finalOverlay = document.getElementById("finalOverlay");
+      const finalList = document.getElementById("finalList");
+      const finalTotal = document.getElementById("finalTotal");
+      const finalCount = document.getElementById("finalCount");
+      const finalStatus = document.getElementById("finalStatus");
+      const finalConfirmBtn = document.getElementById("finalConfirmBtn");
+      const copyBtn = document.getElementById("copyBtn");
+
+      function initBuilder() {
+        SUBJECTS_DATA.forEach(row => {
+          const gNum = row.group_no;
+          const isComp = (row.type || '').toLowerCase() === 'compulsory';
+          
+          const subjectObj = { 
+            name: row.subject, 
+            marks: parseInt(row.marks, 10) || 100, 
+            recommended: row.recommended || "Any background" 
           };
-        }
-        GROUP_MAP[gNum].subjects.push(subjectObj);
-      });
+          
+          if (isComp) { 
+            COMPULSORY.push(subjectObj); 
+            return; 
+          }
+          
+          if (!GROUP_MAP[gNum]) {
+            GROUP_MAP[gNum] = { 
+              groupNumber: gNum, 
+              name: row.category, 
+              rule: getRuleForGroup(gNum), 
+              maxSubjects: gNum === "II" ? 2 : 1, 
+              maxMarks: gNum === "I" || gNum === "II" ? 200 : 100, 
+              subjects: [] 
+            };
+          }
+          GROUP_MAP[gNum].subjects.push(subjectObj);
+        });
 
-      GROUPS = Object.values(GROUP_MAP).sort((a, b) => a.groupNumber.localeCompare(b.groupNumber));
-      GROUPS.forEach(g => state[g.groupNumber] = []);
-      
-      isDataLoaded = true;
-      renderBGroups();
-      updateBUI();
-      
-      const g1 = document.querySelector('.b-group[data-group="I"]');
-      if (g1) g1.classList.add("open");
-    }
+        GROUPS = Object.values(GROUP_MAP).sort((a, b) => a.groupNumber.localeCompare(b.groupNumber));
+        GROUPS.forEach(g => state[g.groupNumber] = []);
+        
+        isDataLoaded = true;
+        renderBGroups();
+        updateBUI();
+        
+        const g1 = document.querySelector('.b-group[data-group="I"]');
+        if (g1) g1.classList.add("open");
+      }
 
-    function getRuleForGroup(g) {
-      if (g === "I") return "Select ONE (200 marks).";
-      if (g === "II") return "ONE 200-mark OR up to TWO 100-mark (max 200).";
-      return "Select ONE (100 marks).";
-    }
+      function getRuleForGroup(g) {
+        if (g === "I") return "Select ONE (200 marks).";
+        if (g === "II") return "ONE 200-mark OR up to TWO 100-mark (max 200).";
+        return "Select ONE (100 marks).";
+      }
 
-    const subj = (g, n) => GROUPS.find(x => x.groupNumber === g).subjects.find(s => s.name === n);
-    const groupMarks = g => state[g].reduce((s, n) => s + subj(g, n).marks, 0);
-    const optionalMarks = () => GROUPS.reduce((s, g) => s + groupMarks(g.groupNumber), 0);
-    const compulsoryMarks = () => COMPULSORY.reduce((s, c) => s + c.marks, 0);
-    const totalMarks = () => optionalMarks() + compulsoryMarks();
-    const totalCount = () => GROUPS.reduce((s, g) => s + state[g.groupNumber].length, 0) + COMPULSORY.length;
+      const subj = (g, n) => GROUPS.find(x => x.groupNumber === g).subjects.find(s => s.name === n);
+      const groupMarks = g => state[g].reduce((s, n) => s + subj(g, n).marks, 0);
+      const optionalMarks = () => GROUPS.reduce((s, g) => s + groupMarks(g.groupNumber), 0);
+      const compulsoryMarks = () => COMPULSORY.reduce((s, c) => s + c.marks, 0);
+      const totalMarks = () => optionalMarks() + compulsoryMarks();
+      const totalSubjectCount = () => GROUPS.reduce((s, g) => s + state[g.groupNumber].length, 0) + COMPULSORY.length; // Renamed
 
-    function getViolations() {
-      const v = [];
-      GROUPS.forEach(g => {
-        const sel = state[g.groupNumber]; if (!sel.length) return;
-        const m = groupMarks(g.groupNumber);
-        if (sel.length > g.maxSubjects) v.push({group: g.groupNumber, type: "count", message: `Group ${g.groupNumber}: ${sel.length} picked.`});
-        if (m > g.maxMarks) v.push({group: g.groupNumber, type: "marks", message: `Group ${g.groupNumber}: cap exceeded.`});
-        if (g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200)) v.push({group: "II", type: "mix", message: `Group II: invalid combination.`});
-      });
-      const optTotal = optionalMarks();
-      if (optTotal !== OPTIONAL_TARGET) v.push({group: null, type: "total", message: optTotal > OPTIONAL_TARGET ? `Over by ${optTotal-OPTIONAL_TARGET} marks.` : `Need ${OPTIONAL_TARGET-optTotal} more marks.`});
-      return v;
-    }
+      function getViolations() {
+        const v = [];
+        GROUPS.forEach(g => {
+          const sel = state[g.groupNumber]; if (!sel.length) return;
+          const m = groupMarks(g.groupNumber);
+          if (sel.length > g.maxSubjects) v.push({group: g.groupNumber, type: "count", message: `Group ${g.groupNumber}: ${sel.length} picked.`});
+          if (m > g.maxMarks) v.push({group: g.groupNumber, type: "marks", message: `Group ${g.groupNumber}: cap exceeded.`});
+          if (g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200)) v.push({group: "II", type: "mix", message: `Group II: invalid combination.`});
+        });
+        const optTotal = optionalMarks();
+        if (optTotal !== OPTIONAL_TARGET) v.push({group: null, type: "total", message: optTotal > OPTIONAL_TARGET ? `Over by ${optTotal-OPTIONAL_TARGET} marks.` : `Need ${OPTIONAL_TARGET-optTotal} more marks.`});
+        return v;
+      }
 
-    function violatingKeys() {
-      const keys = new Set();
-      GROUPS.forEach(g => {
-        const sel = state[g.groupNumber]; if (!sel.length) return;
-        if (sel.length > g.maxSubjects || groupMarks(g.groupNumber) > g.maxMarks || (g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200))) {
-          sel.forEach(n => keys.add(`${g.groupNumber}|${n}`));
-        }
-      });
-      return keys;
-    }
+      function violatingKeys() {
+        const keys = new Set();
+        GROUPS.forEach(g => {
+          const sel = state[g.groupNumber]; if (!sel.length) return;
+          if (sel.length > g.maxSubjects || groupMarks(g.groupNumber) > g.maxMarks || (g.groupNumber === "II" && sel.length > 1 && sel.some(n => subj("II", n).marks === 200))) {
+            sel.forEach(n => keys.add(`${g.groupNumber}|${n}`));
+          }
+        });
+        return keys;
+      }
 
-    function buildChips(ulEl, flagged, onRemove) {
-      ulEl.innerHTML = "";
-      let any = false;
-      COMPULSORY.forEach(c => {
-        any = true;
-        const li = document.createElement("li");
-        li.className = "comp";
-        li.innerHTML = `<span>Comp: ${c.name} (${c.marks})</span><span style="color:var(--muted); font-size:0.75rem;">Fixed</span>`;
-        ulEl.appendChild(li);
-      });
-      GROUPS.forEach(g => {
-        state[g.groupNumber].forEach(n => {
+      function buildChips(ulEl, flagged, onRemove) {
+        ulEl.innerHTML = "";
+        let any = false;
+        COMPULSORY.forEach(c => {
           any = true;
-          const s = subj(g.groupNumber, n);
           const li = document.createElement("li");
-          li.className = `g${g.groupNumber === 'I' ? 1 : g.groupNumber === 'II' ? 2 : g.groupNumber === 'III' ? 3 : g.groupNumber === 'IV' ? 4 : g.groupNumber === 'V' ? 5 : g.groupNumber === 'VI' ? 6 : 7}`;
-          if (flagged.has(`${g.groupNumber}|${n}`)) li.classList.add("violating");
-          li.innerHTML = `<span>G${g.groupNumber}: ${s.name} (${s.marks})</span><button class="rm">×</button>`;
-          li.querySelector(".rm").addEventListener("click", (e) => { e.stopPropagation(); onRemove(g.groupNumber, n); });
+          li.className = "comp";
+          li.innerHTML = `<span>Comp: ${c.name} (${c.marks})</span><span style="color:var(--muted); font-size:0.75rem;">Fixed</span>`;
           ulEl.appendChild(li);
         });
-      });
-      return any;
-    }
-
-    function renderBGroups() {
-      bGroupsEl.innerHTML = "";
-      
-      const compDiv = document.createElement("div");
-      compDiv.className = "b-group"; compDiv.id = "compGroup"; compDiv.style.display = showCompulsory ? "block" : "none";
-      compDiv.innerHTML = `
-        <div class="b-group-header"><span>Compulsory Subjects <small>Fixed (600 marks)</small></span><span class="chev">▶</span></div>
-        <div class="b-group-body"><div class="rule">All candidates must take these 6 subjects.</div></div>`;
-      compDiv.querySelector(".b-group-header").addEventListener("click", () => compDiv.classList.toggle("open"));
-      const compBody = compDiv.querySelector(".b-group-body");
-      COMPULSORY.forEach(s => {
-        const row = document.createElement("div"); row.className = "b-subject compulsory selected";
-        row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span><div class="b-rec-badge"><strong>Recommended:</strong> ${s.recommended}</div>`;
-        compBody.appendChild(row);
-      });
-      bGroupsEl.appendChild(compDiv);
-
-      GROUPS.forEach(g => {
-        const d = document.createElement("div"); d.className = "b-group"; d.dataset.group = g.groupNumber;
-        d.innerHTML = `
-          <div class="b-group-header"><span>Group ${g.groupNumber} — ${g.name} <small>${g.rule}</small></span><span class="chev">▶</span></div>
-          <div class="b-group-body"><div class="rule">${g.rule}</div><div class="rule-flag" data-flag="${g.groupNumber}" style="font-size:0.75rem; color:var(--danger); margin-bottom:6px;"></div></div>`;
-        d.querySelector(".b-group-header").addEventListener("click", () => d.classList.toggle("open"));
-        const body = d.querySelector(".b-group-body");
-        g.subjects.forEach(s => {
-          const row = document.createElement("div"); row.className = "b-subject"; row.dataset.group = g.groupNumber; row.dataset.subject = s.name;
-          row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span><div class="b-rec-badge"><strong>Recommended:</strong> ${s.recommended}</div>`;
-          row.addEventListener("click", () => toggleB(g.groupNumber, s.name));
-          body.appendChild(row);
+        GROUPS.forEach(g => {
+          state[g.groupNumber].forEach(n => {
+            any = true;
+            const s = subj(g.groupNumber, n);
+            const li = document.createElement("li");
+            li.className = `g${g.groupNumber === 'I' ? 1 : g.groupNumber === 'II' ? 2 : g.groupNumber === 'III' ? 3 : g.groupNumber === 'IV' ? 4 : g.groupNumber === 'V' ? 5 : g.groupNumber === 'VI' ? 6 : 7}`;
+            if (flagged.has(`${g.groupNumber}|${n}`)) li.classList.add("violating");
+            li.innerHTML = `<span>G${g.groupNumber}: ${s.name} (${s.marks})</span><button class="rm">×</button>`;
+            li.querySelector(".rm").addEventListener("click", (e) => { e.stopPropagation(); onRemove(g.groupNumber, n); });
+            ulEl.appendChild(li);
+          });
         });
-        bGroupsEl.appendChild(d);
+        return any;
+      }
+
+      function renderBGroups() {
+        bGroupsEl.innerHTML = "";
+        
+        const compDiv = document.createElement("div");
+        compDiv.className = "b-group"; compDiv.id = "compGroup"; compDiv.style.display = showCompulsory ? "block" : "none";
+        compDiv.innerHTML = `
+          <div class="b-group-header"><span>Compulsory Subjects <small>Fixed (600 marks)</small></span><span class="chev">▶</span></div>
+          <div class="b-group-body"><div class="rule">All candidates must take these 6 subjects.</div></div>`;
+        compDiv.querySelector(".b-group-header").addEventListener("click", () => compDiv.classList.toggle("open"));
+        const compBody = compDiv.querySelector(".b-group-body");
+        COMPULSORY.forEach(s => {
+          const row = document.createElement("div"); row.className = "b-subject compulsory selected";
+          row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span><div class="b-rec-badge"><strong>Recommended:</strong> ${s.recommended}</div>`;
+          compBody.appendChild(row);
+        });
+        bGroupsEl.appendChild(compDiv);
+
+        GROUPS.forEach(g => {
+          const d = document.createElement("div"); d.className = "b-group"; d.dataset.group = g.groupNumber;
+          d.innerHTML = `
+            <div class="b-group-header"><span>Group ${g.groupNumber} — ${g.name} <small>${g.rule}</small></span><span class="chev">▶</span></div>
+            <div class="b-group-body"><div class="rule">${g.rule}</div><div class="rule-flag" data-flag="${g.groupNumber}" style="font-size:0.75rem; color:var(--danger); margin-bottom:6px;"></div></div>`;
+          d.querySelector(".b-group-header").addEventListener("click", () => d.classList.toggle("open"));
+          const body = d.querySelector(".b-group-body");
+          g.subjects.forEach(s => {
+            const row = document.createElement("div"); row.className = "b-subject"; row.dataset.group = g.groupNumber; row.dataset.subject = s.name;
+            row.innerHTML = `<span>${s.name}</span><span class="marks">${s.marks}</span><div class="b-rec-badge"><strong>Recommended:</strong> ${s.recommended}</div>`;
+            row.addEventListener("click", () => toggleB(g.groupNumber, s.name));
+            body.appendChild(row);
+          });
+          bGroupsEl.appendChild(d);
+        });
+      }
+
+      function toggleB(g, n) {
+        const sel = state[g], i = sel.indexOf(n);
+        i === -1 ? sel.push(n) : sel.splice(i, 1);
+        updateBUI();
+      }
+
+      document.getElementById("toggleCompulsory").addEventListener("change", (e) => {
+        showCompulsory = e.target.checked;
+        document.getElementById("compGroup").style.display = showCompulsory ? "block" : "none";
+        if (showCompulsory) document.getElementById("compGroup").classList.add("open");
       });
-    }
 
-    function toggleB(g, n) {
-      const sel = state[g], i = sel.indexOf(n);
-      i === -1 ? sel.push(n) : sel.splice(i, 1);
-      updateBUI();
-    }
+      function updateBUI() {
+        if (!isDataLoaded) return;
+        const violations = getViolations(), flagged = violatingKeys();
+        const optTotal = optionalMarks(), fullTotal = totalMarks(), isValid = optTotal === OPTIONAL_TARGET;
 
-    document.getElementById("toggleCompulsory").addEventListener("change", (e) => {
-      showCompulsory = e.target.checked;
-      document.getElementById("compGroup").style.display = showCompulsory ? "block" : "none";
-      if (showCompulsory) document.getElementById("compGroup").classList.add("open");
-    });
+        stripLabel.textContent = showCompulsory ? "Total · Target 1200" : "Optional · Target 600";
+        totalPill.textContent = showCompulsory ? `${fullTotal} / ${TOTAL_TARGET}` : `${optTotal} / ${OPTIONAL_TARGET}`;
+        totalPill.className = `b-total-pill ${isValid ? 'ok' : (optTotal > OPTIONAL_TARGET ? 'over' : '')}`;
+        selectedStrip.classList.toggle("valid", isValid);
 
-    function updateBUI() {
-      if (!isDataLoaded) return;
-      const violations = getViolations(), flagged = violatingKeys();
-      const optTotal = optionalMarks(), fullTotal = totalMarks(), isValid = optTotal === OPTIONAL_TARGET;
+        document.querySelectorAll(".b-subject:not(.compulsory)").forEach(row => {
+          const g = row.dataset.group, s = row.dataset.subject;
+          const isSel = state[g].includes(s);
+          row.classList.toggle("selected", isSel);
+          row.classList.toggle("violating", isSel && flagged.has(`${g}|${s}`));
+        });
 
-      stripLabel.textContent = showCompulsory ? "Total · Target 1200" : "Optional · Target 600";
-      totalPill.textContent = showCompulsory ? `${fullTotal} / ${TOTAL_TARGET}` : `${optTotal} / ${OPTIONAL_TARGET}`;
-      totalPill.className = `b-total-pill ${isValid ? 'ok' : (optTotal > OPTIONAL_TARGET ? 'over' : '')}`;
-      selectedStrip.classList.toggle("valid", isValid);
+        GROUPS.forEach(g => {
+          const gd = document.querySelector(`.b-group[data-group="${g.groupNumber}"]`);
+          if (!gd) return;
+          const gv = violations.filter(v => v.group === g.groupNumber);
+          gd.classList.toggle("violation", gv.length > 0);
+          const flagEl = gd.querySelector(`.rule-flag`);
+          if (flagEl) flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
+        });
 
-      document.querySelectorAll(".b-subject:not(.compulsory)").forEach(row => {
-        const g = row.dataset.group, s = row.dataset.subject;
-        const isSel = state[g].includes(s);
-        row.classList.toggle("selected", isSel);
-        row.classList.toggle("violating", isSel && flagged.has(`${g}|${s}`));
+        statusEl.className = "b-status";
+        const tv = violations.find(v => v.type === "total"), rv = violations.filter(v => v.type !== "total");
+        if (isValid) { statusEl.classList.add("ok"); statusEl.textContent = "✅ Valid combination!"; }
+        else if (rv.length) { statusEl.classList.add("err"); statusEl.textContent = "❌ FPSC rule violation."; }
+        else { statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + (tv ? tv.message : ""); }
+
+        const any = buildChips(chosenListEl, flagged, (g, n) => { state[g] = state[g].filter(x => x !== n); updateBUI(); });
+        if (!any) chosenListEl.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
+        if (finalOverlay.classList.contains("active")) renderFinal();
+      }
+
+      function renderFinal() {
+        const violations = getViolations(), flagged = violatingKeys();
+        const optTotal = optionalMarks(), fullTotal = totalMarks(), count = totalSubjectCount(), isValid = optTotal === OPTIONAL_TARGET;
+
+        finalTotal.textContent = `${fullTotal} / ${TOTAL_TARGET}`;
+        finalCount.textContent = `${count}`;
+        
+        const any = buildChips(finalList, flagged, (g, n) => { state[g] = state[g].filter(x => x !== n); updateBUI(); renderFinal(); });
+        if (!any) finalList.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
+
+        const tv = violations.find(v => v.type === "total"), rv = violations.filter(v => v.type !== "total");
+        if (isValid) { finalStatus.className = "b-status ok"; finalStatus.textContent = "✅ 600 optional + 600 compulsory = 1200 marks! Ready."; }
+        else if (rv.length) { finalStatus.className = "b-status err"; finalStatus.textContent = "❌ FPSC rule violation — remove red items."; }
+        else { finalStatus.className = "b-status warn"; finalStatus.textContent = "⚠ " + (tv ? tv.message : ""); }
+
+        finalConfirmBtn.disabled = !isValid;
+        copyBtn.disabled = totalSubjectCount() === 0;
+      }
+
+      copyBtn.addEventListener("click", async () => {
+        let lines = ["CSS Final Choice\n====================", "\n[ Compulsory ]"];
+        COMPULSORY.forEach(c => lines.push(`- ${c.name} (${c.marks})`));
+        lines.push("\n[ Optional ]");
+        GROUPS.forEach(g => state[g.groupNumber].forEach(n => lines.push(`- G${g.groupNumber}: ${subj(g.groupNumber, n).name} (${subj(g.groupNumber, n).marks})`)));
+        lines.push(`\nTotal: ${totalMarks()} / 1200`);
+        
+        try { 
+          await navigator.clipboard.writeText(lines.join("\n")); 
+          copyBtn.textContent = "✓ Copied!";
+          setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy List', 1500);
+        } catch(e) { alert(lines.join("\n")); }
       });
 
-      GROUPS.forEach(g => {
-        const gd = document.querySelector(`.b-group[data-group="${g.groupNumber}"]`);
-        if (!gd) return;
-        const gv = violations.filter(v => v.group === g.groupNumber);
-        gd.classList.toggle("violation", gv.length > 0);
-        const flagEl = gd.querySelector(`.rule-flag`);
-        if (flagEl) flagEl.textContent = gv.length ? "⚠ " + gv.map(v => v.message).join(" ") : "";
+      selectedStrip.addEventListener("click", () => {
+        renderFinal(); finalOverlay.classList.add("active");
+      });
+      document.getElementById("finalCloseBtn").addEventListener("click", () => finalOverlay.classList.remove("active"));
+      finalConfirmBtn.addEventListener("click", () => {
+        if (optionalMarks() !== OPTIONAL_TARGET) return;
+        finalOverlay.classList.remove("active");
+        selectedStrip.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.5)";
+        setTimeout(() => selectedStrip.style.boxShadow = "", 600);
       });
 
-      statusEl.className = "b-status";
-      const tv = violations.find(v => v.type === "total"), rv = violations.filter(v => v.type !== "total");
-      if (isValid) { statusEl.classList.add("ok"); statusEl.textContent = "✅ Valid combination!"; }
-      else if (rv.length) { statusEl.classList.add("err"); statusEl.textContent = "❌ FPSC rule violation."; }
-      else { statusEl.classList.add("warn"); statusEl.textContent = "⚠ " + (tv ? tv.message : ""); }
+      document.getElementById("expandAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.add("open")));
+      document.getElementById("collapseAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.remove("open")));
+      document.getElementById("resetBtn").addEventListener("click", () => { GROUPS.forEach(g => state[g.groupNumber] = []); updateBUI(); });
 
-      const any = buildChips(chosenListEl, flagged, (g, n) => { state[g] = state[g].filter(x => x !== n); updateBUI(); });
-      if (!any) chosenListEl.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
-      if (finalOverlay.classList.contains("active")) renderFinal();
-    }
-
-    function renderFinal() {
-      const violations = getViolations(), flagged = violatingKeys();
-      const optTotal = optionalMarks(), fullTotal = totalMarks(), count = totalCount(), isValid = optTotal === OPTIONAL_TARGET;
-
-      finalTotal.textContent = `${fullTotal} / ${TOTAL_TARGET}`;
-      finalCount.textContent = `${count}`;
-      
-      const any = buildChips(finalList, flagged, (g, n) => { state[g] = state[g].filter(x => x !== n); updateBUI(); renderFinal(); });
-      if (!any) finalList.innerHTML = `<li class="empty">No subjects selected yet.</li>`;
-
-      const tv = violations.find(v => v.type === "total"), rv = violations.filter(v => v.type !== "total");
-      if (isValid) { finalStatus.className = "b-status ok"; finalStatus.textContent = "✅ 600 optional + 600 compulsory = 1200 marks! Ready."; }
-      else if (rv.length) { finalStatus.className = "b-status err"; finalStatus.textContent = "❌ FPSC rule violation — remove red items."; }
-      else { finalStatus.className = "b-status warn"; finalStatus.textContent = "⚠ " + (tv ? tv.message : ""); }
-
-      finalConfirmBtn.disabled = !isValid;
-      copyBtn.disabled = totalCount() === 0;
-    }
-
-    copyBtn.addEventListener("click", async () => {
-      let lines = ["CSS Final Choice\n====================", "\n[ Compulsory ]"];
-      COMPULSORY.forEach(c => lines.push(`- ${c.name} (${c.marks})`));
-      lines.push("\n[ Optional ]");
-      GROUPS.forEach(g => state[g.groupNumber].forEach(n => lines.push(`- G${g.groupNumber}: ${subj(g.groupNumber, n).name} (${subj(g.groupNumber, n).marks})`)));
-      lines.push(`\nTotal: ${totalMarks()} / 1200`);
-      
-      try { 
-        await navigator.clipboard.writeText(lines.join("\n")); 
-        copyBtn.textContent = "✓ Copied!";
-        setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy List', 1500);
-      } catch(e) { alert(lines.join("\n")); }
-    });
-
-    selectedStrip.addEventListener("click", () => {
-      renderFinal(); finalOverlay.classList.add("active");
-    });
-    document.getElementById("finalCloseBtn").addEventListener("click", () => finalOverlay.classList.remove("active"));
-    finalConfirmBtn.addEventListener("click", () => {
-      if (optionalMarks() !== OPTIONAL_TARGET) return;
-      finalOverlay.classList.remove("active");
-      selectedStrip.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.5)";
-      setTimeout(() => selectedStrip.style.boxShadow = "", 600);
-    });
-
-    document.getElementById("expandAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.add("open")));
-    document.getElementById("collapseAllBtn").addEventListener("click", () => document.querySelectorAll(".b-group").forEach(g => g.classList.remove("open")));
-    document.getElementById("resetBtn").addEventListener("click", () => { GROUPS.forEach(g => state[g.groupNumber] = []); updateBUI(); });
-
-    // Initialize the builder
-    initBuilder();
+      // Initialize the builder
+      initBuilder();
+    })();
   </script>
 </body>
 </html>
